@@ -31,3 +31,6 @@ export function isConnectFourArea(
 ): interactable is GameArea<ConnectFourGameState> {
   return interactable.type === 'ConnectFourArea';
 }
+export function isUndercookedArea(interactable: Interactable): interactable is GameArea<any> {
+  return interactable.type === 'UndercookedArea';
+}
