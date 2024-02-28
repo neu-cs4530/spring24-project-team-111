@@ -14,7 +14,7 @@ export default function UndercookedMap({
   useEffect(() => {
     const config = {
       type: Phaser.AUTO,
-      backgroundColor: '#000000',
+      backgroundColor: '#ffffff',
       parent: 'undercooked-map-container',
       render: { pixelArt: true, powerPreference: 'high-performance' },
       width: 760,
