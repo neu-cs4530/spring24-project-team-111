@@ -187,10 +187,6 @@ export interface UndercookedGameState extends ScorableGameState {
   twoReady: boolean = false;
   // Current time of the game in seconds
   currentTime?: date;
-  // Current Recipe
-  recipe?: UndercookedRecipe;
-  // Current assembled ingredients
-  assembledIngredients: UndercookedIngredient[] = [];
 }
 
 /**
@@ -198,7 +194,8 @@ export interface UndercookedGameState extends ScorableGameState {
  * It's a combination of the player and the gamepiece they are holding
  */
 export interface UndercookedPlayer {
-  player: Player;
+  id: PlayerID;
+  location: PlayerLocation;
   holding?: UndercookedGamepiece | undefined;
 }
 
@@ -217,7 +214,10 @@ export interface UndercookedStation {
 /**
  * To represent an Undercooked game move. Note that this is just a placeholder.
  */
-export interface UndercookedMove {}
+export interface UndercookedMove {
+  playerChar: UndercookedPlayer,
+  assymbledIngredients: UndercookedIngredient[],
+}
 
 export type UndercookedStationID = string;
 export type UndercookedGamepiece = UndercookedIngredient | undefined;
