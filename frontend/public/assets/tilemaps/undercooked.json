@@ -24,6 +24,12 @@
          "locked":true,
          "name":"Walls",
          "opacity":1,
+         "properties":[
+                {
+                 "name":"collides",
+                 "type":"bool",
+                 "value":true
+                }],
          "type":"tilelayer",
          "visible":true,
          "width":24,
@@ -149,7 +155,7 @@
         {
          "columns":16,
          "firstgid":1,
-         "image":"..\/..\/..\/ip2\/frontend\/public\/assets\/tilesets\/12_Kitchen_32x32.png",
+         "image":"..\/tilesets\/12_Kitchen_32x32.png",
          "imageheight":1568,
          "imagewidth":512,
          "margin":0,
@@ -162,7 +168,7 @@
         {
          "columns":76,
          "firstgid":785,
-         "image":"..\/..\/..\/ip2\/frontend\/public\/assets\/tilesets\/Room_Builder_32x32.png",
+         "image":"..\/tilesets\/Room_Builder_32x32.png",
          "imageheight":3488,
          "imagewidth":2432,
          "margin":0,
@@ -170,6 +176,97 @@
          "spacing":0,
          "tilecount":8284,
          "tileheight":32,
+         "tiles":[
+                {
+                 "id":4158,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4161,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4234,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4237,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4310,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4311,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4313,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4388,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4538,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":4540,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }],
          "tilewidth":32
         }],
  "tilewidth":32,

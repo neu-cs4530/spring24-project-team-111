@@ -96,7 +96,7 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
         </AccordionItem>
       </Accordion>
       <Flex>
-        <Box>
+        <Box flex={2}>
           {gameAreaController.toInteractableAreaModel().type === 'ConnectFourArea' ? (
             <ConnectFourArea interactableID={interactableID} />
           ) : gameAreaController.toInteractableAreaModel().type === 'TicTacToeArea' ? (
@@ -111,6 +111,7 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
           style={{
             height: '400px',
             overflowY: 'scroll',
+            flex: 1,
           }}>
           <div
             style={{
@@ -141,9 +142,16 @@ export default function GameAreaWrapper(): JSX.Element {
       controller.leaveGame();
     }
   }, [townController, gameArea]);
+
+  // undercooked area needs a bigger window.
+  const gameType = gameArea
+    ? townController.getGameAreaController(gameArea).toInteractableAreaModel().type
+    : undefined;
+  const windowSize = gameType === 'UndercookedArea' ? 'full' : 'xl';
+
   if (gameArea) {
     return (
-      <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false} size='xl'>
+      <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false} size={windowSize}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{gameArea.name}</ModalHeader>

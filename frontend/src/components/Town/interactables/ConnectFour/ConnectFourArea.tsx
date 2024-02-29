@@ -59,6 +59,7 @@ export default function ConnectFourArea({
 
   const [gameStatus, setGameStatus] = useState<GameStatus>(gameAreaController.status);
   const [moveCount, setMoveCount] = useState<number>(gameAreaController.moveCount);
+
   const toast = useToast();
   useEffect(() => {
     const updateGameState = () => {
