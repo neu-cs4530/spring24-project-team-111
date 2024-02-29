@@ -4,7 +4,7 @@ import { useInteractableAreaController } from '../../../../classes/TownControlle
 import { InteractableID } from '../../../../types/CoveyTownSocket';
 import UndercookedGameScene from './UndercookedGameScene';
 
-export default function UndercookedMap({
+export default function UndercookedArea({
   interactableID,
 }: {
   interactableID: InteractableID;
