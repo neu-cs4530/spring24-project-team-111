@@ -1,26 +1,11 @@
 import InvalidParametersError, {
-  BOARD_POSITION_NOT_VALID_MESSAGE,
   GAME_FULL_MESSAGE,
-  GAME_NOT_IN_PROGRESS_MESSAGE,
   GAME_NOT_STARTABLE_MESSAGE,
-  MOVE_NOT_YOUR_TURN_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
-import {
-  UndercookedGameState,
-  UndercookedGamepiece,
-  UndercookedIngredient,
-  UndercookedMove,
-  UndercookedPlayer,
-  UndercookedRecipe,
-  UndercookedStation,
-  UndercookedStationID,
-  UndercookedStationType,
-  GameMove,
-  PlayerID,
-} from '../../types/CoveyTownSocket';
+import { UndercookedGameState, UndercookedMove, GameMove } from '../../types/CoveyTownSocket';
 import Game from './Game';
 
 export default class UndercookedGame extends Game<UndercookedGameState, UndercookedMove> {
