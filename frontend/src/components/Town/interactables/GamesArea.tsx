@@ -144,9 +144,9 @@ export default function GameAreaWrapper(): JSX.Element {
   }, [townController, gameArea]);
 
   // undercooked area needs a bigger window.
-  const gameType = gameArea
-    ? townController.getGameAreaController(gameArea).toInteractableAreaModel().type
-    : undefined;
+  const gameType =
+    (gameArea && townController.getGameAreaController(gameArea).toInteractableAreaModel().type) ||
+    undefined;
   const windowSize = gameType === 'UndercookedArea' ? 'full' : 'xl';
 
   if (gameArea) {

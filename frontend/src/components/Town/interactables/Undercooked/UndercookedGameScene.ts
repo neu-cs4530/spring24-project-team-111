@@ -1,5 +1,6 @@
 import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
 import PlayerController from '../../../../classes/PlayerController';
+import Phaser from 'phaser';
 
 export default class UndercookedGameScene extends Phaser.Scene {
   private _resourcePathPrefix: string;
