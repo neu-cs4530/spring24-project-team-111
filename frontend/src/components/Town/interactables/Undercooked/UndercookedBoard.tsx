@@ -7,8 +7,6 @@ export default function UndercookedBoard({
 }: {
   gameAreaController: UndercookedAreaController;
 }): JSX.Element {
-  // const controller = useInteractableAreaController<UndercookedAreaController>(interactableID);
-
   useEffect(() => {
     const config = {
       type: Phaser.AUTO,
