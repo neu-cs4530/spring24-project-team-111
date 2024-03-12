@@ -15,9 +15,9 @@ export type TownJoinResponse = {
   isPubliclyListed: boolean;
   /** Current state of interactables in this town */
   interactables: TypedInteractable[];
-}
+};
 
-export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'UndercookedArea';
 export interface Interactable {
   type: InteractableType;
   id: InteractableID;
@@ -27,7 +27,7 @@ export interface Interactable {
 export type TownSettingsUpdate = {
   friendlyName?: string;
   isPubliclyListed?: boolean;
-}
+};
 
 export type Direction = 'front' | 'back' | 'left' | 'right';
 
@@ -36,9 +36,9 @@ export interface Player {
   id: PlayerID;
   userName: string;
   location: PlayerLocation;
-};
+}
 
-export type XY = { x: number, y: number };
+export type XY = { x: number; y: number };
 
 export interface PlayerLocation {
   /* The CENTER x coordinate of this player's location */
@@ -49,7 +49,7 @@ export interface PlayerLocation {
   rotation: Direction;
   moving: boolean;
   interactableID?: string;
-};
+}
 export type ChatMessage = {
   author: string;
   sid: string;
@@ -60,13 +60,13 @@ export type ChatMessage = {
 
 export interface ConversationArea extends Interactable {
   topic?: string;
-};
+}
 export interface BoundingBox {
   x: number;
   y: number;
   width: number;
   height: number;
-};
+}
 
 export interface ViewingArea extends Interactable {
   video?: string;
@@ -80,13 +80,19 @@ export type GameStatus = 'IN_PROGRESS' | 'WAITING_TO_START' | 'OVER' | 'WAITING_
  */
 export interface GameState {
   status: GameStatus;
-} 
+}
 
 /**
  * Type for the state of a game that can be won
  */
 export interface WinnableGameState extends GameState {
   winner?: PlayerID;
+}
+/**
+ * Type for the state of a game that can be scored
+ */
+export interface ScorableGameState extends GameState {
+  score: number = 0;
 }
 /**
  * Base type for a move in a game. Implementers should also extend MoveType
@@ -161,6 +167,62 @@ export type ConnectFourColIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type ConnectFourColor = 'Red' | 'Yellow';
 
+/**
+ * Type for the state of an Undercooked game.
+ * The state of the game is represented as the number of completed recipes, progress on the current recipe,
+ * and the playerIDs of the players
+ */
+export interface UndercookedGameState extends ScorableGameState {
+  // The playerID of the first player
+  playerOne?: PlayerID;
+  // The playerID of the second player
+  playerTwo?: PlayerID;
+  // Whether player 1 is ready to start the game, defaulted to false
+  oneReady: boolean = false;
+  // Whether player 2 is ready to start the game, defaulted to false
+  twoReady: boolean = false;
+  // Current time of the game in seconds
+  currentTime?: date;
+  // Current Recipe
+  recipe?: UndercookedRecipe;
+  // Current assembled ingredients
+  assembledIngredients: UndercookedIngredient[] = [];
+}
+
+/**
+ * Type for a player in the Undercooked Game.
+ * It's a combination of the player and the gamepiece they are holding
+ */
+export interface UndercookedPlayer {
+  player: Player;
+  holding?: UndercookedGamepiece | undefined;
+}
+
+/**
+ * Type for a station in the Undercooked Game.
+ * An invoke method will be dynamically dispatched to the station to perform the action of the station
+ */
+export interface UndercookedStation {
+  id: UndercookedStationID;
+  type: UndercookedStationType;
+  friendlyName: string;
+
+  public invoke(player: UndercookedPlayer): void; // invoke the action of the station depending on the type of the station
+}
+
+/**
+ * To represent an Undercooked game move. Note that this is just a placeholder.
+ */
+export interface UndercookedMove {
+  move: string // this is a stub
+}
+
+export type UndercookedStationID = string;
+export type UndercookedGamepiece = UndercookedIngredient | undefined;
+export type UndercookedIngredient = 'Chicken' | 'Rice' | 'Egg' | 'Pasta' | 'Salad'; // add more later
+export type UndercookedRecipe = UndercookedIngredient[];
+export type UndercookedStationType = 'Ingredient' | 'Trash' | 'Assembly';
+
 export type InteractableID = string;
 export type GameInstanceID = string;
 
@@ -216,8 +278,14 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand;
-export interface ViewingAreaUpdateCommand  {
+export type InteractableCommand =
+  | ViewingAreaUpdateCommand
+  | JoinGameCommand
+  | GameMoveCommand<TicTacToeMove>
+  | GameMoveCommand<ConnectFourMove>
+  | StartGameCommand
+  | LeaveGameCommand;
+export interface ViewingAreaUpdateCommand {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
 }
@@ -237,19 +305,23 @@ export interface GameMoveCommand<MoveType> {
   gameID: GameInstanceID;
   move: MoveType;
 }
-export type InteractableCommandReturnType<CommandType extends InteractableCommand> = 
-  CommandType extends JoinGameCommand ? { gameID: string}:
-  CommandType extends ViewingAreaUpdateCommand ? undefined :
-  CommandType extends GameMoveCommand<TicTacToeMove> ? undefined :
-  CommandType extends LeaveGameCommand ? undefined :
-  never;
+export type InteractableCommandReturnType<CommandType extends InteractableCommand> =
+  CommandType extends JoinGameCommand
+    ? { gameID: string }
+    : CommandType extends ViewingAreaUpdateCommand
+    ? undefined
+    : CommandType extends GameMoveCommand<TicTacToeMove>
+    ? undefined
+    : CommandType extends LeaveGameCommand
+    ? undefined
+    : never;
 
 export type InteractableCommandResponse<MessageType> = {
   commandID: CommandID;
   interactableID: InteractableID;
   error?: string;
   payload?: InteractableCommandResponseMap[MessageType];
-}
+};
 
 export interface ServerToClientEvents {
   playerMoved: (movedPlayer: Player) => void;

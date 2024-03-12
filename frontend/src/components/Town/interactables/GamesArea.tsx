@@ -27,6 +27,7 @@ import ConnectFourArea from './ConnectFour/ConnectFourArea';
 import GameAreaInteractable from './GameArea';
 import Leaderboard from './Leaderboard';
 import TicTacToeArea from './TicTacToe/TicTacToeArea';
+import UndercookedArea from './Undercooked/UndercookedArea';
 
 export const INVALID_GAME_AREA_TYPE_MESSAGE = 'Invalid game area type';
 
@@ -81,8 +82,8 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
             <AccordionButton>
               <Box as='span' flex='1' textAlign='left'>
                 Current Observers
-                <AccordionIcon />
               </Box>
+              <AccordionIcon />
             </AccordionButton>
           </Heading>
           <AccordionPanel>
@@ -95,11 +96,13 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
         </AccordionItem>
       </Accordion>
       <Flex>
-        <Box>
+        <Box flex={2}>
           {gameAreaController.toInteractableAreaModel().type === 'ConnectFourArea' ? (
             <ConnectFourArea interactableID={interactableID} />
           ) : gameAreaController.toInteractableAreaModel().type === 'TicTacToeArea' ? (
             <TicTacToeArea interactableID={interactableID} />
+          ) : gameAreaController.toInteractableAreaModel().type === 'UndercookedArea' ? (
+            <UndercookedArea interactableID={interactableID} />
           ) : (
             <>{INVALID_GAME_AREA_TYPE_MESSAGE}</>
           )}
@@ -108,6 +111,7 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
           style={{
             height: '400px',
             overflowY: 'scroll',
+            flex: 1,
           }}>
           <div
             style={{
@@ -138,9 +142,15 @@ export default function GameAreaWrapper(): JSX.Element {
       controller.leaveGame();
     }
   }, [townController, gameArea]);
+
+  // undercooked area needs a bigger window.
+  const gameType =
+    gameArea && townController.getGameAreaController(gameArea).toInteractableAreaModel().type;
+  const windowSize = gameType === 'UndercookedArea' ? 'full' : 'xl';
+
   if (gameArea) {
     return (
-      <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false} size='xl'>
+      <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false} size={windowSize}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{gameArea.name}</ModalHeader>
