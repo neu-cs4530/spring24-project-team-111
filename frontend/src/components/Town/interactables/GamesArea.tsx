@@ -82,8 +82,8 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
             <AccordionButton>
               <Box as='span' flex='1' textAlign='left'>
                 Current Observers
-                <AccordionIcon />
               </Box>
+              <AccordionIcon />
             </AccordionButton>
           </Heading>
           <AccordionPanel>
