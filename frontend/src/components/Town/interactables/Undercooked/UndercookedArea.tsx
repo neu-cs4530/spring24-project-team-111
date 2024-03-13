@@ -71,7 +71,7 @@ export default function UndercookedArea({
             {gameStatus}
           </Text>
         </Heading>
-        <Flex mt={1} justifyContent='space-between' alignItems='center'>
+        <Flex mt={2} justifyContent='space-between' alignItems='center'>
           <Flex gap={2} alignItems='center'>
             <Heading as='h3' size='sm'>
               Chefs
