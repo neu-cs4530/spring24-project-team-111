@@ -13,8 +13,8 @@ export default function UndercookedBoard({
       backgroundColor: '#ffffff',
       parent: 'undercooked-map-container',
       render: { pixelArt: true, powerPreference: 'high-performance' },
-      width: 760,
-      height: 512,
+      width: 768,
+      height: 492,
       physics: {
         default: 'arcade',
         arcade: {
@@ -28,5 +28,5 @@ export default function UndercookedBoard({
     game.scene.add('undercookedBoard', newGameScene, true);
   }, [gameAreaController]);
 
-  return <div id='undercooked-map-container' />;
+  return <div style={{ marginTop: 8 }} id='undercooked-map-container' />;
 }
