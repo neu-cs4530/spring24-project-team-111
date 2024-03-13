@@ -8,7 +8,7 @@ import { ConnectFourEvents } from './ConnectFourAreaController';
 import GameAreaController from './GameAreaController';
 
 /**
- * This class is responsible for managing the state of the Connect Four game,
+ * This class is responsible for managing the state of the Undercooked game,
  * and for sending commands to the server
  */
 export default class UndercookedAreaController extends GameAreaController<
