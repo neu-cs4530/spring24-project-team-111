@@ -1,42 +1,54 @@
+import { nanoid } from 'nanoid';
 import { Player as PlayerModel, PlayerLocation } from '../types/CoveyTownSocket';
 
 /**
- * Each user who is connected to a town is represented by a Player object
+ * Each user who is connected to a game is representaed by a GamePlayer object.
+ * This object is used to manage the player's location and other game-related data.
+ * We give the user a new ingame id to avoid clashes when broadcasting events to the clients.
  */
 export default class GamePlayer {
-  /** The current location of this user in the game map * */
   public location: PlayerLocation;
 
-  /** The unique identifier for this player * */
   private readonly _id: string;
 
-  /** The player's username, which is not guaranteed to be unique within the game * */
   private readonly _userName: string;
 
-  constructor(username: string, id: string) {
+  private readonly _inGameId: string;
+
+  constructor(username: string, playerId: string) {
     this.location = {
       x: 0,
       y: 0,
       moving: false,
       rotation: 'front',
     };
+    this._id = playerId;
     this._userName = username;
-    this._id = id;
+    this._inGameId = nanoid();
   }
 
-  get userName(): string {
+  public get userName(): string {
     return this._userName;
   }
 
-  get id(): string {
+  public get id(): string {
     return this._id;
   }
 
-  toPlayerModel(): PlayerModel {
+  public get inGameId(): string {
+    return this._inGameId;
+  }
+
+  /**
+   * Creates a player model for the in-game character.
+   *
+   * @returns The player model of the in-game character.
+   */
+  public toPlayerModel(): PlayerModel {
     return {
-      id: this._id,
+      id: this.inGameId,
       location: this.location,
-      userName: this._userName,
+      userName: this.userName,
     };
   }
 }

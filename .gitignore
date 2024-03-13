@@ -118,4 +118,5 @@ ngrok.yml
 # Local Netlify folder
 .netlify
 
+# Mac
 *.DS_Store

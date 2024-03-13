@@ -1,30 +1,34 @@
-import { BroadcastOperator } from 'socket.io';
 import {
-  GameSocket,
   PlayerLocation,
-  ServerToClientEvents,
-  SocketData,
+  CoveyTownSocket as GameSocket,
+  TownEmitter as GameEmitter,
 } from '../../types/CoveyTownSocket';
 import { logError } from '../../Utils';
 import GamePlayer from '../../lib/GamePlayer';
 
+type LocationMutator = (newLocation: PlayerLocation) => void;
+
 /**
- * Manages the movement and motions of a player inside a game.
- * Manages any event related to the player's movement inside a game.
+ * Updates and handles the movement of players in the game.
  */
 export default class GameMotionManager {
-  private _players: Map<GamePlayer, GameSocket> = new Map();
+  private _playerSockets: Map<GamePlayer, GameSocket> = new Map();
 
-  private _broadcastEmitter: BroadcastOperator<ServerToClientEvents, SocketData>;
+  private _playerHandlers: Map<GamePlayer, LocationMutator> = new Map();
 
-  private _connectedSockets: Set<GameSocket> = new Set();
+  // the emitter should be a room that targets the game that the manager is managing.
+  private _broadcastEmitter: GameEmitter;
 
-  constructor(broadcastEmitter: BroadcastOperator<ServerToClientEvents, SocketData>) {
+  constructor(broadcastEmitter: GameEmitter) {
     this._broadcastEmitter = broadcastEmitter;
   }
 
   get players(): GamePlayer[] {
-    return [...this._players.keys()];
+    return [...this._playerSockets.keys()];
+  }
+
+  public isWatching(player: GamePlayer): boolean {
+    return this._playerHandlers.has(player);
   }
 
   /**
@@ -32,20 +36,63 @@ export default class GameMotionManager {
    *
    * @param player The player to add to the manager.
    */
-  public addPlayer(player: GamePlayer, socket: GameSocket): void {
-    this._players.set(player, socket);
+  public register(player: GamePlayer, socket: GameSocket): void {
+    this._playerSockets.set(player, socket);
   }
 
   /**
    * Removes a player from the manager if the manager has the player listed.
+   * IF any listeners are associated with the player, they are removed as well.
    *
    * @param player The player to remove from the manager.
    */
-  public removePlayer(player: GamePlayer): void {
-    const socket = this._players.get(player);
-    if (socket) {
-      this._connectedSockets.delete(socket);
-      this._players.delete(player);
+  public deregister(player: GamePlayer): void {
+    const handler = this._playerHandlers.get(player);
+    if (handler) {
+      this.stopWatching(player);
+    }
+    this._playerSockets.delete(player);
+  }
+
+  /**
+   * Removes all players from the manager and any listeners associated with
+   * the manager.
+   */
+  public deregisterAll(): void {
+    this._playerSockets.forEach((socket, player) => {
+      const handler = this._playerHandlers.get(player);
+      if (handler) {
+        socket.removeListener('playerMovement', handler);
+      }
+    });
+    this._playerSockets.clear();
+  }
+
+  /**
+   * Starts tracking the movement of a player by adding an event listener.
+   *
+   * @param player The player to track.
+   */
+  public async watch(player: GamePlayer): Promise<void> {
+    const handler = (newLocation: PlayerLocation) => {
+      this._updatePlayerLocation(player, newLocation);
+    };
+    if (!this._playerHandlers.has(player)) {
+      this._playerHandlers.set(player, handler);
+      this._playerSockets.get(player)?.on('playerMovement', handler);
+    }
+  }
+
+  /**
+   * Stops tracking the movement of a player by removing the event listener.
+   *
+   * @param player The player to stop tracking.
+   */
+  public stopWatching(player: GamePlayer): void {
+    const handler = this._playerHandlers.get(player);
+    if (handler) {
+      this._playerSockets.get(player)?.removeListener('playerMovement', handler);
+      this._playerHandlers.delete(player);
     }
   }
 
@@ -54,16 +101,18 @@ export default class GameMotionManager {
    * socket. If the client updates their location, inform the corresponding
    * controller about the updated location.
    */
-  async beginTracking(): Promise<void> {
-    this._players.forEach((socket, player) => {
-      this._connectedSockets.add(socket);
-      socket.on('playerMovement', (newLocation: PlayerLocation) => {
-        try {
-          this._updatePlayerLocation(player, newLocation);
-        } catch (err) {
-          logError(err);
-        }
-      });
+  public async watchAll(): Promise<void> {
+    this._playerSockets.forEach((_, player) => {
+      this.watch(player).catch(err => logError(err));
+    });
+  }
+
+  /**
+   * Stop tracking location data by removing the event listeners.
+   */
+  public async stopWatchingAll(): Promise<void> {
+    this._playerSockets.forEach((_, player) => {
+      this.stopWatching(player);
     });
   }
 
