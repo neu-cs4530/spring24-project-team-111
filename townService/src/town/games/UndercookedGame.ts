@@ -1,26 +1,19 @@
 import InvalidParametersError, {
-  BOARD_POSITION_NOT_VALID_MESSAGE,
   GAME_FULL_MESSAGE,
   GAME_NOT_IN_PROGRESS_MESSAGE,
   GAME_NOT_STARTABLE_MESSAGE,
-  MOVE_NOT_YOUR_TURN_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
   UndercookedGameState,
-  UndercookedGamepiece,
   UndercookedIngredient,
   UndercookedMove,
   UndercookedPlayer,
   UndercookedRecipe,
   UndercookedStation,
-  UndercookedStationID,
-  UndercookedStationType,
   GameMove,
-  PlayerID,
-  Direction,
 } from '../../types/CoveyTownSocket';
 import Game from './Game';
 import UndercookedIngredientStation from './UndercookedIngredientStation';
@@ -40,6 +33,7 @@ export default class UndercookedGame extends Game<UndercookedGameState, Undercoo
       oneReady: false,
       twoReady: false,
       score: 0,
+      assembledIngredients: [],
     });
     this._recipe = [];
     this._stations = [];
@@ -124,18 +118,18 @@ export default class UndercookedGame extends Game<UndercookedGameState, Undercoo
       throw new InvalidParametersError(GAME_NOT_STARTABLE_MESSAGE);
     }
 
-    // initializaing the players
-    this._playerOne = {
-      id: this.state.playerOne,
-      location: { x: 0, y: 0, rotation: 'front', moving: false }, // change x and y
-      holding: undefined,
-    };
+    // // initializaing the players
+    // this._playerOne = {
+    //   id: this.state.playerOne,
+    //   location: { x: 0, y: 0, rotation: 'front', moving: false }, // change x and y
+    //   holding: undefined,
+    // };
 
-    this._playerTwo = {
-      id: this.state.playerTwo,
-      location: { x: 0, y: 0, rotation: 'front', moving: false }, // change x and y
-      holding: undefined,
-    };
+    // this._playerTwo = {
+    //   id: this.state.playerTwo,
+    //   location: { x: 0, y: 0, rotation: 'front', moving: false }, // change x and y
+    //   holding: undefined,
+    // };
 
     this._generateRecipe(3); // 3 is the recipe length, can be changed later
     this._generateStations();
