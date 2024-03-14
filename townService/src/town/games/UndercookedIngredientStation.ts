@@ -16,7 +16,7 @@ export default class UndercookedIngredientStation implements UndercookedStation 
   ingredient: UndercookedIngredient;
 
   public invoke(player: UndercookedPlayer): void {
-    throw new Error('Method not implemented.');
+    player.holding = this.ingredient;
   }
 
   constructor(id: UndercookedStationID, ingredient: UndercookedIngredient, friendlyName: string) {
