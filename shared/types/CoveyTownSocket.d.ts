@@ -17,11 +17,8 @@ export type TownJoinResponse = {
   interactables: TypedInteractable[];
 };
 
-export type InteractableType =
-  | 'ConversationArea'
-  | 'ViewingArea'
-  | 'TicTacToeArea'
-  | 'ConnectFourArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'UndercookedArea';
+
 export interface Interactable {
   type: InteractableType;
   id: InteractableID;
@@ -187,6 +184,10 @@ export interface UndercookedGameState extends ScorableGameState {
   twoReady: boolean = false;
   // Current time of the game in seconds
   currentTime?: date;
+  // Current Recipe
+  recipe?: UndercookedRecipe;
+  // Current assembled ingredients
+  assembledIngredients: UndercookedIngredient[] = [];
 }
 
 /**
@@ -194,8 +195,7 @@ export interface UndercookedGameState extends ScorableGameState {
  * It's a combination of the player and the gamepiece they are holding
  */
 export interface UndercookedPlayer {
-  id: PlayerID;
-  location: PlayerLocation;
+  player: Player;
   holding?: UndercookedGamepiece | undefined;
 }
 
@@ -217,6 +217,7 @@ export interface UndercookedStation {
 export interface UndercookedMove {
   playerChar: UndercookedPlayer,
   assymbledIngredients: UndercookedIngredient[],
+  move: string // this is a stub
 }
 
 export type UndercookedStationID = string;
