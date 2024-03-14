@@ -14,22 +14,24 @@ type MovementEvent = {
   playerMoved: (movedPlayer: PlayerController) => void;
 };
 
-export default class GameScene extends Phaser.Scene {
+export default class GameScene {
   private _cursors: Phaser.Types.Input.Keyboard.CursorKeys[] = [];
 
-  private _emitter: TypedEventEmitter<MovementEvent>;
+  private _eventEmitter: TypedEventEmitter<MovementEvent>;
 
-  private _physics: Phaser.Physics.Arcade.ArcadePhysics;
+  private _scenePhysics: Phaser.Physics.Arcade.ArcadePhysics;
+
+  private _sceneObjectFactory: Phaser.GameObjects.GameObjectFactory;
 
   constructor(
     controller: TypedEventEmitter<MovementEvent>,
     physics: Phaser.Physics.Arcade.ArcadePhysics,
   ) {
-    super('game-scene');
     this._emitter = controller;
+    this._physics = physics;
   }
 
-  getNewMovementDirection() {
+  public getNewMovementDirection() {
     if (this._cursors.find(keySet => keySet.left?.isDown)) {
       return 'left';
     }
@@ -45,9 +47,9 @@ export default class GameScene extends Phaser.Scene {
     return undefined;
   }
 
-  createPlayerSprites(player: PlayerController) {
+  public createPlayerSprites(player: PlayerController) {
     if (!player.gameObjects) {
-      const sprite = this.physics.add
+      const sprite = this._physics.add
         .sprite(player.location.x, player.location.y, 'atlas', 'misa-front')
         .setSize(30, 40)
         .setOffset(0, 24);
