@@ -18,6 +18,7 @@ export type TownJoinResponse = {
 };
 
 export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'UndercookedArea';
+
 export interface Interactable {
   type: InteractableType;
   id: InteractableID;
@@ -214,6 +215,8 @@ export interface UndercookedStation {
  * To represent an Undercooked game move. Note that this is just a placeholder.
  */
 export interface UndercookedMove {
+  playerChar: UndercookedPlayer,
+  assymbledIngredients: UndercookedIngredient[],
   move: string // this is a stub
 }
 
