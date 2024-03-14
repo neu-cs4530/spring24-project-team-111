@@ -19,6 +19,10 @@ export default class UndercookedAreaController extends GameAreaController<
     return true;
   }
 
+  get ourPlayer(): PlayerController | undefined {
+    return this._townController.ourPlayer;
+  }
+
   /**
    * Returns player 1 from the game, if there is one, or undefined otherwise.
    */

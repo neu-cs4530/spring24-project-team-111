@@ -71,6 +71,7 @@ export default class UndercookedGameArea extends GameArea<UndercookedGame> {
       this._stateUpdated(game.toModel());
       return undefined as InteractableCommandReturnType<CommandType>;
     }
+    // add a case for start game and other commands that the game can make.
     throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
   }
 }
