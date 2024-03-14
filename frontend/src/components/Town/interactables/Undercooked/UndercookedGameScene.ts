@@ -2,20 +2,45 @@ import Phaser from 'phaser';
 import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
 import PlayerController from '../../../../classes/PlayerController';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// function interactableTypeFor(type: string): any {
+//   throw new Error(`Unknown object type: ${type}`);
+// }
+
 export default class UndercookedGameScene extends Phaser.Scene {
   private _resourcePathPrefix: string;
 
   private _players: PlayerController[] = [];
 
-  public undercookedController: UndercookedAreaController;
-
   private _map?: Phaser.Tilemaps.Tilemap;
 
-  constructor(coveyTownController: UndercookedAreaController, resourcePathPrefix = '') {
+  private _cursors: Phaser.Types.Input.Keyboard.CursorKeys[] = [];
+
+  private _cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
+
+  private _collidingLayers: Phaser.Tilemaps.TilemapLayer[] = [];
+
+  private _previouslyCapturedKeys: number[] = [];
+
+  private _ready = false;
+
+  private _paused = false;
+
+  public undercookedController: UndercookedAreaController;
+
+  constructor(gameController: UndercookedAreaController, resourcePathPrefix = '') {
     super('UndercookedGameScene');
     this._resourcePathPrefix = resourcePathPrefix;
-    this.undercookedController = coveyTownController;
+    this.undercookedController = gameController;
     this._players = this.undercookedController.players;
+  }
+
+  public get cursorKeys() {
+    const ret = this._cursorKeys;
+    if (!ret) {
+      throw new Error('Unable to access cursors before game scene is loaded');
+    }
+    return ret;
   }
 
   public get map(): Phaser.Tilemaps.Tilemap {
@@ -53,10 +78,58 @@ export default class UndercookedGameScene extends Phaser.Scene {
     ];
 
     // create the layers
-    this.map.createLayer('Walls', tilesets);
     this.map.createLayer('Floor', tilesets);
+    this.map.createLayer('Walls', tilesets);
     this.map.createLayer('StaticKitchenSurfaces', tilesets);
     this.map.createLayer('StaticKitchenProps', tilesets);
     this.map.createLayer('InteractableKitchen', tilesets);
+  }
+
+  public updatePlayers(players: PlayerController[]) {
+    //Make sure that each player has sprites
+    players.map(eachPlayer => this.createPlayerSprites(eachPlayer));
+
+    // Remove disconnected players from board
+    const disconnectedPlayers = this._players.filter(
+      player => !players.find(p => p.id === player.id),
+    );
+
+    disconnectedPlayers.forEach(disconnectedPlayer => {
+      if (disconnectedPlayer.gameObjects) {
+        const { sprite, label } = disconnectedPlayer.gameObjects;
+        if (sprite && label) {
+          sprite.destroy();
+          label.destroy();
+        }
+      }
+    });
+    // Remove disconnected players from list
+    this._players = players;
+  }
+
+  public createPlayerSprites(player: PlayerController) {
+    if (!player.gameObjects) {
+      const sprite = this.physics.add
+        .sprite(player.location.x, player.location.y, 'atlas', 'misa-front')
+        .setSize(30, 40)
+        .setOffset(0, 24);
+      const label = this.add.text(
+        player.location.x,
+        player.location.y - 20,
+        player === this.undercookedController.ourPlayer ? '(You)' : player.userName,
+        {
+          font: '18px monospace',
+          color: '#000000',
+          // padding: {x: 20, y: 10},
+          backgroundColor: '#ffffff',
+        },
+      );
+      player.gameObjects = {
+        sprite,
+        label,
+        locationManagedByGameScene: false,
+      };
+      this._collidingLayers.forEach(layer => this.physics.add.collider(sprite, layer));
+    }
   }
 }
