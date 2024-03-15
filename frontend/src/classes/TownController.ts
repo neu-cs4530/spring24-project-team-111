@@ -30,7 +30,6 @@ import {
   isConnectFourArea,
   isConversationArea,
   isTicTacToeArea,
-  isUndercookedArea,
   isViewingArea,
 } from '../types/TypeUtils';
 import ConnectFourAreaController from './interactable/ConnectFourAreaController';
@@ -41,7 +40,6 @@ import InteractableAreaController, {
   GenericInteractableAreaController,
 } from './interactable/InteractableAreaController';
 import TicTacToeAreaController from './interactable/TicTacToeAreaController';
-import UndercookedAreaController from './interactable/UndercookedAreaController';
 import ViewingAreaController from './interactable/ViewingAreaController';
 import PlayerController from './PlayerController';
 
@@ -631,10 +629,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           } else if (isConnectFourArea(eachInteractable)) {
             this._interactableControllers.push(
               new ConnectFourAreaController(eachInteractable.id, eachInteractable, this),
-            );
-          } else if (isUndercookedArea(eachInteractable)) {
-            this._interactableControllers.push(
-              new UndercookedAreaController(eachInteractable.id, eachInteractable, this),
             );
           }
         });
