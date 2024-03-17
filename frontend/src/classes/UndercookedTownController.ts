@@ -24,7 +24,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   /** The socket connection to the townsService. Messages emitted here
    * are received by the TownController in that service.
    */
-  private _socket: UndercookedTownSocket;
+  private _socket!: UndercookedTownSocket;
 
   private _model: UndercookedAreaModel;
 
@@ -34,13 +34,17 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   constructor(id: InteractableID, model: UndercookedAreaModel, townController: TownController) {
     super();
-    const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
-    assert(url);
-    this._socket = io(`${url}/undercooked`);
     this._model = model;
     this._townController = townController;
     this._id = id;
-    this._socket.connect();
-    console.log('UndercookedTownController connected');
+  }
+
+  public async connect() {
+    return new Promise<void>(resolve => {
+      const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
+      assert(url);
+      this._socket = io(`${url}/undercooked`);
+      resolve();
+    });
   }
 }
