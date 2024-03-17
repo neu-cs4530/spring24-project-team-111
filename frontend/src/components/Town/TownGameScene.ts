@@ -8,6 +8,7 @@ import Interactable from './Interactable';
 import ConversationArea from './interactables/ConversationArea';
 import GameArea from './interactables/GameArea';
 import Transporter from './interactables/Transporter';
+import UndercookedArea from './interactables/UndercookedArea';
 import ViewingArea from './interactables/ViewingArea';
 
 // Still not sure what the right type is here... "Interactable" doesn't do it
@@ -21,6 +22,8 @@ function interactableTypeForObjectType(type: string): any {
     return ViewingArea;
   } else if (type === 'GameArea') {
     return GameArea;
+  } else if (type === 'UndercookedArea') {
+    return UndercookedArea;
   } else {
     throw new Error(`Unknown object type: ${type}`);
   }

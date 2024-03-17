@@ -624,6 +624,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             );
           } else if (isViewingArea(eachInteractable)) {
             this._interactableControllers.push(new ViewingAreaController(eachInteractable));
+          } else if (isUndercookedArea(eachInteractable)) {
+            this._interactableControllers.push(
+              new UndercookedAreaController(eachInteractable.id, eachInteractable, this),
+            );
           } else if (isTicTacToeArea(eachInteractable)) {
             this._interactableControllers.push(
               new TicTacToeAreaController(eachInteractable.id, eachInteractable, this),
@@ -631,10 +635,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           } else if (isConnectFourArea(eachInteractable)) {
             this._interactableControllers.push(
               new ConnectFourAreaController(eachInteractable.id, eachInteractable, this),
-            );
-          } else if (isUndercookedArea(eachInteractable)) {
-            this._interactableControllers.push(
-              new UndercookedAreaController(eachInteractable.id, eachInteractable, this),
             );
           }
         });
@@ -698,6 +698,12 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       throw new Error('Game area controller not created');
     }
   }
+
+  /**
+   * Retrieve the undercooked area controller corresponding to an undercooked area by ID, or
+   * throws an error if the undercooked area controller doesn't exist
+   */
+  // public getUndercookedAreaController(undercookedArea: UndercookedArea) {}
 
   /**
    * Emit a viewing area update to the townService

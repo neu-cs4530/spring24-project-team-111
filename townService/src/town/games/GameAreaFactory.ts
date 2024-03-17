@@ -1,9 +1,9 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { BoundingBox, TownEmitter } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
+import UndercookedArea from '../UndercookedArea';
 import ConnectFourGameArea from './ConnectFourGameArea';
 import TicTacToeGameArea from './TicTacToeGameArea';
-import UndercookedGameArea from './UndercookedGameArea';
 
 /**
  * Creates a new GameArea from a map object
@@ -29,7 +29,7 @@ export default function GameAreaFactory(
     return new ConnectFourGameArea(name, rect, broadcastEmitter);
   }
   if (gameType === 'Undercooked') {
-    return new UndercookedGameArea(name, rect, broadcastEmitter);
+    return new UndercookedArea(name, rect, broadcastEmitter);
   }
   throw new Error(`Unknown game area type ${mapObject.class}`);
 }

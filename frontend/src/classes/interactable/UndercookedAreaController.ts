@@ -1,51 +1,49 @@
 import {
-  GameStatus,
-  UndercookedGameState,
-  // UndercookedMove,
+  InteractableID,
+  UndercookedArea as UndercookedAreaModel,
 } from '../../types/CoveyTownSocket';
-import PlayerController from '../PlayerController';
-import { ConnectFourEvents } from './ConnectFourAreaController';
-import GameAreaController from './GameAreaController';
+import TownController from '../TownController';
+import UndercookedTownController, { UndercookedTownEvents } from '../UndercookedTownController';
+import InteractableAreaController, { BaseInteractableEventMap } from './InteractableAreaController';
 
-/**
- * This class is responsible for managing the state of the Undercooked game,
- * and for sending commands to the server
- */
-export default class UndercookedAreaController extends GameAreaController<
-  UndercookedGameState,
-  ConnectFourEvents // this is a stub so that it type checks for now.
+export type UndercookedAreaEvents = BaseInteractableEventMap & UndercookedTownEvents;
+
+export default class UndercookedAreaController extends InteractableAreaController<
+  UndercookedAreaEvents,
+  UndercookedAreaModel
 > {
+  private _undercookedTownController: UndercookedTownController;
+
+  constructor(
+    id: InteractableID,
+    undercookedAreaModel: UndercookedAreaModel,
+    townController: TownController,
+  ) {
+    super(id);
+    this._undercookedTownController = new UndercookedTownController(
+      id,
+      undercookedAreaModel,
+      townController,
+    );
+  }
+
+  toInteractableAreaModel(): UndercookedAreaModel {
+    throw new Error('Method not implemented.');
+  }
+
+  protected _updateFrom(newModel: UndercookedAreaModel): void {
+    throw new Error('Method not implemented.');
+  }
+
   public isActive(): boolean {
-    return true;
+    throw new Error('Method not implemented.');
   }
 
-  /**
-   * Returns player 1 from the game, if there is one, or undefined otherwise.
-   */
-  get playerOne(): PlayerController | undefined {
-    return this._playerController(this._model.game?.state.playerOne);
+  public get friendlyName(): string {
+    throw new Error('Method not implemented.');
   }
 
-  /**
-   * Returns player 2 from the game, if there is one, or undefined otherwise.
-   */
-  get playerTwo(): PlayerController | undefined {
-    return this._playerController(this._model.game?.state.playerTwo);
-  }
-
-  /**
-   * Returns the status of the game
-   * If there is no game, returns 'WAITING_FOR_PLAYERS'
-   */
-  get status(): GameStatus {
-    const status = this._model.game?.state.status;
-    if (!status) {
-      return 'WAITING_FOR_PLAYERS';
-    }
-    return status;
-  }
-
-  private _playerController(id: string | undefined): PlayerController | undefined {
-    return this.occupants.find(occupant => occupant.id === id);
+  public get type(): string {
+    throw new Error('Method not implemented.');
   }
 }
