@@ -1,6 +1,11 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { UndercookedGameState, UndercookedTownSocket } from '../types/CoveyTownSocket';
+import { UndercookedTownSocket } from '../types/CoveyTownSocket';
+import TownController from './TownController';
+import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
+import { io } from 'socket.io-client';
+import assert from 'assert';
+import { InteractableID } from '../generated/client';
 
 /**
  * The UndercookedTownController emits these events. Components may subscribe to these events
@@ -21,11 +26,21 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   private _socket: UndercookedTownSocket;
 
-  private _model: UndercookedGameState;
+  private _model: UndercookedAreaModel;
 
-  constructor(socket: UndercookedTownSocket, model: UndercookedGameState) {
+  private _townController: TownController;
+
+  private _id: InteractableID;
+
+  constructor(id: InteractableID, model: UndercookedAreaModel, townController: TownController) {
     super();
-    this._socket = socket;
+    const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
+    assert(url);
+    this._socket = io(`${url}/undercooked`);
     this._model = model;
+    this._townController = townController;
+    this._id = id;
+    this._socket.connect();
+    console.log('UndercookedTownController connected');
   }
 }

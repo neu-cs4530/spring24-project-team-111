@@ -8,7 +8,6 @@ import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ConversationArea from '../components/Town/interactables/ConversationArea';
 import GameArea from '../components/Town/interactables/GameArea';
-import UndercookedArea from '../components/Town/interactables/UndercookedArea';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
@@ -25,13 +24,13 @@ import {
   PlayerID,
   PlayerLocation,
   TownSettingsUpdate,
-  UndercookedTownSocket,
   ViewingArea as ViewingAreaModel,
 } from '../types/CoveyTownSocket';
 import {
   isConnectFourArea,
   isConversationArea,
   isTicTacToeArea,
+  isUndercookedArea,
   isViewingArea,
 } from '../types/TypeUtils';
 import ConnectFourAreaController from './interactable/ConnectFourAreaController';
@@ -42,6 +41,7 @@ import InteractableAreaController, {
   GenericInteractableAreaController,
 } from './interactable/InteractableAreaController';
 import TicTacToeAreaController from './interactable/TicTacToeAreaController';
+import UndercookedAreaController from './interactable/UndercookedAreaController';
 import ViewingAreaController from './interactable/ViewingAreaController';
 import PlayerController from './PlayerController';
 
@@ -624,6 +624,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             );
           } else if (isViewingArea(eachInteractable)) {
             this._interactableControllers.push(new ViewingAreaController(eachInteractable));
+          } else if (isUndercookedArea(eachInteractable)) {
+            this._interactableControllers.push(
+              new UndercookedAreaController(eachInteractable.id, eachInteractable, this),
+            );
           } else if (isTicTacToeArea(eachInteractable)) {
             this._interactableControllers.push(
               new TicTacToeAreaController(eachInteractable.id, eachInteractable, this),

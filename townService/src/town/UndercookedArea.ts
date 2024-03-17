@@ -9,7 +9,11 @@ import InteractableArea from './InteractableArea';
 
 export default class UndercookedArea extends InteractableArea {
   public toModel(): UndercookedAreaModel {
-    return {} as UndercookedAreaModel;
+    return {
+      type: 'UndercookedArea',
+      id: this.id,
+      occupants: this.occupantsByID,
+    };
   }
 
   public handleCommand<CommandType extends InteractableCommand>(
