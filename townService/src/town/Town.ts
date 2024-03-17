@@ -422,10 +422,16 @@ export default class Town {
       .filter(eachObject => eachObject.type === 'GameArea')
       .map(eachGameAreaObj => GameAreaFactory(eachGameAreaObj, this._broadcastEmitter));
 
+    const undercookedAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'UndercookedArea')
+      .map(eachUndercookedAreaObj =>
+        GameAreaFactory(eachUndercookedAreaObj, this._broadcastEmitter),
+      );
     this._interactables = this._interactables
       .concat(viewingAreas)
       .concat(conversationAreas)
-      .concat(gameAreas);
+      .concat(gameAreas)
+      .concat(undercookedAreas);
     this._validateInteractables();
   }
 

@@ -633,7 +633,7 @@
                          "value":"Undercooked"
                         }],
                  "rotation":0,
-                 "type":"GameArea",
+                 "type":"UndercookedArea",
                  "visible":true,
                  "width":116.127347109677,
                  "x":3161.54977349256,

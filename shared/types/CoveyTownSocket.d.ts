@@ -89,12 +89,7 @@ export interface GameState {
 export interface WinnableGameState extends GameState {
   winner?: PlayerID;
 }
-/**
- * Type for the state of a game that can be scored
- */
-export interface ScorableGameState extends GameState {
-  score: number = 0;
-}
+
 /**
  * Base type for a move in a game. Implementers should also extend MoveType
  * @see MoveType
@@ -282,6 +277,76 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   chatMessage: (message: ChatMessage) => void;
+  playerMovement: (movementData: PlayerLocation) => void;
+  interactableUpdate: (update: Interactable) => void;
+  interactableCommand: (command: InteractableCommand & InteractableCommandBase) => void;
+}
+
+// The following section represents the data types of the Undercooked game
+
+export type UndercookedIngredient = 'Milk' | 'Salad' | 'Fries' | 'Rice' | 'Steak' | 'Egg'
+
+export type UndercookedRecipe = UndercookedIngredient[]
+
+export type UndercookedInteractableType = 'IngredientStation' | 'AssemblyStation' | 'TrashStation'
+
+export interface UndercookedInteractable {
+  type: UndercookedInteractableType;
+  id: InteractableID;
+}
+
+export interface IngredientStation extends UndercookedInteractable {
+  ingredient: UndercookedIngredient;
+}
+
+export interface AssemblyStation extends UndercookedInteractable {
+  assembledIngredients: UndercookedIngredient[];
+}
+
+export interface UndercookedPlayer {
+  id: PlayerID;
+  userName: string;
+}
+
+export interface InGameUndercookedPlayer extends UndercookedPlayer {
+  location: PlayerLocation;
+  ingredientInHand?: UndercookedIngredient;
+}
+
+export interface GameJoinResponse {
+  /** Unique ID that represents this player * */
+  playerID: string;
+  /** List of players currently in this game * */
+  currentPlayers: UndercookedPlayer[];
+  /** Current state of interactables in this game */
+  interactables: UndercookedInteractable[];
+}
+
+export interface UndercookedGameState extends GameState {
+  playerOne: PlayerID;
+  playerTwo: PlayerID;
+  playerOneReady: boolean;
+  playerTwoReady: boolean;
+  currentRecipe: UndercookedRecipe;
+  timeRemaining: number;
+  score: number;
+}
+
+export interface UndercookedArea extends Interactable {
+  game: GameInstance<UndercookedGameState>;
+}
+
+export interface ServerToClientUndercookedEvents {
+  playerMoved: (movedPlayer: Player) => void;
+  playerLeft: (leavingPlayer: Player) => void;
+  playerJoined: (newPlayer: Player) => void;
+  initialize: (initialData: GameJoinResponse) => void;
+  interactableUpdate: (interactable: Interactable) => void;
+  commandResponse: (response: InteractableCommandResponse) => void;
+  gameUpdate: (game: UndercookedGameState) => void;
+}
+
+export interface ClientToServerUndercookedEvents {
   playerMovement: (movementData: PlayerLocation) => void;
   interactableUpdate: (update: Interactable) => void;
   interactableCommand: (command: InteractableCommand & InteractableCommandBase) => void;

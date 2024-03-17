@@ -8,6 +8,7 @@ import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ConversationArea from '../components/Town/interactables/ConversationArea';
 import GameArea from '../components/Town/interactables/GameArea';
+import UndercookedArea from '../components/Town/interactables/UndercookedArea';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
@@ -24,6 +25,7 @@ import {
   PlayerID,
   PlayerLocation,
   TownSettingsUpdate,
+  UndercookedTownSocket,
   ViewingArea as ViewingAreaModel,
 } from '../types/CoveyTownSocket';
 import {
@@ -692,6 +694,12 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       throw new Error('Game area controller not created');
     }
   }
+
+  /**
+   * Retrieve the undercooked area controller corresponding to an undercooked area by ID, or
+   * throws an error if the undercooked area controller doesn't exist
+   */
+  // public getUndercookedAreaController(undercookedArea: UndercookedArea) {}
 
   /**
    * Emit a viewing area update to the townService
