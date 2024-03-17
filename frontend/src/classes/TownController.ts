@@ -75,7 +75,7 @@ export type TownEvents = {
   townSettingsUpdated: (newTownSettings: TownSettingsUpdate) => void;
   /**
    * An event that indicates that the set of players in the town has changed. This event is dispatched
-   * before updating the proeprties of this TownController; clients will find the new players in the parameter
+   * before updating the properties of this TownController; clients will find the new players in the parameter
    */
   playersChanged: (newPlayers: PlayerController[]) => void;
 
