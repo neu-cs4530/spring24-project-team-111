@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { UndercookedTownSocket } from '../types/CoveyTownSocket';
-import TownController from './TownController';
+import { PlayerLocation, UndercookedTownSocket } from '../types/CoveyTownSocket';
+import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
 import { io } from 'socket.io-client';
 import assert from 'assert';
@@ -11,9 +11,7 @@ import { InteractableID } from '../generated/client';
  * The UndercookedTownController emits these events. Components may subscribe to these events
  * by calling the 'addListener' method on UndercookedTownController
  */
-export type UndercookedTownEvents = {
-  stubEvent: () => void;
-};
+export type UndercookedTownEvents = TownEvents;
 
 /**
  * The (frontend) UndercookedTownController manages the communication between the frontend
@@ -42,5 +40,34 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._id = id;
     this._socket.connect();
     console.log('UndercookedTownController connected');
+  }
+
+  // Our player should be the in-game player the client controls.
+  // used in WalkableScene.ts
+  public get ourPlayer() {
+    // this is a stub. Replace with the actual player object.
+    return this._townController.ourPlayer;
+  }
+
+  public get players() {
+    // this is a stub, it should return the list of players in the game.
+    return this._townController.players;
+  }
+
+  /**
+   * Emit a movement event for the current player, updating the state locally and
+   * also notifying the townService that our player moved.
+   *
+   * Note: it is the responsibility of the townService to set the 'interactableID' parameter
+   * of the player's location, and any interactableID set here may be overwritten by the townService
+   *
+   * @param newLocation
+   */
+  public emitMovement(newLocation: PlayerLocation) {
+    this._socket.emit('playerMovement', newLocation);
+    const player = this.ourPlayer;
+    assert(player);
+    player.location = newLocation;
+    this.emit('playerMoved', player);
   }
 }
