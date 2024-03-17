@@ -27,6 +27,15 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     );
   }
 
+  public get undercookedTownController(): UndercookedTownController {
+    return this._undercookedTownController;
+  }
+
+  // just a stub to satisfy UndercookedGameScene
+  public get players() {
+    return [];
+  }
+
   toInteractableAreaModel(): UndercookedAreaModel {
     throw new Error('Method not implemented.');
   }

@@ -140,14 +140,9 @@ export default function GameAreaWrapper(): JSX.Element {
     }
   }, [townController, gameArea]);
 
-  // undercooked area needs a bigger window.
-  const gameType =
-    gameArea && townController.getGameAreaController(gameArea).toInteractableAreaModel().type;
-  const windowSize = gameType === 'UndercookedArea' ? 'full' : 'xl';
-
   if (gameArea) {
     return (
-      <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false} size={windowSize}>
+      <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false} size='xl'>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{gameArea.name}</ModalHeader>
