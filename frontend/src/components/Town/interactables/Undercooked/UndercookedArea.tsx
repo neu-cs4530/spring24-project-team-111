@@ -27,6 +27,10 @@ import UndercookedBoard from './UndercookedBoard';
 import UndercookedRecipeDisplay from './UndercookedRecipeDisplay';
 import UndercookedTimerDisplay from './UndercookedTimerDisplay';
 
+export type UndercookedGameProps = {
+  undercookedAreaController: UndercookedAreaController;
+};
+
 function UndercookedArea({
   undercookedAreaController,
 }: {
@@ -74,10 +78,10 @@ function UndercookedArea({
         </Flex>
       </Box>
       <Flex mt={2} width='100%' justifyContent='space-between'>
-        <UndercookedRecipeDisplay gameAreaController={undercookedAreaController} />
-        <UndercookedTimerDisplay gameAreaController={undercookedAreaController} />
+        <UndercookedRecipeDisplay undercookedAreaController={undercookedAreaController} />
+        <UndercookedTimerDisplay undercookedAreaController={undercookedAreaController} />
       </Flex>
-      <UndercookedBoard gameAreaController={undercookedAreaController} />
+      <UndercookedBoard undercookedAreaController={undercookedAreaController} />
     </Flex>
   );
 }
