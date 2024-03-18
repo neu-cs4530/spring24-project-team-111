@@ -29,10 +29,10 @@ function interactableTypeForObjectType(type: string): any {
   }
 }
 
-type SceneController = TownController | UndercookedTownController;
+export type SceneController = TownController | UndercookedTownController;
 
 export default class WalkableScene extends Phaser.Scene {
-  protected controller: SceneController;
+  private _controller: SceneController;
 
   protected interactables: Interactable[] = [];
 
@@ -68,8 +68,12 @@ export default class WalkableScene extends Phaser.Scene {
 
   constructor(controller: SceneController, name = 'WalkableScene') {
     super(name);
-    this.controller = controller;
+    this._controller = controller;
     this._players = controller.players;
+  }
+
+  public get controller(): SceneController {
+    return this._controller;
   }
 
   public get map(): Phaser.Tilemaps.Tilemap {

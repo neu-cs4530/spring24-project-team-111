@@ -1,5 +1,6 @@
-import TownController from '../../classes/TownController';
 import TownGameScene from './TownGameScene';
+import { SceneController } from './WalkableScene';
+import UndercookedGameScene from './interactables/Undercooked/UndercookedGameScene';
 
 //TODO is there not some way to figure this out from generic types/supertypes?
 export type KnownInteractableTypes =
@@ -20,12 +21,12 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
   /**
    * The town controller associated with this interactable
    */
-  protected townController: TownController;
+  protected townController: SceneController;
 
   /**
    * The Phaser game scene associated with this interactable
    */
-  protected _scene: TownGameScene;
+  protected _scene: TownGameScene | UndercookedGameScene;
 
   /**
    * The current state of whether the player is or is not overlapping with this interactable
@@ -48,10 +49,10 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
     return this._isOverlapping;
   }
 
-  constructor(scene: TownGameScene) {
+  constructor(scene: TownGameScene | UndercookedGameScene) {
     super(scene, 0, 0, 'Interactable');
     this._scene = scene;
-    this.townController = scene.coveyTownController;
+    this.townController = scene.controller;
     scene.physics.world.enable(this);
   }
 
@@ -62,7 +63,7 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
    */
   addedToScene(): void {
     super.addedToScene();
-    this.townController = (this.scene as TownGameScene).coveyTownController;
+    this.townController = (this.scene as TownGameScene).controller;
     this._id = this.name;
     const sprite = this.townController.ourPlayer.gameObjects?.sprite;
     if (!sprite) {

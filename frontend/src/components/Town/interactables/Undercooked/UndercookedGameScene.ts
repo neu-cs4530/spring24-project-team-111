@@ -1,29 +1,15 @@
-import Phaser from 'phaser';
 import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
-import PlayerController from '../../../../classes/PlayerController';
+import WalkableScene from '../../WalkableScene';
 
-export default class UndercookedGameScene extends Phaser.Scene {
+export default class UndercookedGameScene extends WalkableScene {
   private _resourcePathPrefix: string;
-
-  private _players: PlayerController[] = [];
 
   public undercookedController: UndercookedAreaController;
 
-  private _map?: Phaser.Tilemaps.Tilemap;
-
   constructor(undercookedAreaController: UndercookedAreaController, resourcePathPrefix = '') {
-    super('UndercookedGameScene');
+    super(undercookedAreaController.undercookedTownController, 'UndercookedGameScene');
     this._resourcePathPrefix = resourcePathPrefix;
     this.undercookedController = undercookedAreaController;
-    this._players = this.undercookedController.players;
-  }
-
-  public get map(): Phaser.Tilemaps.Tilemap {
-    const map = this._map;
-    if (!map) {
-      throw new Error('Cannot access map before it is initialized');
-    }
-    return map;
   }
 
   preload() {
@@ -42,7 +28,7 @@ export default class UndercookedGameScene extends Phaser.Scene {
   }
 
   create() {
-    this._map = this.make.tilemap({ key: 'map' });
+    this.map = this.make.tilemap({ key: 'map' });
 
     // add the tilesets
     const kitchenTileset = this.map.addTilesetImage('kitchen_tiles', '12_Kitchen_32x32');
