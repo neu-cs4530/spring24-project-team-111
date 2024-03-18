@@ -7,6 +7,7 @@ import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocke
 import { io } from 'socket.io-client';
 import assert from 'assert';
 import { InteractableID } from '../generated/client';
+import PlayerController from './PlayerController';
 
 /**
  * The UndercookedTownController emits these events. Components may subscribe to these events
@@ -26,6 +27,8 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   private _socket!: UndercookedTownSocket;
 
   private _model: UndercookedAreaModel;
+
+  private _ourPlayer?: PlayerController;
 
   private _townController: TownController;
 
@@ -66,7 +69,9 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   // used in WalkableScene.ts
   public get ourPlayer() {
     // this is a stub. Replace with the actual player object.
-    return this._townController.ourPlayer;
+    const player = this._townController.ourPlayer;
+    assert(player);
+    return player;
   }
 
   public get players() {

@@ -1,3 +1,4 @@
+import assert from 'assert';
 import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
 import WalkableScene from '../../WalkableScene';
 
@@ -39,10 +40,56 @@ export default class UndercookedGameScene extends WalkableScene {
     ];
 
     // create the layers
-    this.map.createLayer('Walls', tilesets);
     this.map.createLayer('Floor', tilesets);
-    this.map.createLayer('StaticKitchenSurfaces', tilesets);
-    this.map.createLayer('StaticKitchenProps', tilesets);
-    this.map.createLayer('InteractableKitchen', tilesets);
+    const walls = this.map.createLayer('Walls', tilesets);
+    assert(walls);
+    walls.setCollisionByProperty({ collides: true });
+    const kitchenSurfaces = this.map.createLayer('StaticKitchenSurfaces', tilesets);
+    assert(kitchenSurfaces);
+    kitchenSurfaces.setCollisionByProperty({ collides: true });
+    const staicProps = this.map.createLayer('StaticKitchenProps', tilesets);
+    assert(staicProps);
+    staicProps.setCollisionByProperty({ collides: true });
+    const interactableKitchen = this.map.createLayer('InteractableKitchen', tilesets);
+    assert(interactableKitchen);
+    interactableKitchen.setCollisionByProperty({ collides: true });
+
+    this.createLabels();
+
+    assert(this.input.keyboard);
+    this.cursorKeys = this.input.keyboard.createCursorKeys();
+    this.cursors.push(this.cursorKeys);
+    this.cursors.push(
+      this.input.keyboard.addKeys(
+        {
+          up: Phaser.Input.Keyboard.KeyCodes.W,
+          down: Phaser.Input.Keyboard.KeyCodes.S,
+          left: Phaser.Input.Keyboard.KeyCodes.A,
+          right: Phaser.Input.Keyboard.KeyCodes.D,
+        },
+        false,
+      ) as Phaser.Types.Input.Keyboard.CursorKeys,
+    );
+
+    const sprite = this.createSpawnPoint();
+
+    // Watch the player and worldLayer for collisions, for the duration of the scene:
+    this.collidingLayers.push(walls);
+    this.collidingLayers.push(kitchenSurfaces);
+    this.collidingLayers.push(staicProps);
+    this.collidingLayers.push(interactableKitchen);
+    this.collidingLayers.forEach(layer => this.physics.add.collider(sprite, layer));
+
+    this.interactables = this.getInteractables();
+    this.createAnimationsForSprite();
+    this.addCamera();
+
+    this.ready = true;
+
+    this.lockLabelPositions();
+
+    this.ready = true;
+    this.updatePlayers(this.controller.players);
+    this.initScene();
   }
 }

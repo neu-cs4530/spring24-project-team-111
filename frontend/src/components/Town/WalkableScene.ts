@@ -329,4 +329,130 @@ export default class WalkableScene extends Phaser.Scene {
       this._previouslyCapturedKeys = [];
     }
   }
+
+  protected createSpawnPoint() {
+    // Object layers in Tiled let you embed extra info into a map - like a spawn point or custom
+    // collision shapes. In the tmx file, there's an object layer with a point named "Spawn Point"
+    const spawnPoint = this.map.findObject(
+      'Objects',
+      obj => obj.name === 'Spawn Point',
+    ) as unknown as Phaser.GameObjects.Components.Transform;
+
+    // Create a sprite with physics enabled via the physics system. The image used for the sprite
+    // has a bit of whitespace, so I'm using setSize & setOffset to control the size of the
+    // player's body.
+    const sprite = this.physics.add
+      .sprite(spawnPoint.x, spawnPoint.y, 'atlas', 'misa-front')
+      .setSize(30, 40)
+      .setOffset(0, 24)
+      .setDepth(6);
+    const label = this.add
+      .text(spawnPoint.x, spawnPoint.y - 20, '(You)', {
+        font: '18px monospace',
+        color: '#000000',
+        // padding: {x: 20, y: 10},
+        backgroundColor: '#ffffff',
+      })
+      .setDepth(6);
+    this.controller.ourPlayer.gameObjects = {
+      sprite,
+      label,
+      locationManagedByGameScene: true,
+    };
+    this.moveOurPlayerTo({ rotation: 'front', moving: false, x: spawnPoint.x, y: spawnPoint.y });
+    return sprite;
+  }
+
+  protected addCamera() {
+    const camera = this.cameras.main;
+    const playerGameObjects = this.controller.ourPlayer.gameObjects;
+    assert(playerGameObjects);
+    camera.startFollow(playerGameObjects.sprite);
+    camera.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+  }
+
+  protected createAnimationsForSprite() {
+    // Create the player's walking animations from the texture atlas. These are stored in the global
+    // animation manager so any sprite can access them.
+    const { anims } = this;
+    anims.create({
+      key: 'misa-left-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'misa-left-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'misa-right-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'misa-right-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'misa-front-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'misa-front-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'misa-back-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'misa-back-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+  }
+
+  protected initScene() {
+    // Call any listeners that are waiting for the game to be initialized
+    this.onGameReadyListeners.forEach(listener => listener());
+    this.onGameReadyListeners = [];
+    this.controller.addListener('playersChanged', players => this.updatePlayers(players));
+  }
+
+  protected lockLabelPositions() {
+    // Help text that has a "fixed" position on the screen
+    this.add
+      .text(16, 16, `Arrow keys to move`, {
+        font: '18px monospace',
+        color: '#000000',
+        padding: {
+          x: 20,
+          y: 10,
+        },
+        backgroundColor: '#ffffff',
+      })
+      .setScrollFactor(0)
+      .setDepth(30);
+  }
+
+  protected createLabels() {
+    const labels = this.map.filterObjects('Objects', obj => obj.name === 'label');
+    labels?.forEach(label => {
+      if (label.x && label.y) {
+        this.add.text(label.x, label.y, label.text.text, {
+          color: '#FFFFFF',
+          backgroundColor: '#000000',
+        });
+      }
+    });
+  }
 }
