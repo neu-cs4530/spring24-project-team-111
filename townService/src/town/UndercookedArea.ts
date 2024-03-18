@@ -1,6 +1,5 @@
 import Player from '../lib/Player';
 import {
-  Interactable,
   InteractableCommand,
   InteractableCommandReturnType,
   UndercookedArea as UndercookedAreaModel,
