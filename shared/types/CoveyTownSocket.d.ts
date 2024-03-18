@@ -290,7 +290,7 @@ export type UndercookedRecipe = UndercookedIngredient[]
 
 export type UndercookedInteractableType = 'IngredientStation' | 'AssemblyStation' | 'TrashStation'
 
-export interface UndercookedInteractable {
+export interface UndercookedInteractable extends InteractableArea {
   type: UndercookedInteractableType;
   id: InteractableID;
 }
@@ -323,8 +323,8 @@ export interface GameJoinResponse {
 }
 
 export interface UndercookedGameState extends GameState {
-  playerOne: PlayerID;
-  playerTwo: PlayerID;
+  playerOne: PlayerID | undefined;
+  playerTwo: PlayerID | undefined;
   playerOneReady: boolean;
   playerTwoReady: boolean;
   currentRecipe: UndercookedRecipe;
