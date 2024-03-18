@@ -306,9 +306,6 @@ export interface AssemblyStation extends UndercookedInteractable {
 export interface UndercookedPlayer {
   id: PlayerID;
   userName: string;
-}
-
-export interface InGameUndercookedPlayer extends UndercookedPlayer {
   location: PlayerLocation;
   ingredientInHand?: UndercookedIngredient;
 }

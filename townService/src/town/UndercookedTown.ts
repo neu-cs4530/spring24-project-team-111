@@ -1,7 +1,7 @@
 import { ITiledMap, ITiledMapObjectLayer } from '@jonbell/tiled-map-type-guard';
 import { nanoid } from 'nanoid';
 import { BroadcastOperator } from 'socket.io';
-import InvalidParametersError from '../lib/InvalidParametersError';
+import InvalidParametersError, { GAME_NOT_STARTABLE_MESSAGE, PLAYER_NOT_IN_GAME_MESSAGE } from '../lib/InvalidParametersError';
 import IVideoClient from '../lib/IVideoClient';
 import Player from '../lib/Player';
 import TwilioVideo from '../lib/TwilioVideo';
@@ -110,10 +110,10 @@ export default class UndercookedTown {
 
     const newPlayer = new Player(userName, socket.to(this._underCookedGameID));
     const newUndercookedPlayer: UndercookedPlayer = {
-        id: newPlayer.id,
-        userName: newPlayer.userName,
-        // add new fields for holding etc
-    }
+      id: newPlayer.id,
+      userName: newPlayer.userName,
+      // add new fields for holding etc
+    };
     this._players.push(newUndercookedPlayer);
 
     this._connectedSockets.add(socket);
@@ -229,13 +229,34 @@ export default class UndercookedTown {
     };
   }
 
-  startGame(player: UndercookedPlayer) : void {
-    if () {
-// same implementation as undercookedgame
+  startGame(player: UndercookedPlayer): void {
+    if (this._gameState.status !== 'WAITING_TO_START') {
+      throw new InvalidParametersError(GAME_NOT_STARTABLE_MESSAGE);
+    }
+    if (this._gameState.playerOne !== player.id && this._gameState.playerTwo !== player.id) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+    if (this._gameState.playerOne === player.id) {
+      this._gameState.playerOneReady = true;
+    }
+    if (this._gameState.playerTwo === player.id) {
+      this._gameState.playerTwoReady = true;
+    }
+    this._gameState = {
+      ...this._gameState,
+      status:
+        this._gameState.playerOneReady && this._gameState.playerTwoReady
+          ? 'IN_PROGRESS'
+          : 'WAITING_TO_START',
+    };
+    if (this._gameState.status === 'IN_PROGRESS') {
+      this._initGame();
     }
   }
 
-  move() : void {} //gameMotionManager
+  private _initGame(): void {
+    
+  }
 
-
+  move(): void {} //gameMotionManager
 }
