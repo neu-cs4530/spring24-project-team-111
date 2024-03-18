@@ -40,7 +40,7 @@ const DUMMY_CURRENT_RECIPE: Recipe = [
 const DUMMY_ASEMBLED_RECIPE: Recipe = [ingredientsList.steak];
 
 export default function UndercookedRecipeDisplay({
-  gameAreaController,
+  undercookedAreaController,
 }: UndercookedGameProps): JSX.Element {
   // currently using hard coded values for current and assembled recipes
   // change implementation to use gameAreaController to get the current and assembled recipes when backend is completed

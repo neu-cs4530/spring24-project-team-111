@@ -26,13 +26,12 @@ TownsStore.initializeTownsStore((townID: string) => socketServer.to(townID));
 // Connect the socket server to the TownsController. We use here the same pattern as tsoa
 // (the library that we use for REST), which creates a new controller instance for each request
 socketServer.on('connection', socket => {
-  console.log('town socket connected');
   new TownsController().joinTown(socket);
 });
 
 // Connect the socket server to the UndercookedTownController
 socketServer.of('/undercooked').on('connection', socket => {
-  // console.log('undercooked socket connected');
+  console.log('undercooked socket connected');
 });
 
 // Set the default content-type to JSON

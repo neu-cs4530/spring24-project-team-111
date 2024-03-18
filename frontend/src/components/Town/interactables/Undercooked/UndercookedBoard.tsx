@@ -1,12 +1,10 @@
 import React, { useEffect } from 'react';
-import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
+import { UndercookedGameProps } from './UndercookedArea';
 import UndercookedGameScene from './UndercookedGameScene';
 
 export default function UndercookedBoard({
-  gameAreaController,
-}: {
-  gameAreaController: UndercookedAreaController;
-}): JSX.Element {
+  undercookedAreaController,
+}: UndercookedGameProps): JSX.Element {
   useEffect(() => {
     const config = {
       type: Phaser.AUTO,
@@ -24,9 +22,9 @@ export default function UndercookedBoard({
     };
 
     const game = new Phaser.Game(config);
-    const newGameScene = new UndercookedGameScene(gameAreaController);
+    const newGameScene = new UndercookedGameScene(undercookedAreaController);
     game.scene.add('undercookedBoard', newGameScene, true);
-  }, [gameAreaController]);
+  }, [undercookedAreaController]);
 
   return <div style={{ marginTop: 8 }} id='undercooked-map-container' />;
 }

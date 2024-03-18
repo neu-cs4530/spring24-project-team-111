@@ -11,10 +11,10 @@ export default class UndercookedGameScene extends Phaser.Scene {
 
   private _map?: Phaser.Tilemaps.Tilemap;
 
-  constructor(coveyTownController: UndercookedAreaController, resourcePathPrefix = '') {
+  constructor(undercookedAreaController: UndercookedAreaController, resourcePathPrefix = '') {
     super('UndercookedGameScene');
     this._resourcePathPrefix = resourcePathPrefix;
-    this.undercookedController = coveyTownController;
+    this.undercookedController = undercookedAreaController;
     this._players = this.undercookedController.players;
   }
 
