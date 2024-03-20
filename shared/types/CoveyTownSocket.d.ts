@@ -290,10 +290,10 @@ export type UndercookedRecipe = UndercookedIngredient[]
 
 export type UndercookedInteractableType = 'IngredientStation' | 'AssemblyStation' | 'TrashStation'
 
-export interface UndercookedInteractable extends InteractableArea {
-  type: UndercookedInteractableType;
-  id: InteractableID;
-}
+// export interface UndercookedInteractable extends InteractableArea {
+//   type: UndercookedInteractableType;
+//   id: InteractableID;
+// }
 
 export interface IngredientStation extends UndercookedInteractable {
   ingredient: UndercookedIngredient;

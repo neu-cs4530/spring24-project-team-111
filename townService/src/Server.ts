@@ -31,7 +31,7 @@ socketServer.on('connection', socket => {
 
 // Connect the socket server to the UndercookedTownController
 socketServer.of('/undercooked').on('connection', socket => {
-  console.log('undercooked socket connected');
+  // console.log('undercooked socket connected');
 });
 
 // Set the default content-type to JSON

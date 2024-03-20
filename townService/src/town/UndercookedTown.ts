@@ -1,33 +1,21 @@
-import { ITiledMap, ITiledMapObjectLayer } from '@jonbell/tiled-map-type-guard';
-import { nanoid } from 'nanoid';
 import { BroadcastOperator } from 'socket.io';
-import InvalidParametersError, { GAME_NOT_STARTABLE_MESSAGE, PLAYER_NOT_IN_GAME_MESSAGE } from '../lib/InvalidParametersError';
-import IVideoClient from '../lib/IVideoClient';
+import InvalidParametersError, {
+  GAME_NOT_STARTABLE_MESSAGE,
+  PLAYER_NOT_IN_GAME_MESSAGE,
+} from '../lib/InvalidParametersError';
 import Player from '../lib/Player';
-import TwilioVideo from '../lib/TwilioVideo';
-import { isViewingArea } from '../TestUtils';
 import {
   ChatMessage,
-  ConversationArea as ConversationAreaModel,
   CoveyTownSocket,
-  Interactable,
   InteractableCommand,
   InteractableCommandBase,
-  PlayerLocation,
   ServerToClientEvents,
   SocketData,
   UndercookedGameState,
   UndercookedPlayer,
-  UndercookedInteractable,
-  ViewingArea as ViewingAreaModel,
-  PlayerID,
 } from '../types/CoveyTownSocket';
+import UndercookedInteractable from './UndercookedInteractable';
 import { logError } from '../Utils';
-import ConversationArea from './ConversationArea';
-import GameAreaFactory from './games/GameAreaFactory';
-import InteractableArea from './InteractableArea';
-import ViewingArea from './ViewingArea';
-import GamePlayer from '../lib/GamePlayer';
 
 /**
  * The UndercookedTown class implements the logic for an Undercooked game: managing the various
@@ -112,6 +100,7 @@ export default class UndercookedTown {
     const newUndercookedPlayer: UndercookedPlayer = {
       id: newPlayer.id,
       userName: newPlayer.userName,
+      location: newPlayer.location,
       // add new fields for holding etc
     };
     this._players.push(newUndercookedPlayer);
@@ -254,9 +243,7 @@ export default class UndercookedTown {
     }
   }
 
-  private _initGame(): void {
-    
-  }
+  private _initGame(): void {}
 
-  move(): void {} //gameMotionManager
+  move(): void {} // gameMotionManager
 }
