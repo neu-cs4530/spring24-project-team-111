@@ -1,9 +1,10 @@
 import { BroadcastOperator } from 'socket.io';
+import { ITiledMap, ITiledMapObjectLayer } from '@jonbell/tiled-map-type-guard';
 import InvalidParametersError, {
   GAME_NOT_STARTABLE_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
-} from '../lib/InvalidParametersError';
-import Player from '../lib/Player';
+} from '../../lib/InvalidParametersError';
+import Player from '../../lib/Player';
 import {
   ChatMessage,
   CoveyTownSocket,
@@ -13,9 +14,10 @@ import {
   SocketData,
   UndercookedGameState,
   UndercookedPlayer,
-} from '../types/CoveyTownSocket';
-import UndercookedInteractable from './UndercookedInteractable';
-import { logError } from '../Utils';
+} from '../../types/CoveyTownSocket';
+import { logError } from '../../Utils';
+import InteractableArea from '../InteractableArea';
+import AreaFactory from '../games/AreaFactory';
 
 /**
  * The UndercookedTown class implements the logic for an Undercooked game: managing the various
@@ -28,7 +30,7 @@ export default class UndercookedTown {
   /** The list of players currently in the town * */
   private _players: UndercookedPlayer[] = [];
 
-  private _stations: UndercookedInteractable[] = [];
+  private _stations: InteractableArea[] = [];
 
   private readonly _underCookedGameID: string;
 
@@ -52,7 +54,7 @@ export default class UndercookedTown {
     return this._underCookedGameID;
   }
 
-  get interactables(): UndercookedInteractable[] {
+  get stations(): InteractableArea[] {
     return this._stations;
   }
 
@@ -61,16 +63,10 @@ export default class UndercookedTown {
   }
 
   constructor(
-    // friendlyName: string,
-    // isPubliclyListed: boolean,
     townID: string,
     broadcastEmitter: BroadcastOperator<ServerToClientEvents, SocketData>,
   ) {
     this._underCookedGameID = townID;
-    // this._capacity = 50;
-    // this._townUpdatePassword = nanoid(24);
-    // this._isPubliclyListed = isPubliclyListed;
-    // this._friendlyName = friendlyName;
     this._broadcastEmitter = broadcastEmitter;
     this._gameState = {
       status: 'WAITING_FOR_PLAYERS',
@@ -245,5 +241,41 @@ export default class UndercookedTown {
 
   private _initGame(): void {}
 
-  move(): void {} // gameMotionManager
+  public initializeFromMap(map: ITiledMap) {
+    const objectLayer = map.layers.find(
+      eachLayer => eachLayer.name === 'Objects',
+    ) as ITiledMapObjectLayer;
+    if (!objectLayer) {
+      throw new Error('Unable to find objects layer in map');
+    }
+
+    const undercookedStations = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'UndercookedInteractableArea')
+      .map(eachUndercookedInteractableArea =>
+        AreaFactory(eachUndercookedInteractableArea, this._broadcastEmitter),
+      );
+
+    this._stations = this._stations.concat(undercookedStations);
+    this._validateStations();
+  }
+
+  private _validateStations() {
+    // Make sure that the IDs are unique
+    const stationIDs = this._stations.map(eachStation => eachStation.id);
+    if (stationIDs.some(item => stationIDs.indexOf(item) !== stationIDs.lastIndexOf(item))) {
+      throw new Error(
+        `Expected all station IDs to be unique, but found duplicate station ID in ${stationIDs}`,
+      );
+    }
+    // Make sure that there are no overlapping objects
+    for (const station of this._stations) {
+      for (const otherStation of this._stations) {
+        if (station !== otherStation && station.overlaps(otherStation)) {
+          throw new Error(
+            `Expected interactables not to overlap, but found overlap between ${station.id} and ${otherStation.id}`,
+          );
+        }
+      }
+    }
+  }
 }

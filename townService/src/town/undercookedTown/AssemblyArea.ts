@@ -1,13 +1,13 @@
-import Player from '../lib/Player';
+import Player from '../../lib/Player';
 import {
-  Interactable,
+  AssemblyArea as AssemblyAreaModel,
   InteractableCommand,
   InteractableCommandReturnType,
-} from '../types/CoveyTownSocket';
-import InteractableArea from './InteractableArea';
+} from '../../types/CoveyTownSocket';
+import InteractableArea from '../InteractableArea';
 
-export default class UndercookedInteractable extends InteractableArea {
-  public toModel(): Interactable {
+export default class AssemblyArea extends InteractableArea {
+  public toModel(): AssemblyAreaModel {
     throw new Error('Method not implemented.');
   }
 
