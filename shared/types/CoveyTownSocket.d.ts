@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: TypedInteractable[];
 };
 
-export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'UndercookedArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'UndercookedArea' | 'IngredientArea' | 'AssemblyArea' | 'TrashArea';
 
 export interface Interactable {
   type: InteractableType;
@@ -288,20 +288,15 @@ export type UndercookedIngredient = 'Milk' | 'Salad' | 'Fries' | 'Rice' | 'Steak
 
 export type UndercookedRecipe = UndercookedIngredient[]
 
-export type UndercookedInteractableType = 'IngredientStation' | 'AssemblyStation' | 'TrashStation'
-
-// export interface UndercookedInteractable extends InteractableArea {
-//   type: UndercookedInteractableType;
-//   id: InteractableID;
-// }
-
-export interface IngredientStation extends UndercookedInteractable {
+export interface IngredientArea extends Interactable {
   ingredient: UndercookedIngredient;
 }
 
-export interface AssemblyStation extends UndercookedInteractable {
+export interface AssemblyArea extends Interactable {
   assembledIngredients: UndercookedIngredient[];
 }
+
+export type TrashArea = Interactable
 
 export interface UndercookedPlayer {
   id: PlayerID;
