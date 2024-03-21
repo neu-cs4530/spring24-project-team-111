@@ -20,7 +20,7 @@ import {
 } from '../types/CoveyTownSocket';
 import { logError } from '../Utils';
 import ConversationArea from './ConversationArea';
-import GameAreaFactory from './games/GameAreaFactory';
+import AreaFactory from './games/AreaFactory';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
 
@@ -420,13 +420,12 @@ export default class Town {
 
     const gameAreas = objectLayer.objects
       .filter(eachObject => eachObject.type === 'GameArea')
-      .map(eachGameAreaObj => GameAreaFactory(eachGameAreaObj, this._broadcastEmitter));
+      .map(eachGameAreaObj => AreaFactory(eachGameAreaObj, this._broadcastEmitter));
 
     const undercookedAreas = objectLayer.objects
       .filter(eachObject => eachObject.type === 'UndercookedArea')
-      .map(eachUndercookedAreaObj =>
-        GameAreaFactory(eachUndercookedAreaObj, this._broadcastEmitter),
-      );
+      .map(eachUndercookedAreaObj => AreaFactory(eachUndercookedAreaObj, this._broadcastEmitter));
+
     this._interactables = this._interactables
       .concat(viewingAreas)
       .concat(conversationAreas)
