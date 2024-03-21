@@ -2,6 +2,7 @@ import { ITiledMap } from '@jonbell/tiled-map-type-guard';
 import * as fs from 'fs/promises';
 import { customAlphabet } from 'nanoid';
 import Town from '../town/Town';
+import UndercookedTown from '../town/undercookedTown/UndercookedTown';
 import { TownEmitterFactory } from '../types/CoveyTownSocket';
 
 function passwordMatches(provided: string, expected: string): boolean {
@@ -95,6 +96,16 @@ export default class TownsStore {
     newTown.initializeFromMap(map);
     this._towns.push(newTown);
     return newTown;
+  }
+
+  async createUndercookedTown(): Promise<UndercookedTown> {
+    const townID = 'UndercookedTown';
+    const mapFile = '../frontend/public/assets/tilemaps/undercooked.json';
+    const newUndercookedTown = new UndercookedTown(townID, this._emitterFactory(townID));
+    const data = JSON.parse(await fs.readFile(mapFile, 'utf-8'));
+    const map = ITiledMap.parse(data);
+    newUndercookedTown.initializeFromMap(map);
+    return newUndercookedTown;
   }
 
   /**
