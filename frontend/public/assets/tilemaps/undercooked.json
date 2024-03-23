@@ -151,9 +151,9 @@
          "name":"Objects",
          "objects":[
                 {
-                 "height":76.3434450199203,
+                 "height":30,
                  "id":1,
-                 "name":"MilkStation",
+                 "name":"Milk",
                  "properties":[
                         {
                          "name":"ingredientName",
@@ -168,14 +168,14 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":75.1068233414545,
-                 "x":30.5581282802299,
-                 "y":211.96529754625
+                 "width":30,
+                 "x":68.2052709019881,
+                 "y":236.56879595279
                 }, 
                 {
-                 "height":54.8760430104811,
+                 "height":30,
                  "id":2,
-                 "name":"SteakStation",
+                 "name":"Steak",
                  "properties":[
                         {
                          "name":"ingredientName",
@@ -190,14 +190,14 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":63.7417287157469,
-                 "x":349.490418632403,
-                 "y":62.8511564212653
+                 "width":30,
+                 "x":368.335823494518,
+                 "y":78.5281224631521
                 }, 
                 {
-                 "height":47.2993287788862,
+                 "height":30,
                  "id":4,
-                 "name":"RiceStation",
+                 "name":"Rice",
                  "properties":[
                         {
                          "name":"ingredientName",
@@ -212,14 +212,14 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":58.6905858946837,
-                 "x":679.077487706781,
-                 "y":243.429512274277
+                 "width":30,
+                 "x":689.840475422392,
+                 "y":256.856109918204
                 }, 
                 {
-                 "height":54.8760857684052,
+                 "height":30,
                  "id":5,
-                 "name":"SaladStation",
+                 "name":"Salad",
                  "properties":[
                         {
                          "name":"ingredientName",
@@ -234,14 +234,14 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":63.7417287157469,
-                 "x":353.278775748201,
-                 "y":393.069596969314
+                 "width":30,
+                 "x":369.411744339515,
+                 "y":397.656952477597
                 }, 
                 {
-                 "height":62.4528,
+                 "height":30,
                  "id":6,
-                 "name":"EggStation",
+                 "name":"Egg",
                  "properties":[
                         {
                          "name":"ingredientName",
@@ -256,14 +256,14 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":46.0627288420255,
-                 "x":378.534489853517,
-                 "y":199.863384063644
+                 "width":30,
+                 "x":385.907368660106,
+                 "y":228.719034704193
                 }, 
                 {
-                 "height":62.4528,
+                 "height":30,
                  "id":7,
-                 "name":"FriesStation",
+                 "name":"Fries",
                  "properties":[
                         {
                          "name":"ingredientName",
@@ -278,14 +278,14 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":46.0627,
-                 "x":312.869647600707,
-                 "y":271.842169263796
+                 "width":30,
+                 "x":321.833054142246,
+                 "y":273.228343301951
                 }, 
                 {
-                 "height":54.0771229632642,
+                 "height":30,
                  "id":8,
-                 "name":"AssemblyStation",
+                 "name":"Assembly",
                  "properties":[
                         {
                          "name":"type",
@@ -295,14 +295,14 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":95.2908440016266,
-                 "x":542.702958099498,
-                 "y":423.686665575437
+                 "width":30,
+                 "x":576.385170794626,
+                 "y":432.193744425389
                 }, 
                 {
-                 "height":58.1438167412227,
+                 "height":30,
                  "id":9,
-                 "name":"TrashStation",
+                 "name":"Trash",
                  "properties":[
                         {
                          "name":"type",
@@ -312,9 +312,21 @@
                  "rotation":0,
                  "type":"UndercookedInteractableArea",
                  "visible":true,
-                 "width":34.2903933306222,
-                 "x":158.400418083232,
-                 "y":422.331100982784
+                 "width":30,
+                 "x":160.440048912818,
+                 "y":431.084702993615
+                }, 
+                {
+                 "height":0,
+                 "id":10,
+                 "name":"Spawn Point",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":222.086744469605,
+                 "y":262.149451315102
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -323,7 +335,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":10,
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",

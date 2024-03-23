@@ -15,3 +15,7 @@ export type SocketData = Record<string, never>;
 export type CoveyTownSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 export type TownEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 export type TownEmitterFactory = (townID: string) => TownEmitter;
+export type UndercookedTownSocket = Socket<
+  ServerToClientUndercookedEvents,
+  ClientToServerUndercookedEvents
+>;
