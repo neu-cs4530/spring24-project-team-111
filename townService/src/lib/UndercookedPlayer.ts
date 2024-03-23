@@ -1,12 +1,16 @@
 import { nanoid } from 'nanoid';
-import { Player as PlayerModel, PlayerLocation } from '../types/CoveyTownSocket';
+import {
+  Player as PlayerModel,
+  PlayerLocation,
+  UndercookedIngredient,
+} from '../types/CoveyTownSocket';
 
 /**
  * Each user who is connected to a game is representaed by a GamePlayer object.
  * This object is used to manage the player's location and other game-related data.
  * We give the user a new ingame id to avoid clashes when broadcasting events to the clients.
  */
-export default class GamePlayer {
+export default class UndercookedPlayer {
   public location: PlayerLocation;
 
   private readonly _id: string;
@@ -14,6 +18,8 @@ export default class GamePlayer {
   private readonly _userName: string;
 
   private readonly _inGameId: string;
+
+  public ingredientInHand?: UndercookedIngredient;
 
   constructor(username: string, playerId: string) {
     this.location = {
