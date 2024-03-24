@@ -1,6 +1,6 @@
 import { MockProxy, mock, mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
-import GamePlayer from '../../lib/GamePlayer';
+import GamePlayer from '../../lib/UndercookedPlayer';
 import {
   Direction,
   TownEmitter as GameEmitter,
