@@ -250,6 +250,7 @@ export interface JoinUndercookedGameCommand {
   type: 'JoinUndercookedGame';
   coveyTownID: string;
 }
+
 export type InteractableCommandReturnType<CommandType extends InteractableCommand> =
   CommandType extends JoinGameCommand
     ? { gameID: string }

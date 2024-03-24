@@ -37,17 +37,17 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     );
   }
 
-  public get undercookedTownController(): UndercookedTownController {
+  get undercookedTownController(): UndercookedTownController {
     return this._undercookedTownController;
   }
 
   // just a stub to satisfy UndercookedGameScene
-  public get players() {
-    return [];
+  get players() {
+    return this._undercookedTownController.players;
   }
 
   public joinGame(coveyTownID: string) {
-    this.undercookedTownController.joinGame(coveyTownID);
+    this._undercookedTownController.joinGame(coveyTownID);
   }
 
   toInteractableAreaModel(): UndercookedAreaModel {

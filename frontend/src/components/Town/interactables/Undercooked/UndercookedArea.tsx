@@ -17,8 +17,9 @@ import {
   AccordionItem,
   AccordionPanel,
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
+import PlayerController from '../../../../classes/PlayerController';
 import { useInteractable, useInteractableAreaController } from '../../../../classes/TownController';
 import useTownController from '../../../../hooks/useTownController';
 import ChatChannel from '../ChatChannel';
@@ -32,45 +33,18 @@ export type UndercookedGameProps = {
 };
 
 function UndercookedArea({
-  undercookedAreaController,
+  undercookedArea,
 }: {
-  undercookedAreaController: UndercookedAreaController;
+  undercookedArea: UndercookedAreaInteractable;
 }): JSX.Element {
   const townController = useTownController();
+  const undercookedAreaController = useInteractableAreaController<UndercookedAreaController>(
+    undercookedArea.name,
+  );
 
-  // const loginController = useLoginController();
-  // const { townsService } = loginController;
-
-  // const toast = useToast();
-
-  useEffect(() => {
-    // async function createUndercookedTown() {
-    //   try {
-    //     await townsService.createTown({
-    //       friendlyName: 'Undercooked',
-    //       isPubliclyListed: false,
-    //       mapFile: '../frontend/public/assets/tilemaps/undercooked.json',
-    //     });
-    //     toast({
-    //       title: 'Undercooked Town is ready to go!',
-    //       status: 'success',
-    //       isClosable: true,
-    //       duration: 3000,
-    //     });
-    //   } catch (err) {
-    //     toast({
-    //       title: 'Failed to create Undercooked Town',
-    //       description: (err as Error).toString(),
-    //       status: 'error',
-    //     });
-    //   }
-    // }
-
-    // createUndercookedTown();
-
-    const townID = townController.townID;
-    undercookedAreaController.joinGame(townID);
-  }, [undercookedAreaController]);
+  function handleJoinGame() {
+    undercookedAreaController.joinGame(townController.townID);
+  }
 
   return (
     <Flex width='768px' mt={2} direction='column' alignItems='center'>
@@ -95,7 +69,7 @@ function UndercookedArea({
             </List>
           </Flex>
           <Flex gap={2}>
-            <Button size='xs' type='button' onClick={() => console.log('join game button clicked')}>
+            <Button size='xs' type='button' onClick={handleJoinGame}>
               Join Game
             </Button>
             <Button
@@ -119,11 +93,6 @@ function UndercookedArea({
 export default function UndercookedAreaWrapper(): JSX.Element {
   const coveyTownController = useTownController();
   const undercookedArea = useInteractable<UndercookedAreaInteractable>('undercookedArea');
-  const undercookedAreaController = useInteractableAreaController<UndercookedAreaController>(
-    undercookedArea?.name || '',
-  );
-
-  console.log(undercookedAreaController);
 
   useEffect(() => {
     if (undercookedArea) {
@@ -131,7 +100,7 @@ export default function UndercookedAreaWrapper(): JSX.Element {
     } else {
       coveyTownController.unPause();
     }
-  }, [coveyTownController, undercookedArea, undercookedAreaController]);
+  }, [coveyTownController, undercookedArea]);
 
   const closeModal = useCallback(() => {
     if (undercookedArea) {
@@ -140,7 +109,7 @@ export default function UndercookedAreaWrapper(): JSX.Element {
     }
   }, [coveyTownController, undercookedArea]);
 
-  if (undercookedArea && undercookedAreaController) {
+  if (undercookedArea) {
     return (
       <Modal
         isOpen={true}
@@ -154,7 +123,7 @@ export default function UndercookedAreaWrapper(): JSX.Element {
           <ModalCloseButton />
           <ModalBody display='flex' justifyContent='space-between' alignItems='center'>
             <Box flex={2}>
-              <UndercookedArea undercookedAreaController={undercookedAreaController} />
+              <UndercookedArea undercookedArea={undercookedArea} />
             </Box>
             <Box flex={1}>
               <Accordion allowToggle>
@@ -182,7 +151,7 @@ export default function UndercookedAreaWrapper(): JSX.Element {
                     display: 'flex',
                     flexDirection: 'column',
                   }}>
-                  <ChatChannel interactableID={undercookedAreaController.id} />
+                  <ChatChannel interactableID={undercookedArea.id} />
                 </div>
               </Box>
             </Box>

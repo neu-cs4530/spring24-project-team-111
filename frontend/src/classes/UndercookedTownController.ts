@@ -48,14 +48,14 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   // Our player should be the in-game player the client controls.
   // used in WalkableScene.ts
-  public get ourPlayer() {
+  get ourPlayer() {
     // this is a stub. Replace with the actual player object.
     const player = this._townController.ourPlayer;
     assert(player);
     return player;
   }
 
-  public get players() {
+  get players() {
     // this is a stub, it should return the list of players in the game.
     return this._townController.players;
   }

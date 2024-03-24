@@ -9,7 +9,6 @@ import Interactable from '../components/Town/Interactable';
 import ConversationArea from '../components/Town/interactables/ConversationArea';
 import GameArea from '../components/Town/interactables/GameArea';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
-import UndercookedArea from '../components/Town/interactables/UndercookedArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
 import useTownController from '../hooks/useTownController';
