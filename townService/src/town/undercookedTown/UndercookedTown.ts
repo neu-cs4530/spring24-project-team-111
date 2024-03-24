@@ -43,7 +43,7 @@ export default class UndercookedTown {
 
   private _chatMessages: ChatMessage[] = [];
 
-  private _gameState: UndercookedGameState;
+  private _state: UndercookedGameState;
 
   get players(): UndercookedPlayer[] {
     return this._players;
@@ -69,8 +69,8 @@ export default class UndercookedTown {
     return this._stations;
   }
 
-  get gameState(): UndercookedGameState {
-    return this._gameState;
+  get state(): UndercookedGameState {
+    return this._state;
   }
 
   constructor(
@@ -82,7 +82,7 @@ export default class UndercookedTown {
     this._townID = townID;
     this._townUpdatePassword = 'password';
     this._broadcastEmitter = broadcastEmitter;
-    this._gameState = {
+    this._state = {
       status: 'WAITING_FOR_PLAYERS',
       playerOne: undefined,
       playerTwo: undefined,
@@ -102,7 +102,7 @@ export default class UndercookedTown {
    */
   // GamePlayer or UndercookedGamePlayer?????
   async joinPlayer(userName: string, socket: CoveyTownSocket): Promise<Player> {
-    if (this._gameState.status !== 'WAITING_FOR_PLAYERS') {
+    if (this._state.status !== 'WAITING_FOR_PLAYERS') {
       throw new Error('Player maximum has been reached.');
     }
 
@@ -222,33 +222,33 @@ export default class UndercookedTown {
   private _removePlayer(player: Player): void {
     this._players = this._players.filter(p => p.id !== player.id);
     this._broadcastEmitter.emit('playerDisconnect', player.toPlayerModel());
-    this._gameState = {
-      ...this._gameState,
+    this._state = {
+      ...this._state,
       status: 'WAITING_FOR_PLAYERS',
     };
   }
 
   startGame(player: UndercookedPlayer): void {
-    if (this._gameState.status !== 'WAITING_TO_START') {
+    if (this._state.status !== 'WAITING_TO_START') {
       throw new InvalidParametersError(GAME_NOT_STARTABLE_MESSAGE);
     }
-    if (this._gameState.playerOne !== player.id && this._gameState.playerTwo !== player.id) {
+    if (this._state.playerOne !== player.id && this._state.playerTwo !== player.id) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
-    if (this._gameState.playerOne === player.id) {
-      this._gameState.playerOneReady = true;
+    if (this._state.playerOne === player.id) {
+      this._state.playerOneReady = true;
     }
-    if (this._gameState.playerTwo === player.id) {
-      this._gameState.playerTwoReady = true;
+    if (this._state.playerTwo === player.id) {
+      this._state.playerTwoReady = true;
     }
-    this._gameState = {
-      ...this._gameState,
+    this._state = {
+      ...this._state,
       status:
-        this._gameState.playerOneReady && this._gameState.playerTwoReady
+        this._state.playerOneReady && this._state.playerTwoReady
           ? 'IN_PROGRESS'
           : 'WAITING_TO_START',
     };
-    if (this._gameState.status === 'IN_PROGRESS') {
+    if (this._state.status === 'IN_PROGRESS') {
       this._initGame();
     }
   }
