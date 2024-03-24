@@ -70,7 +70,9 @@ export default class UndercookedTownController extends (EventEmitter as new () =
       type: 'JoinUndercookedGame',
       coveyTownID: coveyTownID,
     });
-    console.log(response);
+    console.log('joinGame response:', this._model);
+    this._model = response;
+    console.log('joinGame response:', this._model);
   }
 
   /**

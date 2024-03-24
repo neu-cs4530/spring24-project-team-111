@@ -5,14 +5,14 @@ import UndercookedTownsStore from '../lib/UndercookedTownStore';
 import {
   BoundingBox,
   CoveyTownSocket,
+  Interactable,
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableID,
   TownEmitter,
-  UndercookedArea as UndercookedAreaModel,
+  UndercookedGameState,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
-import UndercookedTown from './undercookedTown/UndercookedTown';
 
 export default class UndercookedArea extends InteractableArea {
   /**
@@ -44,12 +44,20 @@ export default class UndercookedArea extends InteractableArea {
     return new UndercookedArea(name as InteractableID, rect, broadcastEmitter);
   }
 
-  public toModel(): UndercookedAreaModel {
+  public toModel(): Interactable {
     return {
       type: 'UndercookedArea',
       id: this.id,
       occupants: this.occupantsByID,
     };
+  }
+
+  private _toStateModel(id: string): UndercookedGameState {
+    const town = UndercookedTownsStore.getInstance().getUndercookedTownByCoveyTownID(id);
+    if (!town) {
+      throw new Error('Town not found');
+    }
+    return town.state;
   }
 
   public handleCommand<CommandType extends InteractableCommand>(
@@ -67,7 +75,9 @@ export default class UndercookedArea extends InteractableArea {
 
       town?.joinPlayer(player.userName, socket);
 
-      return {} as unknown as InteractableCommandReturnType<CommandType>;
+      return this._toStateModel(
+        command.coveyTownID,
+      ) as unknown as InteractableCommandReturnType<CommandType>;
     }
     throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
   }

@@ -330,7 +330,8 @@ export interface UndercookedGameState extends GameState {
   score: number;
 }
 
-export type UndercookedArea = Interactable;
+// might need an edit due to type erros.
+// export type UndercookedArea = Interactable | UndercookedGameState;
 
 export interface ServerToClientUndercookedEvents {
   playerMoved: (movedPlayer: Player) => void;
