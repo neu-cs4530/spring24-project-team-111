@@ -35,12 +35,6 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   private _id: InteractableID;
 
   /**
-   * A flag indicating whether the current 2D game is paused, or not. Pausing the game will prevent it from updating,
-   * and will also release any key bindings, allowing all keys to be used for text entry or other purposes.
-   */
-  private _paused = false;
-
-  /**
    * An event emitter that broadcasts interactable-specific events
    */
   private _interactableEmitter = new EventEmitter();
@@ -50,19 +44,6 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._model = model;
     this._townController = townController;
     this._id = id;
-  }
-
-  public get paused() {
-    return this._paused;
-  }
-
-  public async connect() {
-    return new Promise<void>(resolve => {
-      const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
-      assert(url);
-      this._socket = io(`${url}/undercooked`);
-      resolve();
-    });
   }
 
   // Our player should be the in-game player the client controls.
@@ -79,18 +60,17 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._townController.players;
   }
 
-  public pause(): void {
-    if (!this._paused) {
-      this._paused = true;
-      this.emit('pause');
-    }
-  }
-
-  public unPause(): void {
-    if (this._paused) {
-      this._paused = false;
-      this.emit('unPause');
-    }
+  /**
+   * Sends a request to the server to join the current game in the game area, or create a new one if there is no game in progress.
+   *
+   * @throws An error if the server rejects the request to join the game.
+   */
+  public async joinGame(coveyTownID: string) {
+    const response = await this._townController.sendInteractableCommand(this._id, {
+      type: 'JoinUndercookedGame',
+      coveyTownID: coveyTownID,
+    });
+    console.log(response);
   }
 
   /**
@@ -116,5 +96,18 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   public interact<T extends Interactable>(interactedObj: T) {
     this._interactableEmitter.emit(interactedObj.getType(), interactedObj);
+  }
+
+  public async connect(townID: string) {
+    return new Promise<void>(resolve => {
+      const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
+      assert(url);
+      this._socket = io(`${url}/undercooked`, {
+        query: {
+          townID,
+        },
+      });
+      resolve();
+    });
   }
 }

@@ -27,12 +27,15 @@ import AreaFactory from '../games/AreaFactory';
  * for Undercooked game rules and mechanics.
  */
 export default class UndercookedTown {
-  /** The list of players currently in the town * */
   private _players: UndercookedPlayer[] = [];
+
+  private _friendlyName: string;
 
   private _stations: InteractableArea[] = [];
 
-  private readonly _underCookedGameID: string;
+  private readonly _townID: string;
+
+  private readonly _townUpdatePassword: string;
 
   private _broadcastEmitter: BroadcastOperator<ServerToClientEvents, SocketData>;
 
@@ -51,7 +54,15 @@ export default class UndercookedTown {
   }
 
   get townID(): string {
-    return this._underCookedGameID;
+    return this._townID;
+  }
+
+  get townUpdatePassword(): string {
+    return this._townUpdatePassword;
+  }
+
+  get friendlyName(): string {
+    return this._friendlyName;
   }
 
   get stations(): InteractableArea[] {
@@ -63,10 +74,13 @@ export default class UndercookedTown {
   }
 
   constructor(
+    friendlyName: string,
     townID: string,
     broadcastEmitter: BroadcastOperator<ServerToClientEvents, SocketData>,
   ) {
-    this._underCookedGameID = townID;
+    this._friendlyName = friendlyName;
+    this._townID = townID;
+    this._townUpdatePassword = 'password';
     this._broadcastEmitter = broadcastEmitter;
     this._gameState = {
       status: 'WAITING_FOR_PLAYERS',
@@ -92,7 +106,7 @@ export default class UndercookedTown {
       throw new Error('Player maximum has been reached.');
     }
 
-    const newPlayer = new Player(userName, socket.to(this._underCookedGameID));
+    const newPlayer = new Player(userName, socket.to(this._townID));
     const newUndercookedPlayer: UndercookedPlayer = {
       id: newPlayer.id,
       userName: newPlayer.userName,

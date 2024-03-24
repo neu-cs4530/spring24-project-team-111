@@ -29,6 +29,8 @@ export default class TownsStore {
 
   private _towns: Town[] = [];
 
+  private _undercookedTownsMap: Map<string, UndercookedTown> = new Map();
+
   private _emitterFactory: TownEmitterFactory;
 
   static initializeTownsStore(emitterFactory: TownEmitterFactory) {
@@ -76,6 +78,18 @@ export default class TownsStore {
   }
 
   /**
+   * Get the undercooked town within the covey town with the given id
+   *
+   * @param coveyTownID townID of the covey town
+   * @returns the existing undercooked town controller, or undefined if there is no such undercooked town in
+   */
+  getUndercookedTownByCoveyTownID(coveyTownID: string): UndercookedTown | undefined {
+    const town = this._undercookedTownsMap.get(coveyTownID);
+
+    return town;
+  }
+
+  /**
    * Creates a new town, registering it in the Town Store, and returning that new town
    * @param friendlyName
    * @param isPubliclyListed
@@ -84,28 +98,29 @@ export default class TownsStore {
   async createTown(
     friendlyName: string,
     isPubliclyListed: boolean,
+    coveyTownID?: string,
     mapFile = '../frontend/public/assets/tilemaps/indoors.json',
-  ): Promise<Town> {
+  ): Promise<Town | UndercookedTown> {
     if (friendlyName.length === 0) {
       throw new Error('FriendlyName must be specified');
     }
+    const isUndercookedTown = friendlyName === 'Undercooked';
+
     const townID = process.env.DEMO_TOWN_ID === friendlyName ? friendlyName : friendlyNanoID();
-    const newTown = new Town(friendlyName, isPubliclyListed, townID, this._emitterFactory(townID));
+    const newTown = isUndercookedTown
+      ? new UndercookedTown(friendlyName, townID, this._emitterFactory(townID))
+      : new Town(friendlyName, isPubliclyListed, townID, this._emitterFactory(townID));
     const data = JSON.parse(await fs.readFile(mapFile, 'utf-8'));
     const map = ITiledMap.parse(data);
     newTown.initializeFromMap(map);
-    this._towns.push(newTown);
-    return newTown;
-  }
 
-  async createUndercookedTown(): Promise<UndercookedTown> {
-    const townID = 'UndercookedTown';
-    const mapFile = '../frontend/public/assets/tilemaps/undercooked.json';
-    const newUndercookedTown = new UndercookedTown(townID, this._emitterFactory(townID));
-    const data = JSON.parse(await fs.readFile(mapFile, 'utf-8'));
-    const map = ITiledMap.parse(data);
-    newUndercookedTown.initializeFromMap(map);
-    return newUndercookedTown;
+    if (isUndercookedTown && coveyTownID) {
+      this._undercookedTownsMap.set(coveyTownID, newTown as UndercookedTown);
+    } else {
+      this._towns.push(newTown as Town);
+    }
+
+    return newTown;
   }
 
   /**

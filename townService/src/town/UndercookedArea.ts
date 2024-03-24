@@ -19,6 +19,6 @@ export default class UndercookedArea extends InteractableArea {
     command: CommandType,
     player: Player,
   ): InteractableCommandReturnType<CommandType> {
-    throw new Error('Method not implemented.');
+    if (command.type === 'JoinUndercookedGame')
   }
 }

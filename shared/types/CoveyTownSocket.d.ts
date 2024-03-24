@@ -224,7 +224,8 @@ export type InteractableCommand =
   | GameMoveCommand<TicTacToeMove>
   | GameMoveCommand<ConnectFourMove>
   | StartGameCommand
-  | LeaveGameCommand;
+  | LeaveGameCommand
+  | JoinUndercookedGameCommand;
 export interface ViewingAreaUpdateCommand {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -244,6 +245,10 @@ export interface GameMoveCommand<MoveType> {
   type: 'GameMove';
   gameID: GameInstanceID;
   move: MoveType;
+}
+export interface JoinUndercookedGameCommand {
+  type: 'JoinUndercookedGame';
+  coveyTownID: string;
 }
 export type InteractableCommandReturnType<CommandType extends InteractableCommand> =
   CommandType extends JoinGameCommand

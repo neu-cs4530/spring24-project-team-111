@@ -334,6 +334,13 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     return ret as ViewingAreaController[];
   }
 
+  public get undercookedArea() {
+    const ret = this._interactableControllers.filter(
+      eachInteractable => eachInteractable instanceof UndercookedAreaController,
+    );
+    return ret as UndercookedAreaController[];
+  }
+
   public get gameAreas() {
     const ret = this._interactableControllers.filter(
       eachInteractable => eachInteractable instanceof GameAreaController,
@@ -680,17 +687,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     }
   }
 
-  public getUndercookedAreaController(undercookedArea: UndercookedArea): UndercookedAreaController {
-    const existingController = this._interactableControllers.find(
-      eachExistingArea => eachExistingArea.id === undercookedArea.name,
-    );
-    if (existingController instanceof UndercookedAreaController) {
-      return existingController;
-    } else {
-      throw new Error(`Undercooked area controller not created`);
-    }
-  }
-
   /**
    * Retrives the game area controller corresponding to a game area by ID, or
    * throws an error if the game area controller does not exist
@@ -796,13 +792,31 @@ export function useTownSettings() {
  */
 export function useInteractableAreaController<T>(interactableAreaID: string): T {
   const townController = useTownController();
-  const interactableAreaController = townController.gameAreas.find(
+  const gameAreaController = townController.gameAreas.find(
     eachArea => eachArea.id == interactableAreaID,
   );
-  if (!interactableAreaController) {
+  if (!gameAreaController) {
+    // look for a viewing area
+    const viewingAreaController = townController.viewingAreas.find(
+      eachArea => eachArea.id == interactableAreaID,
+    );
+    if (viewingAreaController) {
+      return viewingAreaController as unknown as T;
+    } else {
+      // look for an undercooked area
+      const undercookedAreaController = townController.undercookedArea.find(
+        eachArea => eachArea.id == interactableAreaID,
+      );
+
+      console.log(undercookedAreaController);
+      if (undercookedAreaController) {
+        return undercookedAreaController as unknown as T;
+      }
+    }
     throw new Error(`Requested interactable area ${interactableAreaID} does not exist`);
   }
-  return interactableAreaController as unknown as T;
+
+  return gameAreaController as unknown as T;
 }
 
 /**
