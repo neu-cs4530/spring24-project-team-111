@@ -181,7 +181,7 @@ export default class Town {
       );
       if (interactable) {
         try {
-          const payload = interactable.handleCommand(command, newPlayer);
+          const payload = interactable.handleCommand(command, newPlayer, socket);
           socket.emit('commandResponse', {
             commandID: command.commandID,
             interactableID: command.interactableID,
@@ -419,19 +419,15 @@ export default class Town {
         ConversationArea.fromMapObject(eachConvAreaObj, this._broadcastEmitter),
       );
 
-    const gameAreas = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'GameArea')
-      .map(eachGameAreaObj => AreaFactory(eachGameAreaObj, this._broadcastEmitter));
-
-    // const undercookedAreas = objectLayer.objects
-    //   .filter(eachObject => eachObject.type === 'UndercookedArea')
-    //   .map(eachUndercookedAreaObj => AreaFactory(eachUndercookedAreaObj, this._broadcastEmitter));
-
     const undercookedAreas = objectLayer.objects
       .filter(eachObject => eachObject.type === 'UndercookedArea')
       .map(eachUndercookedAreaObj =>
         UndercookedArea.fromMapObject(eachUndercookedAreaObj, this._broadcastEmitter),
       );
+
+    const gameAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'GameArea')
+      .map(eachGameAreaObj => AreaFactory(eachGameAreaObj, this._broadcastEmitter));
 
     this._interactables = this._interactables
       .concat(viewingAreas)

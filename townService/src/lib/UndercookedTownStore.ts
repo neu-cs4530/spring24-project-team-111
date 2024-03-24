@@ -59,7 +59,7 @@ export default class UndercookedTownsStore {
     if (friendlyName.length === 0) {
       throw new Error('FriendlyName must be specified');
     }
-    const townID = process.env.DEMO_TOWN_ID === friendlyName ? friendlyName : friendlyNanoID();
+    const townID = friendlyNanoID();
     const newTown = new UndercookedTown(friendlyName, townID, this._emitterFactory(townID));
     const data = JSON.parse(await fs.readFile(mapFile, 'utf-8'));
     const map = ITiledMap.parse(data);

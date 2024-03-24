@@ -1,8 +1,10 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../lib/InvalidParametersError';
 import Player from '../lib/Player';
+import UndercookedTownsStore from '../lib/UndercookedTownStore';
 import {
   BoundingBox,
+  CoveyTownSocket,
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableID,
@@ -10,6 +12,7 @@ import {
   UndercookedArea as UndercookedAreaModel,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
+import UndercookedTown from './undercookedTown/UndercookedTown';
 
 export default class UndercookedArea extends InteractableArea {
   /**
@@ -52,18 +55,20 @@ export default class UndercookedArea extends InteractableArea {
   public handleCommand<CommandType extends InteractableCommand>(
     command: CommandType,
     player: Player,
+    socket: CoveyTownSocket,
   ): InteractableCommandReturnType<CommandType> {
-    // if (command.type === 'JoinUndercookedGame') {
-    //   const townStore = UndercookedTownsStore.getInstance();
-    //   const game = townStore.getUndercookedTownByCoveyTownID(command.coveyTownID);
+    if (command.type === 'JoinUndercookedGame') {
+      const townStore = UndercookedTownsStore.getInstance();
+      const town = townStore.getUndercookedTownByCoveyTownID(command.coveyTownID);
 
-    //   if (!game || game.state.status === 'OVER') {
-    //     townStore.createTown('Undercooked', command.coveyTownID);
-    //   }
-    //   game.join(player);
-    //   this._stateUpdated(game.toModel());
-    //   return { gameID: game.id } as InteractableCommandReturnType<CommandType>;
-    // }
+      if (!town || town.state.status === 'OVER') {
+        townStore.createTown('Undercooked', command.coveyTownID);
+      }
+
+      town?.joinPlayer(player.userName, socket);
+
+      return {} as unknown as InteractableCommandReturnType<CommandType>;
+    }
     throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
   }
 }

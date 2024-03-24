@@ -1,10 +1,9 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
-import { BoundingBox, TownEmitter } from '../../types/CoveyTownSocket';
+import { BoundingBox, TownEmitter, UndercookedIngredient } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
-// import UndercookedArea from '../UndercookedArea';
-// import AssemblyArea from '../undercookedTown/AssemblyArea';
-// import IngredientArea from '../undercookedTown/IngredientArea';
-// import TrashArea from '../undercookedTown/TrashArea';
+import AssemblyArea from '../undercookedTown/AssemblyArea';
+import IngredientArea from '../undercookedTown/IngredientArea';
+import TrashArea from '../undercookedTown/TrashArea';
 import ConnectFourGameArea from './ConnectFourGameArea';
 import TicTacToeGameArea from './TicTacToeGameArea';
 
@@ -38,19 +37,16 @@ export default function AreaFactory(
   if (type === 'ConnectFour') {
     return new ConnectFourGameArea(name, rect, broadcastEmitter);
   }
-  // if (type === 'Undercooked') {
-  //   return new UndercookedArea(name, rect, broadcastEmitter);
-  // }
-  // if (type === 'Ingredient') {
-  //   const ingredientName = mapObject.properties?.find(prop => prop.name === 'ingredientName')
-  //     ?.value as UndercookedIngredient;
-  //   return new IngredientArea(name, rect, broadcastEmitter, ingredientName);
-  // }
-  // if (type === 'Assembly') {
-  //   return new AssemblyArea(name, rect, broadcastEmitter);
-  // }
-  // if (type === 'Trash') {
-  //   return new TrashArea(name, rect, broadcastEmitter);
-  // }
+  if (type === 'Ingredient') {
+    const ingredientName = mapObject.properties?.find(prop => prop.name === 'ingredientName')
+      ?.value as UndercookedIngredient;
+    return new IngredientArea(name, rect, broadcastEmitter, ingredientName);
+  }
+  if (type === 'Assembly') {
+    return new AssemblyArea(name, rect, broadcastEmitter);
+  }
+  if (type === 'Trash') {
+    return new TrashArea(name, rect, broadcastEmitter);
+  }
   throw new Error(`Unknown game area type ${mapObject.class}`);
 }

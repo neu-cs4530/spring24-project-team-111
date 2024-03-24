@@ -1,6 +1,7 @@
 import Player from '../lib/Player';
 import {
   BoundingBox,
+  CoveyTownSocket,
   Interactable,
   InteractableCommand,
   InteractableCommandReturnType,
@@ -176,5 +177,6 @@ export default abstract class InteractableArea {
   public abstract handleCommand<CommandType extends InteractableCommand>(
     command: CommandType,
     player: Player,
+    socket?: CoveyTownSocket,
   ): InteractableCommandReturnType<CommandType>;
 }

@@ -100,7 +100,6 @@ export default class UndercookedTown {
    *
    * @param newPlayer The new player to add to the town
    */
-  // GamePlayer or UndercookedGamePlayer?????
   async joinPlayer(userName: string, socket: CoveyTownSocket): Promise<Player> {
     if (this._state.status !== 'WAITING_FOR_PLAYERS') {
       throw new Error('Player maximum has been reached.');
@@ -116,9 +115,6 @@ export default class UndercookedTown {
     this._players.push(newUndercookedPlayer);
 
     this._connectedSockets.add(socket);
-
-    // // Create a video token for this user to join this town
-    // newPlayer.videoToken = await this._videoClient.getTokenForTown(this._underCookedGameID, newPlayer.id);
 
     // Notify other players that this player has joined
     this._broadcastEmitter.emit('playerJoined', newPlayer.toPlayerModel());
@@ -211,6 +207,7 @@ export default class UndercookedTown {
         });
       }
     });
+
     return newPlayer;
   }
 
