@@ -4,7 +4,7 @@ import {
   TownEmitter as GameEmitter,
 } from '../../types/CoveyTownSocket';
 import { logError } from '../../Utils';
-import GamePlayer from '../../lib/GamePlayer';
+import GamePlayer from '../../lib/UndercookedPlayer';
 
 type LocationMutator = (newLocation: PlayerLocation) => void;
 
