@@ -56,6 +56,10 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._paused;
   }
 
+  public get interactableEmitter() {
+    return this._interactableEmitter;
+  }
+
   public async connect() {
     return new Promise<void>(resolve => {
       const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
