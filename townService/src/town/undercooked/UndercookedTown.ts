@@ -1,12 +1,13 @@
 import assert from 'assert';
 import { BroadcastOperator } from 'socket.io';
+import { ITiledMap, ITiledMapObjectLayer } from '@jonbell/tiled-map-type-guard';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
   GAME_NOT_STARTABLE_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
-} from '../lib/InvalidParametersError';
-import Player from '../lib/Player';
+} from '../../lib/InvalidParametersError';
+import Player from '../../lib/Player';
 import {
   CoveyTownSocket,
   GameInstanceID,
@@ -16,10 +17,11 @@ import {
   ServerToClientEvents,
   SocketData,
   UndercookedGameState,
-} from '../types/CoveyTownSocket';
-import UndercookedPlayer from '../lib/UndercookedPlayer';
-import { logError } from '../Utils';
-import UndercookedInteractable from './UndercookedInteractable';
+} from '../../types/CoveyTownSocket';
+import UndercookedPlayer from '../../lib/UndercookedPlayer';
+import { logError } from '../../Utils';
+import InteractableArea from '../InteractableArea';
+import AreaFactory from '../games/AreaFactory';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
@@ -40,7 +42,7 @@ export default class UndercookedTown {
 
   private _players: UndercookedPlayer[] = [];
 
-  private _stations: UndercookedInteractable[] = [];
+  private _stations: InteractableArea[] = [];
 
   private _clientSockets: Map<string, ClientSocket> = new Map();
 
@@ -56,7 +58,7 @@ export default class UndercookedTown {
     return this._id;
   }
 
-  get interactables(): UndercookedInteractable[] {
+  get interactables(): InteractableArea[] {
     return this._stations;
   }
 
@@ -189,6 +191,30 @@ export default class UndercookedTown {
     }
   }
 
+  public initializeFromMap(map: ITiledMap) {
+    const objectLayer = map.layers.find(
+      eachLayer => eachLayer.name === 'Objects',
+    ) as ITiledMapObjectLayer;
+    if (!objectLayer) {
+      throw new Error('Unable to find objects layer in map');
+    }
+
+    const ingredientArea = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'IngredientArea')
+      .map(eachIngredientArea => AreaFactory(eachIngredientArea, this._broadcastEmitter));
+
+    const trashArea = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'TrashArea')
+      .map(eachTrashArea => AreaFactory(eachTrashArea, this._broadcastEmitter));
+
+    const assemblyArea = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'AssemblyArea')
+      .map(eachAssemblyArea => AreaFactory(eachAssemblyArea, this._broadcastEmitter));
+
+    this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
+    this._validateStations();
+  }
+
   // might have to chnage the names of the emitted messages to avoid clases with coveytown.
   private _initGameHandlers(): void {
     this._clientSockets.forEach((socket, playerID) => {
@@ -214,7 +240,11 @@ export default class UndercookedTown {
             const player = this._players.find(p => p.id === playerID);
             assert(player);
             // might need to change this to UndercookedPlayer and change the handleCommand method to accept UndercookedPlayer.
-            const payload = interactable.handleCommand(command, player as unknown as Player);
+            const payload = interactable.handleCommand(
+              command,
+              player as unknown as Player,
+              socket,
+            );
             socket.emit('commandResponse', {
               commandID: command.commandID,
               interactableID: command.interactableID,
@@ -278,5 +308,29 @@ export default class UndercookedTown {
     }
     this._players = this._players.filter(p => p.id !== player.id);
     this._clientSockets.delete(player.id);
+  }
+
+  private _validateStations() {
+    // Make sure that the IDs are unique
+    const interactableIDs = this._stations.map(eachInteractable => eachInteractable.id);
+    if (
+      interactableIDs.some(
+        item => interactableIDs.indexOf(item) !== interactableIDs.lastIndexOf(item),
+      )
+    ) {
+      throw new Error(
+        `Expected all interactable IDs to be unique, but found duplicate interactable ID in ${interactableIDs}`,
+      );
+    }
+    // Make sure that there are no overlapping objects
+    for (const station of this._stations) {
+      for (const otherStation of this._stations) {
+        if (station !== otherStation && station.overlaps(otherStation)) {
+          throw new Error(
+            `Expected interactables not to overlap, but found overlap between ${station.id} and ${otherStation.id}`,
+          );
+        }
+      }
+    }
   }
 }

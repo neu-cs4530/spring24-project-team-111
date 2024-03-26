@@ -1,6 +1,7 @@
 import Player from '../lib/Player';
 import {
   BoundingBox,
+  CoveyTownSocket,
   Interactable,
   InteractableCommand,
   InteractableCommandReturnType,
@@ -32,7 +33,7 @@ export default abstract class InteractableArea {
   protected _occupants: Player[] = [];
 
   /* An emitter that can be used to broadcast messages to all players in this town */
-  private _townEmitter: TownEmitter;
+  protected _townEmitter: TownEmitter;
 
   public get id() {
     return this._id;
@@ -176,5 +177,6 @@ export default abstract class InteractableArea {
   public abstract handleCommand<CommandType extends InteractableCommand>(
     command: CommandType,
     player: Player,
+    socket: CoveyTownSocket,
   ): InteractableCommandReturnType<CommandType>;
 }

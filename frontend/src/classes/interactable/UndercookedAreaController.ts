@@ -46,6 +46,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     return [];
   }
 
+  public joinGame() {
+    this._undercookedTownController.joinGame();
+  }
+
   toInteractableAreaModel(): UndercookedAreaModel {
     throw new Error('Method not implemented.');
   }

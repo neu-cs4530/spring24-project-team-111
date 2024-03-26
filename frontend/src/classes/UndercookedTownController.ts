@@ -56,6 +56,10 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._paused;
   }
 
+  public get interactableEmitter() {
+    return this._interactableEmitter;
+  }
+
   public async connect() {
     return new Promise<void>(resolve => {
       const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
@@ -63,6 +67,14 @@ export default class UndercookedTownController extends (EventEmitter as new () =
       this._socket = io(`${url}/undercooked`);
       resolve();
     });
+  }
+
+  public async joinGame() {
+    const response = await this._townController.sendInteractableCommand(this._id, {
+      type: 'JoinGame',
+    });
+
+    console.log(response);
   }
 
   // Our player should be the in-game player the client controls.
