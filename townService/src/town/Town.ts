@@ -20,7 +20,7 @@ import {
 } from '../types/CoveyTownSocket';
 import { logError } from '../Utils';
 import ConversationArea from './ConversationArea';
-import GameAreaFactory from './games/GameAreaFactory';
+import GameAreaFactory from './games/AreaFactory';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
 

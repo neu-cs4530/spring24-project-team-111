@@ -12,7 +12,7 @@ import TicTacToeGameArea from './TicTacToeGameArea';
  * @returns the interactable area
  * @throws an error if the map object is malformed
  */
-export default function GameAreaFactory(
+export default function AreaFactory(
   mapObject: ITiledMapObject,
   broadcastEmitter: TownEmitter,
 ): InteractableArea {
