@@ -1,6 +1,9 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
-import { BoundingBox, TownEmitter } from '../../types/CoveyTownSocket';
+import { BoundingBox, TownEmitter, UndercookedIngredient } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
+import AssemblyArea from '../undercooked/AssemblyArea';
+import IngredientArea from '../undercooked/IngredientArea';
+import TrashArea from '../undercooked/TrashArea';
 import UndercookedArea from '../undercooked/UndercookedArea';
 import ConnectFourGameArea from './ConnectFourGameArea';
 import TicTacToeGameArea from './TicTacToeGameArea';
@@ -21,15 +24,26 @@ export default function AreaFactory(
     throw new Error(`Malformed viewing area ${name}`);
   }
   const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-  const gameType = mapObject.properties?.find(prop => prop.name === 'type')?.value;
-  if (gameType === 'TicTacToe') {
+  const type = mapObject.properties?.find(prop => prop.name === 'type')?.value;
+  if (type === 'TicTacToe') {
     return new TicTacToeGameArea(name, rect, broadcastEmitter);
   }
-  if (gameType === 'ConnectFour') {
+  if (type === 'ConnectFour') {
     return new ConnectFourGameArea(name, rect, broadcastEmitter);
   }
-  if (gameType === 'Undercooked') {
+  if (type === 'Undercooked') {
     return new UndercookedArea(name, rect, broadcastEmitter);
+  }
+  if (type === 'Ingredient') {
+    // get the ingredient supplied by the ingredient area
+    const ingredient = mapObject.properties?.find(prop => prop.name === 'ingredient')?.value;
+    return new IngredientArea(name, rect, broadcastEmitter, ingredient as UndercookedIngredient);
+  }
+  if (type === 'Trash') {
+    return new TrashArea(name, rect, broadcastEmitter);
+  }
+  if (type === 'Assembly') {
+    return new AssemblyArea(name, rect, broadcastEmitter);
   }
   throw new Error(`Unknown game area type ${mapObject.class}`);
 }
