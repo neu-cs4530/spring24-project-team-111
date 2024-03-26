@@ -35,6 +35,12 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   private _id: InteractableID;
 
   /**
+   * A flag indicating whether the current 2D game is paused, or not. Pausing the game will prevent it from updating,
+   * and will also release any key bindings, allowing all keys to be used for text entry or other purposes.
+   */
+  private _paused = false;
+
+  /**
    * An event emitter that broadcasts interactable-specific events
    */
   private _interactableEmitter = new EventEmitter();
@@ -55,9 +61,27 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return player;
   }
 
+  get paused() {
+    return this._paused;
+  }
+
   get players() {
     // this is a stub, it should return the list of players in the game.
     return this._townController.players;
+  }
+
+  public pause(): void {
+    if (!this._paused) {
+      this._paused = true;
+      this.emit('pause');
+    }
+  }
+
+  public unPause(): void {
+    if (this._paused) {
+      this._paused = false;
+      this.emit('unPause');
+    }
   }
 
   /**

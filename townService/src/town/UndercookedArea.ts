@@ -1,20 +1,25 @@
-import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import { ITiledMap, ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import * as fs from 'fs/promises';
 import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../lib/InvalidParametersError';
 import Player from '../lib/Player';
-import UndercookedTownsStore from '../lib/UndercookedTownStore';
 import {
   BoundingBox,
   CoveyTownSocket,
-  Interactable,
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableID,
   TownEmitter,
-  UndercookedGameState,
+  UndercookedArea as UndercookedAreaModel,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
+import UndercookedTown from './undercookedTown/UndercookedTown';
 
 export default class UndercookedArea extends InteractableArea {
+  /**
+   * The undercooked town that exists in the undercooked area
+   */
+  private _undercookedTown!: UndercookedTown;
+
   /**
    * Creates a new UndercookedArea
    *
@@ -24,6 +29,7 @@ export default class UndercookedArea extends InteractableArea {
    */
   public constructor(id: InteractableID, coordinates: BoundingBox, townEmitter: TownEmitter) {
     super(id as unknown as InteractableID, coordinates, townEmitter);
+    this._initializeUndercookedTown(townEmitter);
   }
 
   /**
@@ -44,20 +50,13 @@ export default class UndercookedArea extends InteractableArea {
     return new UndercookedArea(name as InteractableID, rect, broadcastEmitter);
   }
 
-  public toModel(): Interactable {
+  public toModel(): UndercookedAreaModel {
     return {
       type: 'UndercookedArea',
       id: this.id,
       occupants: this.occupantsByID,
+      ...this._undercookedTown,
     };
-  }
-
-  private _toStateModel(id: string): UndercookedGameState {
-    const town = UndercookedTownsStore.getInstance().getUndercookedTownByCoveyTownID(id);
-    if (!town) {
-      throw new Error('Town not found');
-    }
-    return town.state;
   }
 
   public handleCommand<CommandType extends InteractableCommand>(
@@ -65,20 +64,26 @@ export default class UndercookedArea extends InteractableArea {
     player: Player,
     socket: CoveyTownSocket,
   ): InteractableCommandReturnType<CommandType> {
-    if (command.type === 'JoinUndercookedGame') {
-      const townStore = UndercookedTownsStore.getInstance();
-      const town = townStore.getUndercookedTownByCoveyTownID(command.coveyTownID);
-
-      if (!town || town.state.status === 'OVER') {
-        townStore.createTown('Undercooked', command.coveyTownID);
+    if (command.type === 'JoinGame') {
+      if (this._undercookedTown.state.status === 'OVER') {
+        this._initializeUndercookedTown(this._townEmitter);
       }
 
-      town?.joinPlayer(player.userName, socket);
+      this._undercookedTown.join(player, socket);
+      this._emitAreaChanged();
 
-      return this._toStateModel(
-        command.coveyTownID,
-      ) as unknown as InteractableCommandReturnType<CommandType>;
+      return {} as unknown as InteractableCommandReturnType<CommandType>;
     }
     throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
+  }
+
+  private async _initializeUndercookedTown(townEmitter: TownEmitter): Promise<void> {
+    const mapFile = '../frontend/public/assets/tilemaps/undercooked.json';
+    const newTown = new UndercookedTown(townEmitter);
+    const data = JSON.parse(await fs.readFile(mapFile, 'utf-8'));
+    const map = ITiledMap.parse(data);
+    newTown.initializeFromMap(map);
+
+    this._undercookedTown = newTown;
   }
 }

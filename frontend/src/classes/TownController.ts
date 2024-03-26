@@ -807,7 +807,6 @@ export function useInteractableAreaController<T>(interactableAreaID: string): T 
         eachArea => eachArea.id == interactableAreaID,
       );
 
-      console.log(undercookedAreaController);
       if (undercookedAreaController) {
         return undercookedAreaController as unknown as T;
       }

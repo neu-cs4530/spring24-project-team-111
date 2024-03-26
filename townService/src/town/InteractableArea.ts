@@ -33,7 +33,7 @@ export default abstract class InteractableArea {
   protected _occupants: Player[] = [];
 
   /* An emitter that can be used to broadcast messages to all players in this town */
-  private _townEmitter: TownEmitter;
+  protected _townEmitter: TownEmitter;
 
   public get id() {
     return this._id;

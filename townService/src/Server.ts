@@ -11,7 +11,6 @@ import TownsStore from './lib/TownsStore';
 import { ClientToServerEvents, ServerToClientEvents } from './types/CoveyTownSocket';
 import { TownsController } from './town/TownsController';
 import { logError } from './Utils';
-import UndercookedTownsStore from './lib/UndercookedTownStore';
 
 // Create the server instances
 const app = Express();
@@ -24,19 +23,11 @@ const socketServer = new SocketServer<ClientToServerEvents, ServerToClientEvents
 // Initialize the towns store with a factory that creates a broadcast emitter for a town
 TownsStore.initializeTownsStore((townID: string) => socketServer.to(townID));
 
-// Initialize the undercooked towns store with a factory that creates a broadcast emitter for a town
-UndercookedTownsStore.initializeTownsStore((townID: string) => socketServer.to(townID));
-
 // Connect the socket server to the TownsController. We use here the same pattern as tsoa
 // (the library that we use for REST), which creates a new controller instance for each request
 socketServer.on('connection', socket => {
   new TownsController().joinTown(socket);
 });
-
-// Connect the socket server to the UndercookedTownController
-// socketServer.of('/undercooked').on('connection', socket => {
-//   new TownsController().joinUndercookedTown(socket);
-// });
 
 // Set the default content-type to JSON
 app.use(Express.json());
