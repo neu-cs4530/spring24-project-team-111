@@ -29,11 +29,6 @@ socketServer.on('connection', socket => {
   new TownsController().joinTown(socket);
 });
 
-// Connect the socket server to the UndercookedTownController
-socketServer.of('/undercooked').on('connection', socket => {
-  // console.log('undercooked socket connected');
-});
-
 // Set the default content-type to JSON
 app.use(Express.json());
 
