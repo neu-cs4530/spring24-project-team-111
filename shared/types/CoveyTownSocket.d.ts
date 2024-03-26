@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: TypedInteractable[];
 };
 
-export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'UndercookedArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'UndercookedArea' | 'IngredientArea' | 'AssemblyArea' | 'TrashArea';
 
 export interface Interactable {
   type: InteractableType;
@@ -273,6 +273,13 @@ export interface ServerToClientEvents {
   chatMessage: (message: ChatMessage) => void;
   interactableUpdate: (interactable: Interactable) => void;
   commandResponse: (response: InteractableCommandResponse) => void;
+
+  // The following server to client events are specific to the Undercooked game
+  ucPlayerMoved: (movedPlayer: Player) => void;
+  ucPlayerDisconnect: (disconnectedPlayer: Player) => void;
+  ucPlayerJoined: (newPlayer: Player) => void;
+  ucInitialize: (initialData: GameJoinResponse) => void;
+  ucCommandResponse: (response: InteractableCommandResponse) => void;
 }
 
 export interface ClientToServerEvents {
@@ -280,6 +287,10 @@ export interface ClientToServerEvents {
   playerMovement: (movementData: PlayerLocation) => void;
   interactableUpdate: (update: Interactable) => void;
   interactableCommand: (command: InteractableCommand & InteractableCommandBase) => void;
+
+  // The following client to server events are specific to the Undercooked game
+  ucPlayerMovement: (movementData: PlayerLocation) => void;
+  ucInteractableCommand: (command: InteractableCommand & InteractableCommandBase) => void;
 }
 
 // The following section represents the data types of the Undercooked game
@@ -290,18 +301,15 @@ export type UndercookedRecipe = UndercookedIngredient[]
 
 export type UndercookedInteractableType = 'IngredientStation' | 'AssemblyStation' | 'TrashStation'
 
-// export interface UndercookedInteractable extends InteractableArea {
-//   type: UndercookedInteractableType;
-//   id: InteractableID;
-// }
-
-export interface IngredientStation extends UndercookedInteractable {
+export interface IngredientArea extends Interactable {
   ingredient: UndercookedIngredient;
 }
 
-export interface AssemblyStation extends UndercookedInteractable {
+export interface AssemblyArea extends Interactable {
   assembledIngredients: UndercookedIngredient[];
 }
+
+export type TrashArea = Interactable
 
 export interface UndercookedPlayer {
   id: PlayerID;
@@ -329,7 +337,7 @@ export interface UndercookedGameState extends GameState {
   score: number;
 }
 
-export type UndercookedArea = Interactable;
+export type UndercookedArea = Interactable & Partial<UndercookedGameState>;
 
 export interface ServerToClientUndercookedEvents {
   playerMoved: (movedPlayer: Player) => void;
