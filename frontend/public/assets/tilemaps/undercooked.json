@@ -166,7 +166,7 @@
                          "value":"Ingredient"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"IngredientArea",
                  "visible":true,
                  "width":30,
                  "x":68.2052709019881,
@@ -188,7 +188,7 @@
                          "value":"Ingredient"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"IngredientArea",
                  "visible":true,
                  "width":30,
                  "x":368.335823494518,
@@ -210,7 +210,7 @@
                          "value":"Ingredient"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"IngredientArea",
                  "visible":true,
                  "width":30,
                  "x":689.840475422392,
@@ -232,7 +232,7 @@
                          "value":"Ingredient"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"IngredientArea",
                  "visible":true,
                  "width":30,
                  "x":369.411744339515,
@@ -254,7 +254,7 @@
                          "value":"Ingredient"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"IngredientArea",
                  "visible":true,
                  "width":30,
                  "x":385.907368660106,
@@ -276,7 +276,7 @@
                          "value":"Ingredient"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"IngredientArea",
                  "visible":true,
                  "width":30,
                  "x":321.833054142246,
@@ -293,7 +293,7 @@
                          "value":"Assembly"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"AssemblyArea",
                  "visible":true,
                  "width":30,
                  "x":576.385170794626,
@@ -310,7 +310,7 @@
                          "value":"Trash"
                         }],
                  "rotation":0,
-                 "type":"UndercookedInteractableArea",
+                 "type":"TrashArea",
                  "visible":true,
                  "width":30,
                  "x":160.440048912818,
