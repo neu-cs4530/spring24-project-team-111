@@ -180,7 +180,7 @@ export default class Town {
       );
       if (interactable) {
         try {
-          const payload = interactable.handleCommand(command, newPlayer);
+          const payload = interactable.handleCommand(command, newPlayer, socket);
           socket.emit('commandResponse', {
             commandID: command.commandID,
             interactableID: command.interactableID,
