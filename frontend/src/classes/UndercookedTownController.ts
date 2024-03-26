@@ -65,6 +65,14 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     });
   }
 
+  public async joinGame() {
+    const response = await this._townController.sendInteractableCommand(this._id, {
+      type: 'JoinGame',
+    });
+
+    console.log(response);
+  }
+
   // Our player should be the in-game player the client controls.
   // used in WalkableScene.ts
   public get ourPlayer() {
