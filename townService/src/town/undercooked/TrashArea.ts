@@ -6,7 +6,7 @@ import {
 } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
 
-export default class UndercookedInteractable extends InteractableArea {
+export default class TrashArea extends InteractableArea {
   public toModel(): Interactable {
     throw new Error('Method not implemented.');
   }
