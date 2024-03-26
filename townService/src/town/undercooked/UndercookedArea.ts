@@ -1,10 +1,10 @@
-import Player from '../lib/Player';
+import Player from '../../lib/Player';
 import {
   InteractableCommand,
   InteractableCommandReturnType,
   UndercookedArea as UndercookedAreaModel,
-} from '../types/CoveyTownSocket';
-import InteractableArea from './InteractableArea';
+} from '../../types/CoveyTownSocket';
+import InteractableArea from '../InteractableArea';
 
 export default class UndercookedArea extends InteractableArea {
   public toModel(): UndercookedAreaModel {

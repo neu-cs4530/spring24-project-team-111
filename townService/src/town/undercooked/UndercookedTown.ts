@@ -5,8 +5,8 @@ import InvalidParametersError, {
   GAME_NOT_STARTABLE_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
-} from '../lib/InvalidParametersError';
-import Player from '../lib/Player';
+} from '../../lib/InvalidParametersError';
+import Player from '../../lib/Player';
 import {
   CoveyTownSocket,
   GameInstanceID,
@@ -16,9 +16,9 @@ import {
   ServerToClientEvents,
   SocketData,
   UndercookedGameState,
-} from '../types/CoveyTownSocket';
-import UndercookedPlayer from '../lib/UndercookedPlayer';
-import { logError } from '../Utils';
+} from '../../types/CoveyTownSocket';
+import UndercookedPlayer from '../../lib/UndercookedPlayer';
+import { logError } from '../../Utils';
 import UndercookedInteractable from './UndercookedInteractable';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;

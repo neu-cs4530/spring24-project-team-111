@@ -1,7 +1,7 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { BoundingBox, TownEmitter } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
-import UndercookedArea from '../UndercookedArea';
+import UndercookedArea from '../undercooked/UndercookedArea';
 import ConnectFourGameArea from './ConnectFourGameArea';
 import TicTacToeGameArea from './TicTacToeGameArea';
 
