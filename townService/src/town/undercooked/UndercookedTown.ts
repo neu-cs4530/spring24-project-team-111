@@ -19,7 +19,7 @@ import {
 } from '../../types/CoveyTownSocket';
 import UndercookedPlayer from '../../lib/UndercookedPlayer';
 import { logError } from '../../Utils';
-import UndercookedInteractable from './UndercookedInteractable';
+import InteractableArea from '../InteractableArea';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
@@ -40,7 +40,7 @@ export default class UndercookedTown {
 
   private _players: UndercookedPlayer[] = [];
 
-  private _stations: UndercookedInteractable[] = [];
+  private _stations: InteractableArea[] = [];
 
   private _clientSockets: Map<string, ClientSocket> = new Map();
 
@@ -56,7 +56,7 @@ export default class UndercookedTown {
     return this._id;
   }
 
-  get interactables(): UndercookedInteractable[] {
+  get interactables(): InteractableArea[] {
     return this._stations;
   }
 
@@ -214,7 +214,11 @@ export default class UndercookedTown {
             const player = this._players.find(p => p.id === playerID);
             assert(player);
             // might need to change this to UndercookedPlayer and change the handleCommand method to accept UndercookedPlayer.
-            const payload = interactable.handleCommand(command, player as unknown as Player);
+            const payload = interactable.handleCommand(
+              command,
+              player as unknown as Player,
+              socket,
+            );
             socket.emit('commandResponse', {
               commandID: command.commandID,
               interactableID: command.interactableID,
