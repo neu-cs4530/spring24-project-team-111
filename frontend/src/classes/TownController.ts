@@ -334,6 +334,13 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     return ret as ViewingAreaController[];
   }
 
+  public get undercookedAreas() {
+    const ret = this._interactableControllers.filter(
+      eachInteractable => eachInteractable instanceof UndercookedAreaController,
+    );
+    return ret as UndercookedAreaController[];
+  }
+
   public get gameAreas() {
     const ret = this._interactableControllers.filter(
       eachInteractable => eachInteractable instanceof GameAreaController,
@@ -796,13 +803,28 @@ export function useTownSettings() {
  */
 export function useInteractableAreaController<T>(interactableAreaID: string): T {
   const townController = useTownController();
-  const interactableAreaController = townController.gameAreas.find(
+  const gameAreaController = townController.gameAreas.find(
     eachArea => eachArea.id == interactableAreaID,
   );
-  if (!interactableAreaController) {
+  if (!gameAreaController) {
+    // look for a viewing area
+    const viewingAreaController = townController.viewingAreas.find(
+      eachArea => eachArea.id == interactableAreaID,
+    );
+    if (viewingAreaController) {
+      return viewingAreaController as unknown as T;
+    } else {
+      // look for an undercooked area
+      const undercookedAreaController = townController.undercookedAreas.find(
+        eachArea => eachArea.id == interactableAreaID,
+      );
+      if (undercookedAreaController) {
+        return undercookedAreaController as unknown as T;
+      }
+    }
     throw new Error(`Requested interactable area ${interactableAreaID} does not exist`);
   }
-  return interactableAreaController as unknown as T;
+  return gameAreaController as unknown as T;
 }
 
 /**
