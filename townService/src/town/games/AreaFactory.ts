@@ -4,7 +4,7 @@ import InteractableArea from '../InteractableArea';
 import AssemblyArea from '../undercooked/AssemblyArea';
 import IngredientArea from '../undercooked/IngredientArea';
 import TrashArea from '../undercooked/TrashArea';
-import UndercookedArea from '../undercooked/UndercookedArea';
+// import UndercookedArea from '../undercooked/UndercookedArea';
 import ConnectFourGameArea from './ConnectFourGameArea';
 import TicTacToeGameArea from './TicTacToeGameArea';
 
@@ -30,9 +30,6 @@ export default function AreaFactory(
   }
   if (type === 'ConnectFour') {
     return new ConnectFourGameArea(name, rect, broadcastEmitter);
-  }
-  if (type === 'Undercooked') {
-    return new UndercookedArea(name, rect, broadcastEmitter);
   }
   if (type === 'Ingredient') {
     // get the ingredient supplied by the ingredient area

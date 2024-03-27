@@ -169,6 +169,7 @@ export default class UndercookedTown {
    * @param player The player who is ready to start the game
    */
   public startGame(player: Player): void {
+    const newState = { ...this.state };
     if (this.state.status !== 'WAITING_TO_START') {
       throw new InvalidParametersError(GAME_NOT_STARTABLE_MESSAGE);
     }
@@ -176,22 +177,23 @@ export default class UndercookedTown {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
     if (this.state.playerOne === player.id) {
-      this.state.playerOneReady = true;
+      newState.playerOneReady = true;
     }
     if (this.state.playerTwo === player.id) {
-      this.state.playerTwoReady = true;
+      newState.playerTwoReady = true;
     }
     const ready = this.state.playerOneReady && this.state.playerTwoReady;
     this.state = {
-      ...this.state,
+      ...newState,
       status: ready ? 'IN_PROGRESS' : 'WAITING_TO_START',
     };
     if (ready) {
+      // this._initializeFromMap();
       this._initGameHandlers();
     }
   }
 
-  public initializeFromMap(map: ITiledMap) {
+  private _initializeFromMap(map: ITiledMap) {
     const objectLayer = map.layers.find(
       eachLayer => eachLayer.name === 'Objects',
     ) as ITiledMapObjectLayer;

@@ -6,6 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
 import fs from 'fs/promises';
 import { Server as SocketServer } from 'socket.io';
+import { ITiledMap } from '@jonbell/tiled-map-type-guard';
 import { RegisterRoutes } from '../generated/routes';
 import TownsStore from './lib/TownsStore';
 import { ClientToServerEvents, ServerToClientEvents } from './types/CoveyTownSocket';
@@ -22,6 +23,11 @@ const socketServer = new SocketServer<ClientToServerEvents, ServerToClientEvents
 
 // Initialize the towns store with a factory that creates a broadcast emitter for a town
 TownsStore.initializeTownsStore((townID: string) => socketServer.to(townID));
+
+// Read the undercooked map.
+const MAP = '../frontend/public/assets/tilemaps/undercooked.json';
+const data = JSON.parse(await fs.readFile(MAP, 'utf-8'));
+const map = ITiledMap.parse(data);
 
 // Connect the socket server to the TownsController. We use here the same pattern as tsoa
 // (the library that we use for REST), which creates a new controller instance for each request
