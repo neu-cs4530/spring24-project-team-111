@@ -50,6 +50,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     this._undercookedTownController.joinGame();
   }
 
+  public leaveGame() {
+    this._undercookedTownController.leaveGame();
+  }
+
   toInteractableAreaModel(): UndercookedAreaModel {
     throw new Error('Method not implemented.');
   }

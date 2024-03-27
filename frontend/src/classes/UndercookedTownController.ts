@@ -60,18 +60,18 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._interactableEmitter;
   }
 
-  public async connect() {
-    return new Promise<void>(resolve => {
-      const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
-      assert(url);
-      this._socket = io(`${url}/undercooked`);
-      resolve();
-    });
-  }
-
   public async joinGame() {
     const response = await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
+    });
+
+    console.log(response);
+  }
+
+  public async leaveGame() {
+    const response = await this._townController.sendInteractableCommand(this._id, {
+      type: 'LeaveGame',
+      gameID: 'Undercooked',
     });
 
     console.log(response);
