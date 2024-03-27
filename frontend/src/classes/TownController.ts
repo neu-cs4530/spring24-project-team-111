@@ -634,7 +634,12 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             this._interactableControllers.push(new ViewingAreaController(eachInteractable));
           } else if (isUndercookedArea(eachInteractable)) {
             this._interactableControllers.push(
-              new UndercookedAreaController(eachInteractable.id, eachInteractable, this),
+              new UndercookedAreaController(
+                eachInteractable.id,
+                eachInteractable,
+                this,
+                this._socket,
+              ),
             );
           } else if (isTicTacToeArea(eachInteractable)) {
             this._interactableControllers.push(
