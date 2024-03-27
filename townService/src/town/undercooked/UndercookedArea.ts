@@ -1,9 +1,6 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { nanoid } from 'nanoid';
-import InvalidParametersError, {
-  GAME_ID_MISSMATCH_MESSAGE,
-  INVALID_COMMAND_MESSAGE,
-} from '../../lib/InvalidParametersError';
+import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
   BoundingBox,

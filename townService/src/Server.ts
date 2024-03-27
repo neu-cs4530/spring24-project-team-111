@@ -12,6 +12,7 @@ import TownsStore from './lib/TownsStore';
 import { ClientToServerEvents, ServerToClientEvents } from './types/CoveyTownSocket';
 import { TownsController } from './town/TownsController';
 import { logError } from './Utils';
+import MapStore from './lib/MapStore';
 
 // Create the server instances
 const app = Express();
@@ -28,6 +29,7 @@ TownsStore.initializeTownsStore((townID: string) => socketServer.to(townID));
 const MAP = '../frontend/public/assets/tilemaps/undercooked.json';
 const data = JSON.parse(await fs.readFile(MAP, 'utf-8'));
 const map = ITiledMap.parse(data);
+MapStore.initializeMapStore(map);
 
 // Connect the socket server to the TownsController. We use here the same pattern as tsoa
 // (the library that we use for REST), which creates a new controller instance for each request

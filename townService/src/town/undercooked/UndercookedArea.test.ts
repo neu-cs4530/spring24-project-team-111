@@ -55,26 +55,6 @@ describe('ConversationArea', () => {
       expect(testArea.game.players.filter(p => p.id !== p1.id)).toHaveLength(1);
     });
 
-    // it('should throw an error if the gameID does not match the gameID of the game when leaving.', () => {
-    //   const p1 = new Player(nanoid(), townEmitter);
-    //   const s1 = mock<CoveyTownSocket>();
-    //   addPlayers(p1);
-    //   testArea.handleCommand({ type: 'JoinGame' }, p1, s1);
-    //   expect(() =>
-    //     testArea.handleCommand({ type: 'LeaveGame', gameID: nanoid() }, p1, s1),
-    //   ).toThrow();
-    // });
-
-    // it('should throw an error if the gameID does not match the gameID of the game when starting.', () => {
-    //   const p1 = new Player(nanoid(), townEmitter);
-    //   const s1 = mock<CoveyTownSocket>();
-    //   addPlayers(p1);
-    //   testArea.handleCommand({ type: 'JoinGame' }, p1, s1);
-    //   expect(() =>
-    //     testArea.handleCommand({ type: 'StartGame', gameID: nanoid() }, p1, s1),
-    //   ).toThrow();
-    // });
-
     it('should should update player status when start game command is received', () => {
       const p1 = new Player(nanoid(), townEmitter);
       const p2 = new Player(nanoid(), townEmitter);

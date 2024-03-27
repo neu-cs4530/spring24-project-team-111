@@ -22,9 +22,12 @@ import UndercookedPlayer from '../../lib/UndercookedPlayer';
 import { logError } from '../../Utils';
 import InteractableArea from '../InteractableArea';
 import AreaFactory from '../games/AreaFactory';
+import MapStore from '../../lib/MapStore';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+type EventMessageAndHandler = [string, (param: any) => void];
 
 /**
  * The UndercookedTown class implements the logic for an Undercooked game: managing the various
@@ -45,6 +48,8 @@ export default class UndercookedTown {
   private _stations: InteractableArea[] = [];
 
   private _clientSockets: Map<string, ClientSocket> = new Map();
+
+  private _handlers: Map<string, EventMessageAndHandler[]> = new Map();
 
   get players(): UndercookedPlayer[] {
     return this._players;
@@ -188,7 +193,7 @@ export default class UndercookedTown {
       status: ready ? 'IN_PROGRESS' : 'WAITING_TO_START',
     };
     if (ready) {
-      // this._initializeFromMap();
+      this._initializeFromMap(MapStore.getInstance().map);
       this._initGameHandlers();
     }
   }
@@ -217,13 +222,19 @@ export default class UndercookedTown {
     this._validateStations();
   }
 
+  // private _cleanupHandlers(player: Player) {
+  //   if (this._handlers.has(player.id)) {
+  //     this._handlers.get(player.id) as EventMessageAndHandler[];
+  //     _handlers.forEach(handler => {
+  //       this._clientSockets.get(player.id)?.removeListener('playerMovement', handler);
+  //     });
+  //   }
+  // }
+
   // might have to chnage the names of the emitted messages to avoid clases with coveytown.
   private _initGameHandlers(): void {
     this._clientSockets.forEach((socket, playerID) => {
-      socket.on('disconnect', () => {
-        this._clientSockets.delete(playerID);
-      });
-      socket.on('playerMovement', (movementData: PlayerLocation) => {
+      const move = (movementData: PlayerLocation) => {
         try {
           const player = this._players.find(p => p.id === playerID);
           assert(player);
@@ -232,7 +243,9 @@ export default class UndercookedTown {
         } catch (err) {
           logError(err);
         }
-      });
+      };
+      socket.on('playerMovement', move);
+      // this._handlers.set(playerID, move);
       socket.on('interactableCommand', (command: InteractableCommand & InteractableCommandBase) => {
         const interactable = this._stations.find(
           eachStation => eachStation.id === command.interactableID,
