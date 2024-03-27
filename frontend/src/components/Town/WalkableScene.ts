@@ -10,6 +10,9 @@ import ViewingArea from './interactables/ViewingArea';
 import Interactable from './Interactable';
 import { PlayerLocation } from '../../types/CoveyTownSocket';
 import { Callback } from '../VideoCall/VideoFrontend/types';
+import IngredientArea from './interactables/Undercooked/IngredientArea';
+import TrashArea from './interactables/Undercooked/TrashArea';
+import AssemblyArea from './interactables/Undercooked/AssemblyArea';
 
 // NOTES: need to add the interactables for undercooked.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,6 +27,12 @@ function interactableTypeForObjectType(type: string): any {
     return GameArea;
   } else if (type === 'UndercookedArea') {
     return UndercookedArea;
+  } else if (type === 'IngredientArea') {
+    return IngredientArea;
+  } else if (type === 'TrashArea') {
+    return TrashArea;
+  } else if (type == 'AssemblyArea') {
+    return AssemblyArea;
   } else {
     throw new Error(`Unknown object type: ${type}`);
   }
