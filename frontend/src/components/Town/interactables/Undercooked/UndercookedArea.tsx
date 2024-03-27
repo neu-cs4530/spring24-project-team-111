@@ -63,6 +63,12 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
       setPlayerTwo(undercookedAreaController.playerTwo);
       setGameStatus(undercookedAreaController.status || 'WAITING_TO_START');
     };
+
+    undercookedAreaController.addListener('gameUpdated', updateGameState);
+
+    return () => {
+      undercookedAreaController.removeListener('gameUpdated', updateGameState);
+    };
   }, [undercookedAreaController]);
 
   return (
@@ -94,7 +100,7 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
               onClick={async () => {
                 setJoiningGame(true);
                 try {
-                  await undercookedAreaController.startGame();
+                  await undercookedAreaController.joinGame();
                 } catch (err) {
                   toast({
                     title: 'Error joining game',
