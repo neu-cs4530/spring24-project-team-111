@@ -16,8 +16,12 @@ import UndercookedTown from './UndercookedTown';
 export default class UndercookedArea extends InteractableArea {
   private _game = new UndercookedTown(nanoid(), this._townEmitter);
 
-  get game(): UndercookedTown {
+  public get game(): UndercookedTown {
     return this._game;
+  }
+
+  public get isActive(): boolean {
+    return true;
   }
 
   public toModel(): UndercookedAreaModel {
@@ -40,7 +44,7 @@ export default class UndercookedArea extends InteractableArea {
       }
       this._game.join(player, socket);
       this._emitAreaChanged();
-      return undefined as InteractableCommandReturnType<CommandType>;
+      return { gameID: this._game.townID } as unknown as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
       // if (this._game.townID !== command.gameID) {
