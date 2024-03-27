@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { PlayerLocation, UndercookedTownSocket } from '../types/CoveyTownSocket';
+import { CoveyTownSocket, PlayerLocation, UndercookedTownSocket } from '../types/CoveyTownSocket';
 import Interactable from '../components/Town/Interactable';
 import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
@@ -23,7 +23,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   /** The socket connection to the townsService. Messages emitted here
    * are received by the TownController in that service.
    */
-  private _socket!: UndercookedTownSocket;
+  private _socket: CoveyTownSocket;
 
   private _model: UndercookedAreaModel;
 
@@ -44,11 +44,17 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   private _interactableEmitter = new EventEmitter();
 
-  constructor(id: InteractableID, model: UndercookedAreaModel, townController: TownController) {
+  constructor(
+    id: InteractableID,
+    model: UndercookedAreaModel,
+    townController: TownController,
+    socket: CoveyTownSocket,
+  ) {
     super();
     this._model = model;
     this._townController = townController;
     this._id = id;
+    this._socket = socket;
   }
 
   public get paused() {
@@ -75,21 +81,23 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._model;
   }
 
+  public set model(model: UndercookedAreaModel) {
+    this._model = model;
+  }
+
   public async joinGame() {
-    const response = await this._townController.sendInteractableCommand(this._id, {
+    const { gameID } = await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
     });
 
-    console.log(response);
+    this._model.instanceID = gameID;
   }
 
   public async leaveGame() {
-    const response = await this._townController.sendInteractableCommand(this._id, {
+    const { gameID } = await this._townController.sendInteractableCommand(this._id, {
       type: 'LeaveGame',
       gameID: 'Undercooked',
     });
-
-    console.log(response);
   }
 
   public async startGame() {
