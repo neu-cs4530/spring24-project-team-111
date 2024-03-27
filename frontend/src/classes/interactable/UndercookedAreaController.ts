@@ -1,4 +1,3 @@
-import { ECDH } from 'crypto';
 import {
   InteractableID,
   UndercookedArea as UndercookedAreaModel,
@@ -71,28 +70,36 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     return status;
   }
 
-  public joinGame() {
+  public async joinGame() {
     this._undercookedTownController.joinGame();
   }
 
-  public leaveGame() {
+  public async leaveGame() {
     this._undercookedTownController.leaveGame();
   }
 
+  public async startGame() {
+    this._undercookedTownController.startGame();
+  }
+
   toInteractableAreaModel(): UndercookedAreaModel {
-    throw new Error('Method not implemented.');
+    return this._undercookedTownController.model;
   }
 
   protected _updateFrom(newModel: UndercookedAreaModel): void {
     throw new Error('Method not implemented.');
   }
 
+  /**
+   * Returns true if the game is not empty and the game is not waiting for players
+   * @returns boolean representing if the game is active
+   */
   public isActive(): boolean {
-    throw new Error('Method not implemented.');
+    return !this.isEmpty() && this.status !== 'WAITING_FOR_PLAYERS';
   }
 
   public get friendlyName(): string {
-    throw new Error('Method not implemented.');
+    return this.id;
   }
 
   public get type(): string {

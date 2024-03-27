@@ -71,6 +71,10 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._model.status;
   }
 
+  public get model() {
+    return this._model;
+  }
+
   public async joinGame() {
     const response = await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
@@ -82,6 +86,15 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   public async leaveGame() {
     const response = await this._townController.sendInteractableCommand(this._id, {
       type: 'LeaveGame',
+      gameID: 'Undercooked',
+    });
+
+    console.log(response);
+  }
+
+  public async startGame() {
+    const response = await this._townController.sendInteractableCommand(this._id, {
+      type: 'StartGame',
       gameID: 'Undercooked',
     });
 
