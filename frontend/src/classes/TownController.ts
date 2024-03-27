@@ -687,6 +687,13 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     }
   }
 
+  /**
+   * Retrieves the undercooked area controller corresponding to an undercooked area by ID, or
+   * throws an error if the undercooked area controller does not exist
+   *
+   * @param undercookedArea undercooked area
+   * @returns undercooked area controller of the undercooked area with given ID
+   */
   public getUndercookedAreaController(undercookedArea: UndercookedArea): UndercookedAreaController {
     const existingController = this._interactableControllers.find(
       eachExistingArea => eachExistingArea.id === undercookedArea.name,
