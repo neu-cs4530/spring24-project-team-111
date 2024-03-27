@@ -16,6 +16,7 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  useToast,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
@@ -34,7 +35,6 @@ export type UndercookedGameProps = {
 };
 
 function UndercookedArea({ interactableID }: { interactableID: InteractableID }): JSX.Element {
-  const townController = useTownController();
   const undercookedAreaController =
     useInteractableAreaController<UndercookedAreaController>(interactableID);
 
@@ -48,9 +48,22 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
 
   const [gameStatus, setGameStatus] = useState<GameStatus>(undercookedAreaController.status);
 
-  function handleJoinGame() {
-    undercookedAreaController.joinGame();
-  }
+  const toast = useToast();
+
+  const convertToTitleCase = (str: string) => {
+    return str
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, char => char.toUpperCase());
+  };
+
+  useEffect(() => {
+    const updateGameState = () => {
+      setPlayerOne(undercookedAreaController.playerOne);
+      setPlayerTwo(undercookedAreaController.playerTwo);
+      setGameStatus(undercookedAreaController.status || 'WAITING_TO_START');
+    };
+  }, [undercookedAreaController]);
 
   return (
     <Flex width='768px' mt={2} direction='column' alignItems='center'>
@@ -61,7 +74,7 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
         <Heading mt={2} as='h2' size='md' textAlign='center'>
           Game Status{' '}
           <Text as='span' fontWeight='normal'>
-            {gameStatus}
+            {convertToTitleCase(gameStatus)}
           </Text>
         </Heading>
         <Flex mt={2} justifyContent='space-between' alignItems='center'>
@@ -75,13 +88,44 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
             </List>
           </Flex>
           <Flex gap={2}>
-            <Button size='xs' type='button' onClick={handleJoinGame}>
+            <Button
+              size='xs'
+              type='button'
+              onClick={async () => {
+                setJoiningGame(true);
+                try {
+                  await undercookedAreaController.startGame();
+                } catch (err) {
+                  toast({
+                    title: 'Error joining game',
+                    description: (err as Error).toString(),
+                    status: 'error',
+                  });
+                }
+                setJoiningGame(false);
+              }}
+              isLoading={joiningGame}
+              disabled={joiningGame}>
               Join Game
             </Button>
             <Button
               size='xs'
               type='button'
-              onClick={() => console.log('start game button clicked')}>
+              onClick={async () => {
+                setJoiningGame(true);
+                try {
+                  await undercookedAreaController.startGame();
+                } catch (err) {
+                  toast({
+                    title: 'Error starting game',
+                    description: (err as Error).toString(),
+                    status: 'error',
+                  });
+                }
+                setJoiningGame(false);
+              }}
+              isLoading={joiningGame}
+              disabled={joiningGame}>
               Start Game
             </Button>
           </Flex>
