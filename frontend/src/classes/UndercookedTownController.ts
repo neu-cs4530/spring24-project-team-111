@@ -4,7 +4,6 @@ import { PlayerLocation, UndercookedTownSocket } from '../types/CoveyTownSocket'
 import Interactable from '../components/Town/Interactable';
 import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
-import { io } from 'socket.io-client';
 import assert from 'assert';
 import { InteractableID } from '../generated/client';
 import PlayerController from './PlayerController';
@@ -58,6 +57,18 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   public get interactableEmitter() {
     return this._interactableEmitter;
+  }
+
+  public get playerOne() {
+    return this._model.playerOne;
+  }
+
+  public get playerTwo() {
+    return this._model.playerTwo;
+  }
+
+  public get status() {
+    return this._model.status;
   }
 
   public async joinGame() {

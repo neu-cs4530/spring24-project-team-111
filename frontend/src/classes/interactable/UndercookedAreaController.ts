@@ -1,3 +1,4 @@
+import { ECDH } from 'crypto';
 import {
   InteractableID,
   UndercookedArea as UndercookedAreaModel,
@@ -44,6 +45,30 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   // just a stub to satisfy UndercookedGameScene
   public get players() {
     return [];
+  }
+
+  public get playerOne() {
+    const playerOne = this._undercookedTownController.playerOne;
+    if (playerOne) {
+      return this.occupants.find(eachOccupant => eachOccupant.id === playerOne);
+    }
+    return undefined;
+  }
+
+  public get playerTwo() {
+    const playerTwo = this._undercookedTownController.playerTwo;
+    if (playerTwo) {
+      return this.occupants.find(eachOccupant => eachOccupant.id === playerTwo);
+    }
+    return undefined;
+  }
+
+  public get status() {
+    const status = this._undercookedTownController.status;
+    if (!status) {
+      return 'WAITING_FOR_PLAYERS';
+    }
+    return status;
   }
 
   public joinGame() {
