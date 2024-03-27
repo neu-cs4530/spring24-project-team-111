@@ -9,6 +9,7 @@ import InvalidParametersError, {
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
+  ClientToServerEvents,
   CoveyTownSocket,
   GameInstanceID,
   InteractableCommand,
@@ -26,8 +27,8 @@ import MapStore from '../../lib/MapStore';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-type EventMessageAndHandler = [string, (param: any) => void];
+type EventHandler = (param: unknown) => void;
+type EventMessageAndHandler = [string, EventHandler];
 
 /**
  * The UndercookedTown class implements the logic for an Undercooked game: managing the various
@@ -222,13 +223,23 @@ export default class UndercookedTown {
     this._validateStations();
   }
 
-  // private _cleanupHandlers(player: Player) {
-  //   if (this._handlers.has(player.id)) {
-  //     this._handlers.get(player.id) as EventMessageAndHandler[];
-  //     _handlers.forEach(handler => {
-  //       this._clientSockets.get(player.id)?.removeListener('playerMovement', handler);
-  //     });
-  //   }
+  private _cleanupHandlers(player: Player) {
+    if (this._handlers.has(player.id)) {
+      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
+        const [event, handler] = eventAndHandler;
+        this._clientSockets.get(player.id)?.removeListener(event, handler);
+      });
+    }
+  }
+
+  // private _initHandler(
+  //   socket: CoveyTownSocket,
+  //   event: ClientToServerEvents,
+  //   id: string,
+  //   handler: EventHandler,
+  // ) {
+  //   socket.on(event, handler);
+
   // }
 
   // might have to chnage the names of the emitted messages to avoid clases with coveytown.

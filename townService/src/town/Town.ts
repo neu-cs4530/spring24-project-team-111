@@ -22,6 +22,7 @@ import { logError } from '../Utils';
 import ConversationArea from './ConversationArea';
 import GameAreaFactory from './games/AreaFactory';
 import InteractableArea from './InteractableArea';
+import UndercookedArea from './undercooked/UndercookedArea';
 import ViewingArea from './ViewingArea';
 
 /**
@@ -418,15 +419,16 @@ export default class Town {
         ConversationArea.fromMapObject(eachConvAreaObj, this._broadcastEmitter),
       );
 
+    const undercookedAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'UndercookedArea')
+      .map(eachUndercookedAreaObj =>
+        UndercookedArea.fromMapObject(eachUndercookedAreaObj, this._broadcastEmitter),
+      );
+
     const gameAreas = objectLayer.objects
       .filter(eachObject => eachObject.type === 'GameArea')
       .map(eachGameAreaObj => GameAreaFactory(eachGameAreaObj, this._broadcastEmitter));
 
-    const undercookedAreas = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'UndercookedArea')
-      .map(eachUndercookedAreaObj =>
-        GameAreaFactory(eachUndercookedAreaObj, this._broadcastEmitter),
-      );
     this._interactables = this._interactables
       .concat(viewingAreas)
       .concat(conversationAreas)
