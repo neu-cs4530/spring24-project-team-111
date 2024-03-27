@@ -9,7 +9,6 @@ import InvalidParametersError, {
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
-  ClientToServerEvents,
   CoveyTownSocket,
   GameInstanceID,
   InteractableCommand,
@@ -80,6 +79,7 @@ export default class UndercookedTown {
     this._id = townID;
     this._broadcastEmitter = broadcastEmitter;
     this._state = {
+      instanceID: townID,
       status: 'WAITING_FOR_PLAYERS',
       playerOne: undefined,
       playerTwo: undefined,
