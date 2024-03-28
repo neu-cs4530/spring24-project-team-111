@@ -79,7 +79,6 @@ describe('UndercookedArea', () => {
         expect(testArea.game.state.playerTwoReady).toBeTruthy();
       }
     });
-
     it('should start the game when both players are ready', () => {
       jest
         .spyOn(MapStore, 'getInstance')

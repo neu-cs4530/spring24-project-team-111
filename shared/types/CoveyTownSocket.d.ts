@@ -327,6 +327,7 @@ export interface GameJoinResponse {
 }
 
 export interface UndercookedGameState extends GameState {
+  instanceID: GameInstanceID;
   playerOne: PlayerID | undefined;
   playerTwo: PlayerID | undefined;
   playerOneReady: boolean;
@@ -336,4 +337,6 @@ export interface UndercookedGameState extends GameState {
   score: number;
 }
 
-export type UndercookedArea = Interactable & Partial<UndercookedGameState>;
+export type UndercookedArea = Interactable & Partial<UndercookedGameState> & {
+  players?: string[];
+};

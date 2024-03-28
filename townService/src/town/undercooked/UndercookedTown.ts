@@ -56,27 +56,27 @@ export default class UndercookedTown {
 
   private _handlers: Map<string, EventMessageAndHandler[]> = new Map();
 
-  get players(): UndercookedPlayer[] {
+  public get players(): UndercookedPlayer[] {
     return this._players;
   }
 
-  get occupancy(): number {
+  public get occupancy(): number {
     return this.players.length;
   }
 
-  get townID(): string {
+  public get townID(): string {
     return this._id;
   }
 
-  get interactables(): InteractableArea[] {
+  public get interactables(): InteractableArea[] {
     return this._stations;
   }
 
-  get state(): UndercookedGameState {
+  public get state(): UndercookedGameState {
     return this._state;
   }
 
-  set state(newState: UndercookedGameState) {
+  public set state(newState: UndercookedGameState) {
     this._state = newState;
   }
 
@@ -84,6 +84,7 @@ export default class UndercookedTown {
     this._id = townID;
     this._broadcastEmitter = broadcastEmitter;
     this._state = {
+      instanceID: townID,
       status: 'WAITING_FOR_PLAYERS',
       playerOne: undefined,
       playerTwo: undefined,
@@ -202,15 +203,6 @@ export default class UndercookedTown {
     }
   }
 
-  private _cleanupHandlers(player: Player) {
-    if (this._handlers.has(player.id)) {
-      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
-        const [event, handler] = eventAndHandler;
-        this._clientSockets.get(player.id)?.removeListener(event as unknown as string, handler);
-      });
-    }
-  }
-
   private _initHandler(
     socket: CoveyTownSocket,
     event: EventName,
@@ -224,7 +216,15 @@ export default class UndercookedTown {
     (this._handlers.get(id) as EventMessageAndHandler[]).push([event, handler]);
   }
 
-  // might have to chnage the names of the emitted messages to avoid clases with coveytown.
+  private _cleanupHandlers(player: Player) {
+    if (this._handlers.has(player.id)) {
+      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
+        const [event, handler] = eventAndHandler;
+        this._clientSockets.get(player.id)?.removeListener(event, handler);
+      });
+    }
+  }
+
   private _initHandlers(): void {
     this._clientSockets.forEach((socket, playerID) => {
       const move: EventHandler = (movementData: PlayerLocation) => {
@@ -237,6 +237,7 @@ export default class UndercookedTown {
           logError(err);
         }
       };
+
       const onCommand = (command: InteractableCommand & InteractableCommandBase) => {
         const interactable = this._stations.find(
           eachStation => eachStation.id === command.interactableID,

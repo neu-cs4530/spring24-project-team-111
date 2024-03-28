@@ -1,10 +1,9 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { PlayerLocation, UndercookedTownSocket } from '../types/CoveyTownSocket';
+import { CoveyTownSocket, PlayerLocation } from '../types/CoveyTownSocket';
 import Interactable from '../components/Town/Interactable';
 import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
-import { io } from 'socket.io-client';
 import assert from 'assert';
 import { InteractableID } from '../generated/client';
 import PlayerController from './PlayerController';
@@ -24,7 +23,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   /** The socket connection to the townsService. Messages emitted here
    * are received by the TownController in that service.
    */
-  private _socket!: UndercookedTownSocket;
+  private _socket: CoveyTownSocket;
 
   private _model: UndercookedAreaModel;
 
@@ -33,6 +32,12 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   private _townController: TownController;
 
   private _id: InteractableID;
+
+  /**
+   * The current list of players in the undercooked town. Adding or removing players might replace the array
+   * with a new one; clients should take note not to retain stale references.
+   */
+  private _playersInternalUndercooked: PlayerController[] = [];
 
   /**
    * A flag indicating whether the current 2D game is paused, or not. Pausing the game will prevent it from updating,
@@ -45,11 +50,17 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   private _interactableEmitter = new EventEmitter();
 
-  constructor(id: InteractableID, model: UndercookedAreaModel, townController: TownController) {
+  constructor(
+    id: InteractableID,
+    model: UndercookedAreaModel,
+    townController: TownController,
+    socket: CoveyTownSocket,
+  ) {
     super();
     this._model = model;
     this._townController = townController;
     this._id = id;
+    this._socket = socket;
   }
 
   public get paused() {
@@ -60,35 +71,65 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._interactableEmitter;
   }
 
-  public async connect() {
-    return new Promise<void>(resolve => {
-      const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
-      assert(url);
-      this._socket = io(`${url}/undercooked`);
-      resolve();
-    });
+  public get playerOne() {
+    const playerOne = this._model.playerOne;
+    return this._playersInternalUndercooked.find(player => player.id === playerOne);
   }
 
-  public async joinGame() {
-    const response = await this._townController.sendInteractableCommand(this._id, {
-      type: 'JoinGame',
-    });
+  public get playerTwo() {
+    const playerTwo = this._model.playerTwo;
+    return this._playersInternalUndercooked.find(player => player.id === playerTwo);
+  }
 
-    console.log(response);
+  public get status() {
+    return this._model.status;
+  }
+
+  public get model() {
+    return this._model;
+  }
+
+  public set model(model: UndercookedAreaModel) {
+    this._model = model;
   }
 
   // Our player should be the in-game player the client controls.
   // used in WalkableScene.ts
   public get ourPlayer() {
-    // this is a stub. Replace with the actual player object.
     const player = this._townController.ourPlayer;
     assert(player);
     return player;
   }
 
   public get players() {
-    // this is a stub, it should return the list of players in the game.
-    return this._townController.players;
+    return this._playersInternalUndercooked;
+  }
+
+  public set players(newPlayers: PlayerController[]) {
+    this.emit('playersChanged', newPlayers);
+    this._playersInternalUndercooked = newPlayers;
+  }
+
+  public async joinGame() {
+    await this._townController.sendInteractableCommand(this._id, {
+      type: 'JoinGame',
+    });
+  }
+
+  public async leaveGame() {
+    await this._townController.sendInteractableCommand(this._id, {
+      type: 'LeaveGame',
+      // we don't use the gameID in the backend, so we can just pass a dummy value
+      gameID: 'Undercooked',
+    });
+  }
+
+  public async startGame() {
+    await this._townController.sendInteractableCommand(this._id, {
+      type: 'StartGame',
+      // we don't use the gameID in the backend, so we can just pass a dummy value
+      gameID: 'Undercooked',
+    });
   }
 
   public pause(): void {

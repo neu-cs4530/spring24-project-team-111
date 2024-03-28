@@ -26,6 +26,12 @@ export default class UndercookedGameScene extends WalkableScene {
       'map',
       this._resourcePathPrefix + '/assets/tilemaps/undercooked.json',
     );
+
+    this.load.atlas(
+      'atlas',
+      this._resourcePathPrefix + '/assets/atlas/atlas.png',
+      this._resourcePathPrefix + '/assets/atlas/atlas.json',
+    );
   }
 
   create() {
