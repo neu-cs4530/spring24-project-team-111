@@ -7,17 +7,8 @@ besides type declarations could become problematic from a compilation perspectiv
 
 import { Socket } from 'socket.io-client';
 /* eslint-disable import/no-relative-packages */
-import {
-  ClientToServerEvents,
-  ServerToClientEvents,
-  ClientToServerUndercookedEvents,
-  ServerToClientUndercookedEvents,
-} from '../../../shared/types/CoveyTownSocket';
+import { ClientToServerEvents, ServerToClientEvents } from '../../../shared/types/CoveyTownSocket';
 /* eslint-disable import/no-relative-packages */
 export * from '../../../shared/types/CoveyTownSocket';
 
 export type CoveyTownSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
-export type UndercookedTownSocket = Socket<
-  ServerToClientUndercookedEvents,
-  ClientToServerUndercookedEvents
->;
