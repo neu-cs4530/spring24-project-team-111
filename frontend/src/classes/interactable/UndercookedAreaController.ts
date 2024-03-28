@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   CoveyTownSocket,
   InteractableID,
@@ -49,19 +50,11 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   }
 
   public get playerOne() {
-    const playerOne = this._undercookedTownController.playerOne;
-    if (playerOne) {
-      return this.occupants.find(eachOccupant => eachOccupant.id === playerOne);
-    }
-    return undefined;
+    return this._undercookedTownController.playerOne;
   }
 
   public get playerTwo() {
-    const playerTwo = this._undercookedTownController.playerTwo;
-    if (playerTwo) {
-      return this.occupants.find(eachOccupant => eachOccupant.id === playerTwo);
-    }
-    return undefined;
+    return this._undercookedTownController.playerTwo;
   }
 
   public get status() {
@@ -91,25 +84,19 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   protected _updateFrom(newModel: UndercookedAreaModel): void {
     const gameEnding =
       this._undercookedTownController.model.status === 'IN_PROGRESS' && newModel.status === 'OVER';
-    // const newPlayers =
-    //   newModel.?.players.map(playerID => this._townController.getPlayer(playerID)) ?? [];
-    // if (!newPlayers && this._players.length > 0) {
-    //   this._players = [];
-    //   //TODO - Bounty for figuring out how to make the types work here
-    //   //eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //   // @ts-ignore
-    //   this.emit('playersChange', []);
-    // }
-    // if (
-    //   this._players.length != newModel.game?.players.length ||
-    //   _.xor(newPlayers, this._players).length > 0
-    // ) {
-    //   this._players = newPlayers;
-    //   //TODO - Bounty for figuring out how to make the types work here
-    //   //eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //   // @ts-ignore
-    //   this.emit('playersChange', newPlayers);
-    // }
+    const newPlayers =
+      newModel.players?.map(playerID => this._townController.getPlayer(playerID)) ?? [];
+    if (!newPlayers && this._undercookedTownController.players.length > 0) {
+      this._undercookedTownController.players = [];
+      this.emit('playersChange', []);
+    }
+    if (
+      this._undercookedTownController.players.length !== newModel.players?.length ||
+      _.xor(newPlayers, this._undercookedTownController.players).length > 0
+    ) {
+      this._undercookedTownController.players = newPlayers;
+      this.emit('playersChange', newPlayers);
+    }
     this._undercookedTownController.model = newModel;
     this.emit('gameUpdated');
   }
