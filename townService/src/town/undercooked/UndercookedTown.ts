@@ -56,27 +56,27 @@ export default class UndercookedTown {
 
   private _handlers: Map<string, EventMessageAndHandler[]> = new Map();
 
-  get players(): UndercookedPlayer[] {
+  public get players(): UndercookedPlayer[] {
     return this._players;
   }
 
-  get occupancy(): number {
+  public get occupancy(): number {
     return this.players.length;
   }
 
-  get townID(): string {
+  public get townID(): string {
     return this._id;
   }
 
-  get interactables(): InteractableArea[] {
+  public get interactables(): InteractableArea[] {
     return this._stations;
   }
 
-  get state(): UndercookedGameState {
+  public get state(): UndercookedGameState {
     return this._state;
   }
 
-  set state(newState: UndercookedGameState) {
+  public set state(newState: UndercookedGameState) {
     this._state = newState;
   }
 
