@@ -72,11 +72,13 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   }
 
   public get playerOne() {
-    return this._model.playerOne;
+    const playerOne = this._model.playerOne;
+    return this._playersInternalUndercooked.find(player => player.id === playerOne);
   }
 
   public get playerTwo() {
-    return this._model.playerTwo;
+    const playerTwo = this._model.playerTwo;
+    return this._playersInternalUndercooked.find(player => player.id === playerTwo);
   }
 
   public get status() {
