@@ -203,15 +203,6 @@ export default class UndercookedTown {
     }
   }
 
-  private _cleanupHandlers(player: Player) {
-    if (this._handlers.has(player.id)) {
-      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
-        const [event, handler] = eventAndHandler;
-        this._clientSockets.get(player.id)?.removeListener(event as unknown as string, handler);
-      });
-    }
-  }
-
   private _initHandler(
     socket: CoveyTownSocket,
     event: EventName,
@@ -234,17 +225,6 @@ export default class UndercookedTown {
     }
   }
 
-  // private _initHandler(
-  //   socket: CoveyTownSocket,
-  //   event: ClientToServerEvents,
-  //   id: string,
-  //   handler: EventHandler,
-  // ) {
-  //   socket.on(event, handler);
-
-  // }
-
-  // might have to chnage the names of the emitted messages to avoid clases with coveytown.
   private _initHandlers(): void {
     this._clientSockets.forEach((socket, playerID) => {
       const move: EventHandler = (movementData: PlayerLocation) => {

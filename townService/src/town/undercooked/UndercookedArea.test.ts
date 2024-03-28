@@ -1,4 +1,3 @@
-
 import { ITiledMap } from '@jonbell/tiled-map-type-guard';
 import { mock, mockClear } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';

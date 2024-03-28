@@ -55,7 +55,6 @@ export default class UndercookedArea extends InteractableArea {
     }
     if (command.type === 'StartGame') {
       const game = this._game;
-      
       game.startGame(player);
       this._emitAreaChanged();
       return undefined as InteractableCommandReturnType<CommandType>;
