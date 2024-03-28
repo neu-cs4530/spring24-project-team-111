@@ -276,7 +276,6 @@ export interface ServerToClientEvents {
 
   // The following server to client events are specific to the Undercooked game
   ucPlayerMoved: (movedPlayer: Player) => void;
-  ucPlayerDisconnect: (disconnectedPlayer: Player) => void;
   ucPlayerJoined: (newPlayer: Player) => void;
   ucInitialize: (initialData: GameJoinResponse) => void;
   ucCommandResponse: (response: InteractableCommandResponse) => void;
@@ -338,19 +337,3 @@ export interface UndercookedGameState extends GameState {
 }
 
 export type UndercookedArea = Interactable & Partial<UndercookedGameState>;
-
-export interface ServerToClientUndercookedEvents {
-  playerMoved: (movedPlayer: Player) => void;
-  playerLeft: (leavingPlayer: Player) => void;
-  playerJoined: (newPlayer: Player) => void;
-  initialize: (initialData: GameJoinResponse) => void;
-  interactableUpdate: (interactable: Interactable) => void;
-  commandResponse: (response: InteractableCommandResponse) => void;
-  gameUpdate: (game: UndercookedGameState) => void;
-}
-
-export interface ClientToServerUndercookedEvents {
-  playerMovement: (movementData: PlayerLocation) => void;
-  interactableUpdate: (update: Interactable) => void;
-  interactableCommand: (command: InteractableCommand & InteractableCommandBase) => void;
-}

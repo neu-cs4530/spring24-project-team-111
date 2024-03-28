@@ -1,6 +1,8 @@
 import assert from 'assert';
 import { BroadcastOperator } from 'socket.io';
 import { ITiledMap, ITiledMapObjectLayer } from '@jonbell/tiled-map-type-guard';
+import { SocketReservedEventsMap } from 'socket.io/dist/socket';
+import { ReservedOrUserEventNames } from 'socket.io/dist/typed-events';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
   GAME_NOT_STARTABLE_MESSAGE,
@@ -9,6 +11,7 @@ import InvalidParametersError, {
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
+  ClientToServerEvents,
   CoveyTownSocket,
   GameInstanceID,
   InteractableCommand,
@@ -22,9 +25,14 @@ import UndercookedPlayer from '../../lib/UndercookedPlayer';
 import { logError } from '../../Utils';
 import InteractableArea from '../InteractableArea';
 import AreaFactory from '../games/AreaFactory';
+import MapStore from '../../lib/MapStore';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+type EventHandler = (param: any) => void;
+type EventMessageAndHandler = [string, EventHandler];
+type EventName = ReservedOrUserEventNames<SocketReservedEventsMap, ClientToServerEvents>;
 
 /**
  * The UndercookedTown class implements the logic for an Undercooked game: managing the various
@@ -45,6 +53,8 @@ export default class UndercookedTown {
   private _stations: InteractableArea[] = [];
 
   private _clientSockets: Map<string, ClientSocket> = new Map();
+
+  private _handlers: Map<string, EventMessageAndHandler[]> = new Map();
 
   get players(): UndercookedPlayer[] {
     return this._players;
@@ -141,7 +151,6 @@ export default class UndercookedTown {
     }
     this._removePlayer(player);
     if (gameStatus === 'IN_PROGRESS') {
-      this._disconnectAllPlayers();
       this._state = {
         ...this.state,
         status: 'OVER',
@@ -169,6 +178,7 @@ export default class UndercookedTown {
    * @param player The player who is ready to start the game
    */
   public startGame(player: Player): void {
+    const newState = { ...this.state };
     if (this.state.status !== 'WAITING_TO_START') {
       throw new InvalidParametersError(GAME_NOT_STARTABLE_MESSAGE);
     }
@@ -176,62 +186,58 @@ export default class UndercookedTown {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
     if (this.state.playerOne === player.id) {
-      this.state.playerOneReady = true;
+      newState.playerOneReady = true;
     }
     if (this.state.playerTwo === player.id) {
-      this.state.playerTwoReady = true;
+      newState.playerTwoReady = true;
     }
-    const ready = this.state.playerOneReady && this.state.playerTwoReady;
+    const ready = newState.playerOneReady && newState.playerTwoReady;
     this.state = {
-      ...this.state,
+      ...newState,
       status: ready ? 'IN_PROGRESS' : 'WAITING_TO_START',
     };
     if (ready) {
-      this._initGameHandlers();
+      this._initializeFromMap(MapStore.getInstance().map);
+      this._initHandlers();
     }
   }
 
-  public initializeFromMap(map: ITiledMap) {
-    const objectLayer = map.layers.find(
-      eachLayer => eachLayer.name === 'Objects',
-    ) as ITiledMapObjectLayer;
-    if (!objectLayer) {
-      throw new Error('Unable to find objects layer in map');
+  private _cleanupHandlers(player: Player) {
+    if (this._handlers.has(player.id)) {
+      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
+        const [event, handler] = eventAndHandler;
+        this._clientSockets.get(player.id)?.removeListener(event as unknown as string, handler);
+      });
     }
+  }
 
-    const ingredientArea = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'IngredientArea')
-      .map(eachIngredientArea => AreaFactory(eachIngredientArea, this._broadcastEmitter));
-
-    const trashArea = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'TrashArea')
-      .map(eachTrashArea => AreaFactory(eachTrashArea, this._broadcastEmitter));
-
-    const assemblyArea = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'AssemblyArea')
-      .map(eachAssemblyArea => AreaFactory(eachAssemblyArea, this._broadcastEmitter));
-
-    this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
-    this._validateStations();
+  private _initHandler(
+    socket: CoveyTownSocket,
+    event: EventName,
+    id: string,
+    handler: EventHandler,
+  ) {
+    socket.on(event, handler);
+    if (!this._handlers.has(id)) {
+      this._handlers.set(id, []);
+    }
+    (this._handlers.get(id) as EventMessageAndHandler[]).push([event, handler]);
   }
 
   // might have to chnage the names of the emitted messages to avoid clases with coveytown.
-  private _initGameHandlers(): void {
+  private _initHandlers(): void {
     this._clientSockets.forEach((socket, playerID) => {
-      socket.on('disconnect', () => {
-        this._clientSockets.delete(playerID);
-      });
-      socket.on('playerMovement', (movementData: PlayerLocation) => {
+      const move: EventHandler = (movementData: PlayerLocation) => {
         try {
           const player = this._players.find(p => p.id === playerID);
           assert(player);
           player.location = movementData;
-          this._broadcastEmitter.emit('playerMoved', player.toPlayerModel());
+          this._broadcastEmitter.emit('ucPlayerMoved', player.toPlayerModel());
         } catch (err) {
           logError(err);
         }
-      });
-      socket.on('interactableCommand', (command: InteractableCommand & InteractableCommandBase) => {
+      };
+      const onCommand = (command: InteractableCommand & InteractableCommandBase) => {
         const interactable = this._stations.find(
           eachStation => eachStation.id === command.interactableID,
         );
@@ -239,13 +245,12 @@ export default class UndercookedTown {
           try {
             const player = this._players.find(p => p.id === playerID);
             assert(player);
-            // might need to change this to UndercookedPlayer and change the handleCommand method to accept UndercookedPlayer.
             const payload = interactable.handleCommand(
               command,
               player as unknown as Player,
               socket,
             );
-            socket.emit('commandResponse', {
+            socket.emit('ucCommandResponse', {
               commandID: command.commandID,
               interactableID: command.interactableID,
               isOK: true,
@@ -253,7 +258,7 @@ export default class UndercookedTown {
             });
           } catch (err) {
             if (err instanceof InvalidParametersError) {
-              socket.emit('commandResponse', {
+              socket.emit('ucCommandResponse', {
                 commandID: command.commandID,
                 interactableID: command.interactableID,
                 isOK: false,
@@ -261,7 +266,7 @@ export default class UndercookedTown {
               });
             } else {
               logError(err);
-              socket.emit('commandResponse', {
+              socket.emit('ucCommandResponse', {
                 commandID: command.commandID,
                 interactableID: command.interactableID,
                 isOK: false,
@@ -270,23 +275,17 @@ export default class UndercookedTown {
             }
           }
         } else {
-          socket.emit('commandResponse', {
+          socket.emit('ucCommandResponse', {
             commandID: command.commandID,
             interactableID: command.interactableID,
             isOK: false,
             error: `No such interactable ${command.interactableID}`,
           });
         }
-      });
+      };
+      this._initHandler(socket, 'ucPlayerMovement', playerID, move);
+      this._initHandler(socket, 'ucInteractableCommand', playerID, onCommand);
     });
-  }
-
-  private _disconnectAllPlayers(): void {
-    this._clientSockets.forEach(socket => {
-      socket.disconnect(true);
-    });
-    this._players = [];
-    this._clientSockets.clear();
   }
 
   private _removePlayer(player: Player): void {
@@ -307,6 +306,10 @@ export default class UndercookedTown {
       };
     }
     this._players = this._players.filter(p => p.id !== player.id);
+    if (this._handlers.has(player.id)) {
+      this._cleanupHandlers(player);
+      this._handlers.delete(player.id);
+    }
     this._clientSockets.delete(player.id);
   }
 
@@ -332,5 +335,29 @@ export default class UndercookedTown {
         }
       }
     }
+  }
+
+  private _initializeFromMap(map: ITiledMap) {
+    const objectLayer = map.layers.find(
+      eachLayer => eachLayer.name === 'Objects',
+    ) as ITiledMapObjectLayer;
+    if (!objectLayer) {
+      throw new Error('Unable to find objects layer in map');
+    }
+
+    const ingredientArea = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'IngredientArea')
+      .map(eachIngredientArea => AreaFactory(eachIngredientArea, this._broadcastEmitter));
+
+    const trashArea = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'TrashArea')
+      .map(eachTrashArea => AreaFactory(eachTrashArea, this._broadcastEmitter));
+
+    const assemblyArea = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'AssemblyArea')
+      .map(eachAssemblyArea => AreaFactory(eachAssemblyArea, this._broadcastEmitter));
+
+    this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
+    this._validateStations();
   }
 }
