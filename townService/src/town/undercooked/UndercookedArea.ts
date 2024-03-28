@@ -29,6 +29,7 @@ export default class UndercookedArea extends InteractableArea {
       type: 'UndercookedArea',
       id: this.id,
       occupants: this.occupantsByID,
+      players: this._game.players.map(player => player.id),
       ...this._game.state,
     };
   }
@@ -44,7 +45,7 @@ export default class UndercookedArea extends InteractableArea {
       }
       this._game.join(player, socket);
       this._emitAreaChanged();
-      return { gameID: this._game.townID } as unknown as InteractableCommandReturnType<CommandType>;
+      return {} as unknown as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
       // if (this._game.townID !== command.gameID) {

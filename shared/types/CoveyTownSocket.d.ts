@@ -338,7 +338,9 @@ export interface UndercookedGameState extends GameState {
   score: number;
 }
 
-export type UndercookedArea = Interactable & Partial<UndercookedGameState>;
+export type UndercookedArea = Interactable & Partial<UndercookedGameState> & {
+  players?: string[];
+};
 
 export interface ServerToClientUndercookedEvents {
   playerMoved: (movedPlayer: Player) => void;
