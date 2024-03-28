@@ -108,12 +108,6 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._playersInternalUndercooked = newPlayers;
   }
 
-  public getPlayer(id: PlayerID) {
-    const ret = this._playersInternalUndercooked.find(eachPlayer => eachPlayer.id === id);
-    assert(ret);
-    return ret;
-  }
-
   public async joinGame() {
     await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
