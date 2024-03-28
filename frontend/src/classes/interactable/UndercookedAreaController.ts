@@ -99,6 +99,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     }
     this._undercookedTownController.model = newModel;
     this.emit('gameUpdated');
+
+    if (gameEnding) {
+      this.emit('gameEnd');
+    }
   }
 
   /**
