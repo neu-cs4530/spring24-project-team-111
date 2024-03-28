@@ -306,11 +306,11 @@ export default class UndercookedTown {
       };
     }
     this._players = this._players.filter(p => p.id !== player.id);
-    this._clientSockets.delete(player.id);
     if (this._handlers.has(player.id)) {
       this._cleanupHandlers(player);
       this._handlers.delete(player.id);
     }
+    this._clientSockets.delete(player.id);
   }
 
   private _validateStations() {

@@ -43,18 +43,12 @@ export default class UndercookedArea extends InteractableArea {
       return { gameID: this._game.townID } as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
-      // if (this._game.townID !== command.gameID) {
-      //   throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
-      // }
       this._game.leave(player);
       this._emitAreaChanged();
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'StartGame') {
       const game = this._game;
-      // if (this._game.townID !== command.gameID) {
-      //   throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
-      // }
       game.startGame(player);
       this._emitAreaChanged();
       return undefined as InteractableCommandReturnType<CommandType>;

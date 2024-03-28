@@ -5,19 +5,7 @@ import MapStore from '../../lib/MapStore';
 import Player from '../../lib/Player';
 import { CoveyTownSocket, TownEmitter } from '../../types/CoveyTownSocket';
 import UndercookedArea from './UndercookedArea';
-
-class TestMapStore {
-  get map(): ITiledMap {
-    return {
-      name: 'Undercooked',
-      width: 100,
-      height: 100,
-      x: 0,
-      y: 0,
-      layers: [{ name: 'Objects', objects: [] }],
-    } as unknown as ITiledMap;
-  }
-}
+import TestMapStore, { simpleMap } from './UndercookedTestUtils';
 
 describe('UndercookedArea', () => {
   const testAreaBox = { x: 100, y: 100, width: 100, height: 100 };
@@ -93,7 +81,9 @@ describe('UndercookedArea', () => {
     });
 
     it('should start the game when both players are ready', () => {
-      jest.spyOn(MapStore, 'getInstance').mockImplementation(() => new TestMapStore() as MapStore);
+      jest
+        .spyOn(MapStore, 'getInstance')
+        .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
       const p1 = new Player(nanoid(), townEmitter);
       const p2 = new Player(nanoid(), townEmitter);
       const s1 = mock<CoveyTownSocket>();
@@ -111,7 +101,9 @@ describe('UndercookedArea', () => {
     });
 
     it('should reset the game when the game is over', () => {
-      jest.spyOn(MapStore, 'getInstance').mockImplementation(() => new TestMapStore() as MapStore);
+      jest
+        .spyOn(MapStore, 'getInstance')
+        .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
       const p1 = new Player(nanoid(), townEmitter);
       const p2 = new Player(nanoid(), townEmitter);
       const s1 = mock<CoveyTownSocket>();
@@ -136,7 +128,9 @@ describe('UndercookedArea', () => {
       x: 0,
       y: 0,
     } as unknown as ITiledMap;
-    jest.spyOn(MapStore, 'getInstance').mockImplementation(() => new TestMapStore() as MapStore);
+    jest
+      .spyOn(MapStore, 'getInstance')
+      .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
     const area = UndercookedArea.fromMapObject(map, townEmitter);
     expect(area.boundingBox).toEqual({ x: 0, y: 0, width: 100, height: 100 });
     expect(area.id).toBe('Undercooked');
