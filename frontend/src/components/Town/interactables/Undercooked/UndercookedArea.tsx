@@ -27,8 +27,7 @@ import UndercookedAreaInteractable from '../UndercookedArea';
 import UndercookedBoard from './UndercookedBoard';
 import UndercookedRecipeDisplay from './UndercookedRecipeDisplay';
 import UndercookedTimerDisplay from './UndercookedTimerDisplay';
-import { GameStatus, InteractableID } from '../../../../types/CoveyTownSocket';
-import PlayerController from '../../../../classes/PlayerController';
+import { GameStatus, InteractableID, PlayerID } from '../../../../types/CoveyTownSocket';
 
 export type UndercookedGameProps = {
   undercookedAreaController: UndercookedAreaController;
@@ -38,10 +37,10 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
   const undercookedAreaController =
     useInteractableAreaController<UndercookedAreaController>(interactableID);
 
-  const [playerOne, setPlayerOne] = useState<PlayerController | undefined>(
+  const [playerOne, setPlayerOne] = useState<PlayerID | undefined>(
     undercookedAreaController.playerOne,
   );
-  const [playerTwo, setPlayerTwo] = useState<PlayerController | undefined>(
+  const [playerTwo, setPlayerTwo] = useState<PlayerID | undefined>(
     undercookedAreaController.playerTwo,
   );
   const [joiningGame, setJoiningGame] = useState(false);
@@ -89,8 +88,8 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
               Chefs
             </Heading>
             <List aria-label='list of players in the game' display='flex' gap={1}>
-              <ListItem>Chef 1: {playerOne?.userName || '(Chef needed!)'}</ListItem>
-              <ListItem>Chef 2: {playerTwo?.userName || '(Chef needed!)'}</ListItem>
+              <ListItem>Chef 1: {playerOne || '(Chef needed!)'}</ListItem>
+              <ListItem>Chef 2: {playerTwo || '(Chef needed!)'}</ListItem>
             </List>
           </Flex>
           <Flex gap={2}>
