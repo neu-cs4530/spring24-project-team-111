@@ -1,6 +1,8 @@
 import assert from 'assert';
 import { BroadcastOperator } from 'socket.io';
 import { ITiledMap, ITiledMapObjectLayer } from '@jonbell/tiled-map-type-guard';
+import { SocketReservedEventsMap } from 'socket.io/dist/socket';
+import { ReservedOrUserEventNames } from 'socket.io/dist/typed-events';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
   GAME_NOT_STARTABLE_MESSAGE,
@@ -27,8 +29,10 @@ import MapStore from '../../lib/MapStore';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
-type EventHandler = (param: unknown) => void;
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+type EventHandler = (param: any) => void;
 type EventMessageAndHandler = [string, EventHandler];
+type EventName = ReservedOrUserEventNames<SocketReservedEventsMap, ClientToServerEvents>;
 
 /**
  * The UndercookedTown class implements the logic for an Undercooked game: managing the various
@@ -147,7 +151,6 @@ export default class UndercookedTown {
     }
     this._removePlayer(player);
     if (gameStatus === 'IN_PROGRESS') {
-      this._disconnectAllPlayers();
       this._state = {
         ...this.state,
         status: 'OVER',
@@ -188,14 +191,149 @@ export default class UndercookedTown {
     if (this.state.playerTwo === player.id) {
       newState.playerTwoReady = true;
     }
-    const ready = this.state.playerOneReady && this.state.playerTwoReady;
+    const ready = newState.playerOneReady && newState.playerTwoReady;
     this.state = {
       ...newState,
       status: ready ? 'IN_PROGRESS' : 'WAITING_TO_START',
     };
     if (ready) {
       this._initializeFromMap(MapStore.getInstance().map);
-      this._initGameHandlers();
+      this._initHandlers();
+    }
+  }
+
+  private _cleanupHandlers(player: Player) {
+    if (this._handlers.has(player.id)) {
+      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
+        const [event, handler] = eventAndHandler;
+        this._clientSockets.get(player.id)?.removeListener(event as unknown as string, handler);
+      });
+    }
+  }
+
+  private _initHandler(
+    socket: CoveyTownSocket,
+    event: EventName,
+    id: string,
+    handler: EventHandler,
+  ) {
+    socket.on(event, handler);
+    if (!this._handlers.has(id)) {
+      this._handlers.set(id, []);
+    }
+    (this._handlers.get(id) as EventMessageAndHandler[]).push([event, handler]);
+  }
+
+  // might have to chnage the names of the emitted messages to avoid clases with coveytown.
+  private _initHandlers(): void {
+    this._clientSockets.forEach((socket, playerID) => {
+      const move: EventHandler = (movementData: PlayerLocation) => {
+        try {
+          const player = this._players.find(p => p.id === playerID);
+          assert(player);
+          player.location = movementData;
+          this._broadcastEmitter.emit('ucPlayerMoved', player.toPlayerModel());
+        } catch (err) {
+          logError(err);
+        }
+      };
+      const onCommand = (command: InteractableCommand & InteractableCommandBase) => {
+        const interactable = this._stations.find(
+          eachStation => eachStation.id === command.interactableID,
+        );
+        if (interactable) {
+          try {
+            const player = this._players.find(p => p.id === playerID);
+            assert(player);
+            const payload = interactable.handleCommand(
+              command,
+              player as unknown as Player,
+              socket,
+            );
+            socket.emit('ucCommandResponse', {
+              commandID: command.commandID,
+              interactableID: command.interactableID,
+              isOK: true,
+              payload,
+            });
+          } catch (err) {
+            if (err instanceof InvalidParametersError) {
+              socket.emit('ucCommandResponse', {
+                commandID: command.commandID,
+                interactableID: command.interactableID,
+                isOK: false,
+                error: err.message,
+              });
+            } else {
+              logError(err);
+              socket.emit('ucCommandResponse', {
+                commandID: command.commandID,
+                interactableID: command.interactableID,
+                isOK: false,
+                error: 'Unknown error',
+              });
+            }
+          }
+        } else {
+          socket.emit('ucCommandResponse', {
+            commandID: command.commandID,
+            interactableID: command.interactableID,
+            isOK: false,
+            error: `No such interactable ${command.interactableID}`,
+          });
+        }
+      };
+      this._initHandler(socket, 'ucPlayerMovement', playerID, move);
+      this._initHandler(socket, 'ucInteractableCommand', playerID, onCommand);
+    });
+  }
+
+  private _removePlayer(player: Player): void {
+    if (this.state.playerOne !== player.id && this.state.playerTwo !== player.id) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+    if (this.state.playerOne === player.id) {
+      this.state = {
+        ...this.state,
+        playerOne: undefined,
+        playerOneReady: false,
+      };
+    } else {
+      this.state = {
+        ...this.state,
+        playerTwo: undefined,
+        playerTwoReady: false,
+      };
+    }
+    this._players = this._players.filter(p => p.id !== player.id);
+    this._clientSockets.delete(player.id);
+    if (this._handlers.has(player.id)) {
+      this._cleanupHandlers(player);
+      this._handlers.delete(player.id);
+    }
+  }
+
+  private _validateStations() {
+    // Make sure that the IDs are unique
+    const interactableIDs = this._stations.map(eachInteractable => eachInteractable.id);
+    if (
+      interactableIDs.some(
+        item => interactableIDs.indexOf(item) !== interactableIDs.lastIndexOf(item),
+      )
+    ) {
+      throw new Error(
+        `Expected all interactable IDs to be unique, but found duplicate interactable ID in ${interactableIDs}`,
+      );
+    }
+    // Make sure that there are no overlapping objects
+    for (const station of this._stations) {
+      for (const otherStation of this._stations) {
+        if (station !== otherStation && station.overlaps(otherStation)) {
+          throw new Error(
+            `Expected interactables not to overlap, but found overlap between ${station.id} and ${otherStation.id}`,
+          );
+        }
+      }
     }
   }
 
@@ -221,142 +359,5 @@ export default class UndercookedTown {
 
     this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
     this._validateStations();
-  }
-
-  private _cleanupHandlers(player: Player) {
-    if (this._handlers.has(player.id)) {
-      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
-        const [event, handler] = eventAndHandler;
-        this._clientSockets.get(player.id)?.removeListener(event, handler);
-      });
-    }
-  }
-
-  // private _initHandler(
-  //   socket: CoveyTownSocket,
-  //   event: ClientToServerEvents,
-  //   id: string,
-  //   handler: EventHandler,
-  // ) {
-  //   socket.on(event, handler);
-
-  // }
-
-  // might have to chnage the names of the emitted messages to avoid clases with coveytown.
-  private _initGameHandlers(): void {
-    this._clientSockets.forEach((socket, playerID) => {
-      const move = (movementData: PlayerLocation) => {
-        try {
-          const player = this._players.find(p => p.id === playerID);
-          assert(player);
-          player.location = movementData;
-          this._broadcastEmitter.emit('playerMoved', player.toPlayerModel());
-        } catch (err) {
-          logError(err);
-        }
-      };
-      socket.on('playerMovement', move);
-      // this._handlers.set(playerID, move);
-      socket.on('interactableCommand', (command: InteractableCommand & InteractableCommandBase) => {
-        const interactable = this._stations.find(
-          eachStation => eachStation.id === command.interactableID,
-        );
-        if (interactable) {
-          try {
-            const player = this._players.find(p => p.id === playerID);
-            assert(player);
-            // might need to change this to UndercookedPlayer and change the handleCommand method to accept UndercookedPlayer.
-            const payload = interactable.handleCommand(
-              command,
-              player as unknown as Player,
-              socket,
-            );
-            socket.emit('commandResponse', {
-              commandID: command.commandID,
-              interactableID: command.interactableID,
-              isOK: true,
-              payload,
-            });
-          } catch (err) {
-            if (err instanceof InvalidParametersError) {
-              socket.emit('commandResponse', {
-                commandID: command.commandID,
-                interactableID: command.interactableID,
-                isOK: false,
-                error: err.message,
-              });
-            } else {
-              logError(err);
-              socket.emit('commandResponse', {
-                commandID: command.commandID,
-                interactableID: command.interactableID,
-                isOK: false,
-                error: 'Unknown error',
-              });
-            }
-          }
-        } else {
-          socket.emit('commandResponse', {
-            commandID: command.commandID,
-            interactableID: command.interactableID,
-            isOK: false,
-            error: `No such interactable ${command.interactableID}`,
-          });
-        }
-      });
-    });
-  }
-
-  private _disconnectAllPlayers(): void {
-    this._clientSockets.forEach(socket => {
-      socket.disconnect(true);
-    });
-    this._players = [];
-    this._clientSockets.clear();
-  }
-
-  private _removePlayer(player: Player): void {
-    if (this.state.playerOne !== player.id && this.state.playerTwo !== player.id) {
-      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
-    }
-    if (this.state.playerOne === player.id) {
-      this.state = {
-        ...this.state,
-        playerOne: undefined,
-        playerOneReady: false,
-      };
-    } else {
-      this.state = {
-        ...this.state,
-        playerTwo: undefined,
-        playerTwoReady: false,
-      };
-    }
-    this._players = this._players.filter(p => p.id !== player.id);
-    this._clientSockets.delete(player.id);
-  }
-
-  private _validateStations() {
-    // Make sure that the IDs are unique
-    const interactableIDs = this._stations.map(eachInteractable => eachInteractable.id);
-    if (
-      interactableIDs.some(
-        item => interactableIDs.indexOf(item) !== interactableIDs.lastIndexOf(item),
-      )
-    ) {
-      throw new Error(
-        `Expected all interactable IDs to be unique, but found duplicate interactable ID in ${interactableIDs}`,
-      );
-    }
-    // Make sure that there are no overlapping objects
-    for (const station of this._stations) {
-      for (const otherStation of this._stations) {
-        if (station !== otherStation && station.overlaps(otherStation)) {
-          throw new Error(
-            `Expected interactables not to overlap, but found overlap between ${station.id} and ${otherStation.id}`,
-          );
-        }
-      }
-    }
   }
 }

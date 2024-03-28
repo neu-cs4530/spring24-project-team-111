@@ -40,7 +40,7 @@ export default class UndercookedArea extends InteractableArea {
       }
       this._game.join(player, socket);
       this._emitAreaChanged();
-      return undefined as InteractableCommandReturnType<CommandType>;
+      return { gameID: this._game.townID } as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
       // if (this._game.townID !== command.gameID) {
@@ -76,7 +76,7 @@ export default class UndercookedArea extends InteractableArea {
   ): UndercookedArea {
     const { name, width, height } = mapObject;
     if (!width || !height) {
-      throw new Error(`Malformed viewing area ${name}`);
+      throw new Error(`Malformed undercooked area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
     return new UndercookedArea(name, rect, broadcastEmitter);

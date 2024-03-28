@@ -1,10 +1,25 @@
+import { ITiledMap } from '@jonbell/tiled-map-type-guard';
 import { mock, mockClear } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
+import MapStore from '../../lib/MapStore';
 import Player from '../../lib/Player';
 import { CoveyTownSocket, TownEmitter } from '../../types/CoveyTownSocket';
 import UndercookedArea from './UndercookedArea';
 
-describe('ConversationArea', () => {
+class TestMapStore {
+  get map(): ITiledMap {
+    return {
+      name: 'Undercooked',
+      width: 100,
+      height: 100,
+      x: 0,
+      y: 0,
+      layers: [{ name: 'Objects', objects: [] }],
+    } as unknown as ITiledMap;
+  }
+}
+
+describe('UndercookedArea', () => {
   const testAreaBox = { x: 100, y: 100, width: 100, height: 100 };
   const townEmitter = mock<TownEmitter>();
   const id = nanoid();
@@ -21,6 +36,7 @@ describe('ConversationArea', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore (Test requires access to protected method)
     interactableUpdateSpy = jest.spyOn(testArea, '_emitAreaChanged');
+    interactableUpdateSpy.mockClear();
   });
 
   describe('JoinGame Command', () => {
@@ -51,6 +67,7 @@ describe('ConversationArea', () => {
       testArea.handleCommand({ type: 'JoinGame' }, p2, s2);
       expect(testArea.game.players).toHaveLength(2);
       testArea.handleCommand({ type: 'LeaveGame', gameID: testArea.game.townID }, p1, s1);
+      expect(interactableUpdateSpy).toBeCalled();
       expect(testArea.game.players).toHaveLength(1);
       expect(testArea.game.players.filter(p => p.id !== p1.id)).toHaveLength(1);
     });
@@ -67,11 +84,61 @@ describe('ConversationArea', () => {
       const isPlayer2 = testArea.game.state.playerTwo === p1.id;
       expect(isPlayer1 !== isPlayer2).toBeTruthy();
       testArea.handleCommand({ type: 'StartGame', gameID: testArea.game.townID }, p1, s1);
+      expect(interactableUpdateSpy).toBeCalled();
       if (isPlayer1) {
         expect(testArea.game.state.playerOneReady).toBeTruthy();
       } else {
         expect(testArea.game.state.playerTwoReady).toBeTruthy();
       }
     });
+
+    it('should start the game when both players are ready', () => {
+      jest.spyOn(MapStore, 'getInstance').mockImplementation(() => new TestMapStore() as MapStore);
+      const p1 = new Player(nanoid(), townEmitter);
+      const p2 = new Player(nanoid(), townEmitter);
+      const s1 = mock<CoveyTownSocket>();
+      const s2 = mock<CoveyTownSocket>();
+      addPlayers(p1);
+      testArea.handleCommand({ type: 'JoinGame' }, p1, s1);
+      testArea.handleCommand({ type: 'JoinGame' }, p2, s2);
+      testArea.handleCommand({ type: 'StartGame', gameID: testArea.game.townID }, p1, s1);
+      expect(interactableUpdateSpy).toBeCalled();
+      interactableUpdateSpy.mockClear();
+      testArea.handleCommand({ type: 'StartGame', gameID: testArea.game.townID }, p2, s2);
+      expect(interactableUpdateSpy).toBeCalled();
+      interactableUpdateSpy.mockClear();
+      expect(testArea.game.state.status).toBe('IN_PROGRESS');
+    });
+
+    it('should reset the game when the game is over', () => {
+      jest.spyOn(MapStore, 'getInstance').mockImplementation(() => new TestMapStore() as MapStore);
+      const p1 = new Player(nanoid(), townEmitter);
+      const p2 = new Player(nanoid(), townEmitter);
+      const s1 = mock<CoveyTownSocket>();
+      const s2 = mock<CoveyTownSocket>();
+      addPlayers(p1);
+      testArea.handleCommand({ type: 'JoinGame' }, p1, s1);
+      testArea.handleCommand({ type: 'JoinGame' }, p2, s2);
+      testArea.handleCommand({ type: 'StartGame', gameID: testArea.game.townID }, p1, s1);
+      testArea.handleCommand({ type: 'StartGame', gameID: testArea.game.townID }, p2, s2);
+      testArea.game.state.status = 'OVER';
+      testArea.handleCommand({ type: 'JoinGame' }, p1, s1);
+      expect(testArea.game.players).toHaveLength(1);
+    });
+  });
+
+  it('should set the corrdinates of the area based on the map file.', () => {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    const map: any = {
+      name: 'Undercooked',
+      width: 100,
+      height: 100,
+      x: 0,
+      y: 0,
+    } as unknown as ITiledMap;
+    jest.spyOn(MapStore, 'getInstance').mockImplementation(() => new TestMapStore() as MapStore);
+    const area = UndercookedArea.fromMapObject(map, townEmitter);
+    expect(area.boundingBox).toEqual({ x: 0, y: 0, width: 100, height: 100 });
+    expect(area.id).toBe('Undercooked');
   });
 });
