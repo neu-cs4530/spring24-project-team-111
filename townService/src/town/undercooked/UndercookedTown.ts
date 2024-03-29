@@ -48,7 +48,7 @@ export default class UndercookedTown {
 
   private _state: UndercookedGameState;
 
-  private _players: UndercookedPlayer[] = [];
+  private _players: Player[] = [];
 
   private _stations: InteractableArea[] = [];
 
@@ -56,7 +56,9 @@ export default class UndercookedTown {
 
   private _handlers: Map<string, EventMessageAndHandler[]> = new Map();
 
-  public get players(): UndercookedPlayer[] {
+  private _inGamePlayerModels = new Map<string, UndercookedPlayer>();
+
+  public get players(): Player[] {
     return this._players;
   }
 
@@ -125,7 +127,7 @@ export default class UndercookedTown {
     } else {
       throw new InvalidParametersError(GAME_FULL_MESSAGE);
     }
-    this._players.push(new UndercookedPlayer(player.userName, player.id));
+    this._players.push(player);
     this._clientSockets.set(player.id, socket);
     if (this.state.playerOne && this.state.playerTwo) {
       this.state.status = 'WAITING_TO_START';
@@ -198,9 +200,23 @@ export default class UndercookedTown {
       status: ready ? 'IN_PROGRESS' : 'WAITING_TO_START',
     };
     if (ready) {
+      // need to initialize ingame model before calling handlers.
+      // otherwise, the handlers will not be able to find the player model.
+      this._initInGamePlayerModels();
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
     }
+  }
+
+  private _initInGamePlayerModels() {
+    this._players.forEach(player => {
+      this._initInGamePlayerModel(player);
+    });
+  }
+
+  private _initInGamePlayerModel(player: Player) {
+    const newPlayer = new UndercookedPlayer(player.userName, player.id);
+    this._inGamePlayerModels.set(player.id, newPlayer);
   }
 
   private _initHandler(
@@ -231,8 +247,10 @@ export default class UndercookedTown {
         try {
           const player = this._players.find(p => p.id === playerID);
           assert(player);
-          player.location = movementData;
-          this._broadcastEmitter.emit('ucPlayerMoved', player.toPlayerModel());
+          const inGamePlayerModel = this._inGamePlayerModels.get(playerID);
+          assert(inGamePlayerModel);
+          inGamePlayerModel.location = movementData;
+          this._broadcastEmitter.emit('ucPlayerMoved', inGamePlayerModel.toPlayerModel());
         } catch (err) {
           logError(err);
         }
@@ -246,9 +264,11 @@ export default class UndercookedTown {
           try {
             const player = this._players.find(p => p.id === playerID);
             assert(player);
+            const inGamePlayerModel = this._inGamePlayerModels.get(playerID);
+            assert(inGamePlayerModel);
             const payload = interactable.handleCommand(
               command,
-              player as unknown as Player,
+              inGamePlayerModel as unknown as Player,
               socket,
             );
             socket.emit('ucCommandResponse', {
@@ -312,6 +332,7 @@ export default class UndercookedTown {
       this._handlers.delete(player.id);
     }
     this._clientSockets.delete(player.id);
+    this._inGamePlayerModels.delete(player.id);
   }
 
   private _validateStations() {
