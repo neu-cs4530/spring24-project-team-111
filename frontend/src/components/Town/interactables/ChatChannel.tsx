@@ -5,7 +5,7 @@ import ChatWindow from '../../VideoCall/VideoFrontend/components/ChatWindow/Chat
 export default function ChatChannel({ interactableID }: { interactableID: string }): JSX.Element {
   return (
     <ChatProvider interactableID={interactableID}>
-      <ChatWindow />
+      <ChatWindow interactableID={interactableID} />
     </ChatProvider>
   );
 }
