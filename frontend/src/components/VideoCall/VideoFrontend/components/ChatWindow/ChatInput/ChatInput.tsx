@@ -78,12 +78,16 @@ export default function ChatInput({ interactableID }: { interactableID: string }
     const undercookedAreaController =
     useInteractableAreaController<UndercookedAreaController>(interactableID);
     useEffect(() => {
-      if (isTextareaFocused) {
-        undercookedAreaController.pause();
-      } else {
-        undercookedAreaController.unPause();
-        }
-      }, [isTextareaFocused, undercookedAreaController]);
+      try {
+        if (isTextareaFocused) {
+          undercookedAreaController.pause();
+        } else {
+          undercookedAreaController.unPause();
+          }
+      } catch (e) {
+        // we don't need to do anything area exists but modal is off.
+      };
+    }, [isTextareaFocused, undercookedAreaController]);
   } catch (e) { 
     // we don't need to do anything if we can't get the undercookedAreaController
   };

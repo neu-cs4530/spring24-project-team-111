@@ -28,6 +28,10 @@ export default function UndercookedBoard({
     undercookedAreaController.undercookedTownController.addListener('ucPause', pauseListener);
     undercookedAreaController.undercookedTownController.addListener('ucUnPause', unPauseListener);
     game.scene.add('undercookedBoard', newGameScene, true);
+
+    return () => {
+      game.scene.destroy();
+    };
   }, [undercookedAreaController]);
 
   return <div style={{ marginTop: 8 }} id='undercooked-map-container' />;
