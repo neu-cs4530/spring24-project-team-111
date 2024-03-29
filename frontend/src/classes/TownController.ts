@@ -106,6 +106,17 @@ export type TownEvents = {
    */
   unPause: () => void;
   /**
+   * An event that indicates that the 2D game is now paused. Pausing the game should, if nothing else,
+   * release all key listeners, so that text entry is possible (undercooked specific)
+   */
+  ucPause: () => void;
+  /**
+   * An event that indicates that the 2D game should now be unpaused (resumed).
+   * (undercooked specific)
+   */
+  ucUnPause: () => void;
+
+  /**
    * An event that indicates that the player is now interacting with a different interactable
    * @param typeName the type of interactable
    * @param obj the interactable that is being interacted with
