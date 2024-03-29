@@ -148,14 +148,14 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   public pause(): void {
     if (!this._paused) {
       this._paused = true;
-      this.emit('pause');
+      this.emit('ucPause');
     }
   }
 
   public unPause(): void {
     if (this._paused) {
       this._paused = false;
-      this.emit('unPause');
+      this.emit('ucUnPause');
     }
   }
 

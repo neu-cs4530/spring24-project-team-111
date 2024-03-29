@@ -125,4 +125,12 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   public get type(): string {
     throw new Error('Method not implemented.');
   }
+
+  public pause() {
+    this._undercookedTownController.pause();
+  }
+
+  public unPause() {
+    this._undercookedTownController.unPause();
+  }
 }
