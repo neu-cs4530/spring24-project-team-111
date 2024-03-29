@@ -7,6 +7,7 @@ import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocke
 import assert from 'assert';
 import { InteractableID } from '../generated/client';
 import PlayerController from './PlayerController';
+import { nanoid } from 'nanoid';
 
 /**
  * The UndercookedTownController emits these events. Components may subscribe to these events
@@ -27,7 +28,10 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   private _model: UndercookedAreaModel;
 
-  private _ourPlayer?: PlayerController;
+  private _inGamePlayerModel: PlayerController;
+
+  // default spawn location for in game player models. Set via undercooked scene.
+  private _spawnLocation?: PlayerLocation;
 
   private _townController: TownController;
 
@@ -61,6 +65,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._townController = townController;
     this._id = id;
     this._socket = socket;
+    this._inGamePlayerModel = this._defaultInGamePlayerModel();
   }
 
   public get paused() {
@@ -93,10 +98,13 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._model = model;
   }
 
-  // Our player should be the in-game player the client controls.
-  // used in WalkableScene.ts
+  public get inGamePlayerModel() {
+    return this._inGamePlayerModel;
+  }
+
+  // return player in covey.town no in undercooked.
   public get ourPlayer() {
-    const player = this._townController.ourPlayer;
+    const player = this._inGamePlayerModel;
     assert(player);
     return player;
   }
@@ -110,6 +118,10 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._playersInternalUndercooked = newPlayers;
   }
 
+  public set spawnLocation(location: PlayerLocation) {
+    this._spawnLocation = location;
+  }
+
   public async joinGame() {
     await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
@@ -117,17 +129,18 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   }
 
   public async leaveGame() {
+    // we don't use the gameID in the backend, so we can just pass a dummy value
     await this._townController.sendInteractableCommand(this._id, {
       type: 'LeaveGame',
-      // we don't use the gameID in the backend, so we can just pass a dummy value
       gameID: 'Undercooked',
     });
+    this._inGamePlayerModel = this._defaultInGamePlayerModel();
   }
 
   public async startGame() {
+    // we don't use the gameID in the backend, so we can just pass a dummy value
     await this._townController.sendInteractableCommand(this._id, {
       type: 'StartGame',
-      // we don't use the gameID in the backend, so we can just pass a dummy value
       gameID: 'Undercooked',
     });
   }
@@ -156,11 +169,10 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    * @param newLocation
    */
   public emitMovement(newLocation: PlayerLocation) {
-    this._socket.emit('playerMovement', newLocation);
-    const player = this.ourPlayer;
+    this._socket.emit('ucPlayerMovement', newLocation);
+    const player = this._inGamePlayerModel;
     assert(player);
     player.location = newLocation;
-    this.emit('playerMoved', player);
   }
 
   /**
@@ -169,5 +181,17 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   public interact<T extends Interactable>(interactedObj: T) {
     this._interactableEmitter.emit(interactedObj.getType(), interactedObj);
+  }
+
+  private _defaultInGamePlayerModel() {
+    // the values may be undefined when server starts so we add default values.
+    const spawnLoc = this._spawnLocation || { x: 0, y: 0, rotation: 'front', moving: false };
+    try {
+      const id = this._townController.ourPlayer.id || nanoid();
+      const userName = this._townController.ourPlayer.userName || 'default';
+      return new PlayerController(id, userName, spawnLoc);
+    } catch (e) {
+      return new PlayerController('default', 'default', spawnLoc);
+    }
   }
 }

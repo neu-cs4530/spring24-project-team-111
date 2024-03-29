@@ -2,6 +2,7 @@ import _ from 'lodash';
 import {
   CoveyTownSocket,
   InteractableID,
+  PlayerLocation,
   UndercookedArea as UndercookedAreaModel,
 } from '../../types/CoveyTownSocket';
 import TownController from '../TownController';
@@ -63,6 +64,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
       return 'WAITING_FOR_PLAYERS';
     }
     return status;
+  }
+
+  public set spawnLocation(location: PlayerLocation) {
+    this._undercookedTownController.spawnLocation = location;
   }
 
   public async joinGame() {
