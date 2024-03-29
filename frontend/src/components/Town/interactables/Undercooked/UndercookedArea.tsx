@@ -29,6 +29,7 @@ import UndercookedRecipeDisplay from './UndercookedRecipeDisplay';
 import UndercookedTimerDisplay from './UndercookedTimerDisplay';
 import { GameStatus, InteractableID } from '../../../../types/CoveyTownSocket';
 import PlayerController from '../../../../classes/PlayerController';
+import UndercookedLeaderboard from './UndercookedLeaderboard';
 
 export type UndercookedGameProps = {
   undercookedAreaController: UndercookedAreaController;
@@ -193,7 +194,9 @@ export default function UndercookedAreaWrapper(): JSX.Element {
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
-                    <AccordionPanel>Show leaderboard here</AccordionPanel>
+                    <AccordionPanel>
+                      <UndercookedLeaderboard results={UndercookedAreaController} />
+                    </AccordionPanel>
                   </Heading>
                 </AccordionItem>
               </Accordion>
