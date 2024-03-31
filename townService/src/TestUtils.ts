@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import { BroadcastOperator } from 'socket.io';
 import { ITiledMap } from '@jonbell/tiled-map-type-guard';
 import { mock, mockDeep, MockProxy } from 'jest-mock-extended';
