@@ -25,12 +25,18 @@ export default function UndercookedBoard({
     const newGameScene = new UndercookedGameScene(undercookedAreaController);
     const pauseListener = newGameScene.pause.bind(newGameScene);
     const unPauseListener = newGameScene.resume.bind(newGameScene);
-    undercookedAreaController.undercookedTownController.addListener('ucPause', pauseListener);
-    undercookedAreaController.undercookedTownController.addListener('ucUnPause', unPauseListener);
+    const undercookedTownController = undercookedAreaController.undercookedTownController;
+    undercookedTownController.addListener('ucPause', pauseListener);
+    undercookedTownController.addListener('ucUnPause', unPauseListener);
     game.scene.add('undercookedBoard', newGameScene, true);
 
     return () => {
-      game.scene.destroy();
+      game.destroy(true);
+      undercookedAreaController.undercookedTownController.removeListener('ucPause', pauseListener);
+      undercookedAreaController.undercookedTownController.removeListener(
+        'ucUnPause',
+        unPauseListener,
+      );
     };
   }, [undercookedAreaController]);
 
