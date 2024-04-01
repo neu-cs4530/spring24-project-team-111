@@ -5,7 +5,7 @@ import { GAME_FULL_MESSAGE } from '../../lib/InvalidParametersError';
 import MapStore from '../../lib/MapStore';
 import Player from '../../lib/Player';
 import { CoveyTownSocket, TownEmitter } from '../../types/CoveyTownSocket';
-import TestMapStore, { mapWithStations, simpleMap } from './UndercookedTestUtils';
+import { TestMapStore, mapWithStations, simpleMap } from '../../TestUtils';
 import UndercookedTown from './UndercookedTown';
 
 describe('UndercookedTown', () => {
