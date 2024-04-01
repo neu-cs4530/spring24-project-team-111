@@ -88,7 +88,7 @@ export default function TownMap(): JSX.Element {
       <UndercookedAreaWrapper />
       <GameAreaWrapper />
       <aside className={clsx(classes.chatWindowContainer, { [classes.hide]: !isChatWindowOpen })}>
-        <ChatWindow />
+        <ChatWindow interactableID='' />
       </aside>
 
       <div id='map-container' />

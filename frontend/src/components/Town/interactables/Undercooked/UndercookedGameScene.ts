@@ -78,6 +78,12 @@ export default class UndercookedGameScene extends WalkableScene {
     );
 
     const sprite = this.createSpawnPoint();
+    this.undercookedController.spawnLocation = {
+      x: sprite.x,
+      y: sprite.y,
+      rotation: 'front',
+      moving: false,
+    };
 
     // Watch the player and worldLayer for collisions, for the duration of the scene:
     this.collidingLayers.push(walls);
