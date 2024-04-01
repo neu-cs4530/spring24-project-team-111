@@ -13,6 +13,13 @@ export default class UndercookedGameScene extends WalkableScene {
     this.undercookedController = undercookedAreaController;
   }
 
+  initScene() {
+    // Call any listeners that are waiting for the game to be initialized
+    this.onGameReadyListeners.forEach(listener => listener());
+    this.onGameReadyListeners = [];
+    this.controller.addListener('ucPlayersChanged', players => this.updatePlayers(players));
+  }
+
   preload() {
     this.load.image(
       '12_Kitchen_32x32',

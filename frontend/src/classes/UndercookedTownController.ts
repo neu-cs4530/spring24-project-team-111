@@ -41,7 +41,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    * The current list of players in the undercooked town. Adding or removing players might replace the array
    * with a new one; clients should take note not to retain stale references.
    */
-  private _playersInternalUndercooked: PlayerController[] = [];
+  private _playersInternal: PlayerController[] = [];
 
   /**
    * A flag indicating whether the current 2D game is paused, or not. Pausing the game will prevent it from updating,
@@ -66,6 +66,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._id = id;
     this._socket = socket;
     this._inGamePlayerModel = this._defaultInGamePlayerModel();
+    this.registerSocketListeners();
   }
 
   public get paused() {
@@ -78,12 +79,12 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   public get playerOne() {
     const playerOne = this._model.playerOne;
-    return this._playersInternalUndercooked.find(player => player.id === playerOne);
+    return this._playersInternal.find(player => player.id === playerOne);
   }
 
   public get playerTwo() {
     const playerTwo = this._model.playerTwo;
-    return this._playersInternalUndercooked.find(player => player.id === playerTwo);
+    return this._playersInternal.find(player => player.id === playerTwo);
   }
 
   public get status() {
@@ -110,16 +111,21 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   }
 
   public get players() {
-    return this._playersInternalUndercooked;
+    return this._playersInternal;
   }
 
   public set players(newPlayers: PlayerController[]) {
-    this.emit('playersChanged', newPlayers);
-    this._playersInternalUndercooked = newPlayers;
+    this.emit('ucPlayersChanged', newPlayers);
+    this._playersInternal = newPlayers;
   }
 
   public set spawnLocation(location: PlayerLocation) {
     this._spawnLocation = location;
+  }
+
+  private set _players(newPlayers: PlayerController[]) {
+    this.emit('ucPlayersChanged', newPlayers);
+    this._playersInternal = newPlayers;
   }
 
   public async joinGame() {
@@ -193,5 +199,38 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     } catch (e) {
       return new PlayerController('default', 'default', spawnLoc);
     }
+  }
+
+  /**
+   * Registers listeners for the events that can come from the server to our socket
+   */
+  registerSocketListeners() {
+    /**
+     * When a new player joins the town, update our local state of players in the town and notify
+     * the controller's event listeners that the player has moved to their starting location.
+     *
+     * Note that setting the players array will also emit an event that the players in the town have changed.
+     */
+    this._socket.on('ucPlayerJoined', newPlayer => {
+      const newPlayerObj = PlayerController.fromPlayerModel(newPlayer);
+      this._players = this.players.concat([newPlayerObj]);
+    });
+    /**
+     * When a player moves, update local state and emit an event to the controller's event listeners
+     */
+    this._socket.on('ucPlayerMoved', movedPlayer => {
+      const playerToUpdate = this.players.find(eachPlayer => eachPlayer.id === movedPlayer.id);
+      if (playerToUpdate) {
+        if (playerToUpdate === this.ourPlayer) {
+          /*
+           * If we are told that WE moved, we shouldn't update our x,y because it's probably lagging behind
+           * real time. However: we SHOULD update our interactable ID, because its value is managed by the server
+           */
+          playerToUpdate.location.interactableID = movedPlayer.location.interactableID;
+        } else {
+          playerToUpdate.location = movedPlayer.location;
+        }
+      }
+    });
   }
 }

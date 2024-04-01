@@ -81,6 +81,12 @@ export type TownEvents = {
   playersChanged: (newPlayers: PlayerController[]) => void;
 
   /**
+   * An event that indicates that the set of players in the town has changed. This event is dispatched
+   * before updating the proeprties of this UndercookedTownController; clients will find the new players in the parameter
+   */
+  ucPlayersChanged: (newPlayers: PlayerController[]) => void;
+
+  /**
    * An event that indicates that a player has moved. This event is dispatched after updating the player's location -
    * the new location can be found on the PlayerController.
    */

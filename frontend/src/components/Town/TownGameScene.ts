@@ -13,6 +13,13 @@ export default class TownGameScene extends WalkableScene {
     this._resourcePathPrefix = resourcePathPrefix;
   }
 
+  initScene() {
+    // Call any listeners that are waiting for the game to be initialized
+    this.onGameReadyListeners.forEach(listener => listener());
+    this.onGameReadyListeners = [];
+    this.controller.addListener('playersChanged', players => this.updatePlayers(players));
+  }
+
   preload() {
     this.load.image(
       'Room_Builder_32x32',

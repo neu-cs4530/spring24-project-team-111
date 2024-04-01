@@ -217,6 +217,7 @@ export default class UndercookedTown {
   private _initInGamePlayerModel(player: Player) {
     const newPlayer = new UndercookedPlayer(player.userName, player.id);
     this._inGamePlayerModels.set(player.id, newPlayer);
+    this._broadcastEmitter.emit('ucPlayerJoined', newPlayer.toPlayerModel());
   }
 
   private _initHandler(

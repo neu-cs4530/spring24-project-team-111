@@ -430,13 +430,6 @@ export default class WalkableScene extends Phaser.Scene {
     });
   }
 
-  protected initScene() {
-    // Call any listeners that are waiting for the game to be initialized
-    this.onGameReadyListeners.forEach(listener => listener());
-    this.onGameReadyListeners = [];
-    this.controller.addListener('playersChanged', players => this.updatePlayers(players));
-  }
-
   protected lockLabelPositions() {
     // Help text that has a "fixed" position on the screen
     this.add
