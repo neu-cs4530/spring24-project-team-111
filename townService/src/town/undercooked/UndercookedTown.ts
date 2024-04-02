@@ -95,6 +95,7 @@ export default class UndercookedTown {
       playerOneReady: false,
       playerTwoReady: false,
       currentRecipe: this._generateRecipe(),
+      currentAssembled: [],
       timeRemaining: 0,
       score: 0,
     };
