@@ -8,7 +8,8 @@ export type KnownInteractableTypes =
   | 'viewingArea'
   | 'transporter'
   | 'gameArea'
-  | 'undercookedArea';
+  | 'undercookedArea'
+  | 'ingredientArea';
 
 /**
  * A base abstract class for representing an "interactable" in the Phaser game world.
