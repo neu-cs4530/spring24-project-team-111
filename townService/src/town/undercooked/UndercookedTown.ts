@@ -20,6 +20,8 @@ import {
   ServerToClientEvents,
   SocketData,
   UndercookedGameState,
+  UndercookedIngredient,
+  UndercookedRecipe,
 } from '../../types/CoveyTownSocket';
 import UndercookedPlayer from '../../lib/UndercookedPlayer';
 import { logError } from '../../Utils';
@@ -92,7 +94,8 @@ export default class UndercookedTown {
       playerTwo: undefined,
       playerOneReady: false,
       playerTwoReady: false,
-      currentRecipe: [],
+      currentRecipe: this._generateRecipe(),
+      currentAssembled: [],
       timeRemaining: 0,
       score: 0,
     };
@@ -232,15 +235,6 @@ export default class UndercookedTown {
     (this._handlers.get(id) as EventMessageAndHandler[]).push([event, handler]);
   }
 
-  private _cleanupHandlers(player: Player) {
-    if (this._handlers.has(player.id)) {
-      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
-        const [event, handler] = eventAndHandler;
-        this._clientSockets.get(player.id)?.removeListener(event, handler);
-      });
-    }
-  }
-
   private _initHandlers(): void {
     this._clientSockets.forEach((socket, playerID) => {
       const move: EventHandler = (movementData: PlayerLocation) => {
@@ -307,6 +301,15 @@ export default class UndercookedTown {
       this._initHandler(socket, 'ucPlayerMovement', playerID, move);
       this._initHandler(socket, 'ucInteractableCommand', playerID, onCommand);
     });
+  }
+
+  private _cleanupHandlers(player: Player) {
+    if (this._handlers.has(player.id)) {
+      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
+        const [event, handler] = eventAndHandler;
+        this._clientSockets.get(player.id)?.removeListener(event, handler);
+      });
+    }
   }
 
   private _removePlayer(player: Player): void {
@@ -381,5 +384,28 @@ export default class UndercookedTown {
 
     this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
     this._validateStations();
+  }
+
+  private _generateRecipe(): UndercookedRecipe {
+    const ingredientBank: UndercookedIngredient[] = [
+      'Milk',
+      'Salad',
+      'Fries',
+      'Rice',
+      'Steak',
+      'Egg',
+    ];
+
+    const recipe: UndercookedRecipe = [];
+
+    for (let i = 0; i < 3; i++) {
+      const randomIndex = Math.floor(Math.random() * ingredientBank.length);
+      recipe.push(ingredientBank[randomIndex]);
+
+      // remove the chosen ingredient from the array to avoid duplicate ingredients in the recipe
+      ingredientBank.splice(randomIndex, 1);
+    }
+
+    return recipe;
   }
 }
