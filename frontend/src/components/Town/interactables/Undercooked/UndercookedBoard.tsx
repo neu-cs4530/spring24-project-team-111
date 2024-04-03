@@ -23,7 +23,21 @@ export default function UndercookedBoard({
 
     const game = new Phaser.Game(config);
     const newGameScene = new UndercookedGameScene(undercookedAreaController);
+    const pauseListener = newGameScene.pause.bind(newGameScene);
+    const unPauseListener = newGameScene.resume.bind(newGameScene);
+    const undercookedTownController = undercookedAreaController.undercookedTownController;
+    undercookedTownController.addListener('ucPause', pauseListener);
+    undercookedTownController.addListener('ucUnPause', unPauseListener);
     game.scene.add('undercookedBoard', newGameScene, true);
+
+    return () => {
+      game.destroy(true);
+      undercookedAreaController.undercookedTownController.removeListener('ucPause', pauseListener);
+      undercookedAreaController.undercookedTownController.removeListener(
+        'ucUnPause',
+        unPauseListener,
+      );
+    };
   }, [undercookedAreaController]);
 
   return <div style={{ marginTop: 8 }} id='undercooked-map-container' />;

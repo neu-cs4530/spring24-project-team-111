@@ -5,7 +5,7 @@ import MapStore from '../../lib/MapStore';
 import Player from '../../lib/Player';
 import { CoveyTownSocket, TownEmitter } from '../../types/CoveyTownSocket';
 import UndercookedArea from './UndercookedArea';
-import TestMapStore, { simpleMap } from './UndercookedTestUtils';
+import { TestMapStore, simpleMap } from '../../TestUtils';
 
 describe('UndercookedArea', () => {
   const testAreaBox = { x: 100, y: 100, width: 100, height: 100 };

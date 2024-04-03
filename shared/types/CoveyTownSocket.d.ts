@@ -333,7 +333,7 @@ export interface UndercookedGameState extends GameState {
   playerOneReady: boolean;
   playerTwoReady: boolean;
   currentRecipe: UndercookedRecipe;
-  currentlyAssembled: UndercookedIngredient[];
+  currentAssembled: UndercookedIngredient[];
   timeRemaining: number;
   score: number;
 }

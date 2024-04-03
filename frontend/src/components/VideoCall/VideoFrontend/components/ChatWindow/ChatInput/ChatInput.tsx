@@ -1,9 +1,9 @@
 import { makeStyles } from '@material-ui/core';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import clsx from 'clsx';
-import { set } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
-import TextConversation from '../../../../../../classes/TextConversation';
+import UndercookedAreaController from '../../../../../../classes/interactable/UndercookedAreaController';
+import { useInteractableAreaController } from '../../../../../../classes/TownController';
 import useTownController from '../../../../../../hooks/useTownController';
 import useChatContext from '../../../hooks/useChatContext/useChatContext';
 import { isMobile } from '../../../utils';
@@ -64,7 +64,7 @@ const useStyles = makeStyles(theme => ({
 const ALLOWED_FILE_TYPES =
   'audio/*, image/*, text/*, video/*, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document .xslx, .ppt, .pdf, .key, .svg, .csv';
 
-export default function ChatInput() {
+export default function ChatInput({ interactableID }: { interactableID: string }) {
   const classes = useStyles();
   const [messageBody, setMessageBody] = useState('');
   const [isSendingFile, setIsSendingFile] = useState(false);
@@ -75,6 +75,23 @@ export default function ChatInput() {
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   const coveyTownController = useTownController();
   const {conversation, isChatWindowOpen, setIsChatWindowOpen} = useChatContext();
+  try {
+    const undercookedAreaController =
+    useInteractableAreaController<UndercookedAreaController>(interactableID);
+    useEffect(() => {
+      try {
+        if (isTextareaFocused) {
+          undercookedAreaController.pause();
+        } else {
+          undercookedAreaController.unPause();
+          }
+      } catch (e) {
+        // we don't need to do anything area exists but modal is off.
+      };
+    }, [isTextareaFocused, undercookedAreaController]);
+  } catch (e) { 
+    // we don't need to do anything if we can't get the undercookedAreaController
+  };
 
   const [isOpen, setIsOpen] = useState(false);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false); // New state to track emoji picker visibility

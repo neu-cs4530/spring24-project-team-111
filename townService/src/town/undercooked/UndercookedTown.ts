@@ -20,6 +20,8 @@ import {
   ServerToClientEvents,
   SocketData,
   UndercookedGameState,
+  UndercookedIngredient,
+  UndercookedRecipe,
 } from '../../types/CoveyTownSocket';
 import UndercookedPlayer from '../../lib/UndercookedPlayer';
 import { logError } from '../../Utils';
@@ -48,7 +50,7 @@ export default class UndercookedTown {
 
   private _state: UndercookedGameState;
 
-  private _players: UndercookedPlayer[] = [];
+  private _players: Player[] = [];
 
   private _stations: InteractableArea[] = [];
 
@@ -56,7 +58,9 @@ export default class UndercookedTown {
 
   private _handlers: Map<string, EventMessageAndHandler[]> = new Map();
 
-  public get players(): UndercookedPlayer[] {
+  private _inGamePlayerModels = new Map<string, UndercookedPlayer>();
+
+  public get players(): Player[] {
     return this._players;
   }
 
@@ -90,8 +94,8 @@ export default class UndercookedTown {
       playerTwo: undefined,
       playerOneReady: false,
       playerTwoReady: false,
-      currentRecipe: [],
-      currentlyAssembled: [],
+      currentRecipe: this._generateRecipe(),
+      currentAssembled: [],
       timeRemaining: 0,
       score: 0,
     };
@@ -126,7 +130,7 @@ export default class UndercookedTown {
     } else {
       throw new InvalidParametersError(GAME_FULL_MESSAGE);
     }
-    this._players.push(new UndercookedPlayer(player.userName, player.id));
+    this._players.push(player);
     this._clientSockets.set(player.id, socket);
     if (this.state.playerOne && this.state.playerTwo) {
       this.state.status = 'WAITING_TO_START';
@@ -199,9 +203,23 @@ export default class UndercookedTown {
       status: ready ? 'IN_PROGRESS' : 'WAITING_TO_START',
     };
     if (ready) {
+      // need to initialize ingame model before calling handlers.
+      // otherwise, the handlers will not be able to find the player model.
+      this._initInGamePlayerModels();
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
     }
+  }
+
+  private _initInGamePlayerModels() {
+    this._players.forEach(player => {
+      this._initInGamePlayerModel(player);
+    });
+  }
+
+  private _initInGamePlayerModel(player: Player) {
+    const newPlayer = new UndercookedPlayer(player.userName, player.id);
+    this._inGamePlayerModels.set(player.id, newPlayer);
   }
 
   private _initHandler(
@@ -217,23 +235,16 @@ export default class UndercookedTown {
     (this._handlers.get(id) as EventMessageAndHandler[]).push([event, handler]);
   }
 
-  private _cleanupHandlers(player: Player) {
-    if (this._handlers.has(player.id)) {
-      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
-        const [event, handler] = eventAndHandler;
-        this._clientSockets.get(player.id)?.removeListener(event, handler);
-      });
-    }
-  }
-
   private _initHandlers(): void {
     this._clientSockets.forEach((socket, playerID) => {
       const move: EventHandler = (movementData: PlayerLocation) => {
         try {
           const player = this._players.find(p => p.id === playerID);
           assert(player);
-          player.location = movementData;
-          this._broadcastEmitter.emit('ucPlayerMoved', player.toPlayerModel());
+          const inGamePlayerModel = this._inGamePlayerModels.get(playerID);
+          assert(inGamePlayerModel);
+          inGamePlayerModel.location = movementData;
+          this._broadcastEmitter.emit('ucPlayerMoved', inGamePlayerModel.toPlayerModel());
         } catch (err) {
           logError(err);
         }
@@ -247,9 +258,11 @@ export default class UndercookedTown {
           try {
             const player = this._players.find(p => p.id === playerID);
             assert(player);
+            const inGamePlayerModel = this._inGamePlayerModels.get(playerID);
+            assert(inGamePlayerModel);
             const payload = interactable.handleCommand(
               command,
-              player as unknown as Player,
+              inGamePlayerModel as unknown as Player,
               socket,
             );
             socket.emit('ucCommandResponse', {
@@ -290,6 +303,15 @@ export default class UndercookedTown {
     });
   }
 
+  private _cleanupHandlers(player: Player) {
+    if (this._handlers.has(player.id)) {
+      (this._handlers.get(player.id) as EventMessageAndHandler[]).forEach(eventAndHandler => {
+        const [event, handler] = eventAndHandler;
+        this._clientSockets.get(player.id)?.removeListener(event, handler);
+      });
+    }
+  }
+
   private _removePlayer(player: Player): void {
     if (this.state.playerOne !== player.id && this.state.playerTwo !== player.id) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
@@ -313,6 +335,7 @@ export default class UndercookedTown {
       this._handlers.delete(player.id);
     }
     this._clientSockets.delete(player.id);
+    this._inGamePlayerModels.delete(player.id);
   }
 
   private _incrementScore(): number {
@@ -366,5 +389,28 @@ export default class UndercookedTown {
 
     this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
     this._validateStations();
+  }
+
+  private _generateRecipe(): UndercookedRecipe {
+    const ingredientBank: UndercookedIngredient[] = [
+      'Milk',
+      'Salad',
+      'Fries',
+      'Rice',
+      'Steak',
+      'Egg',
+    ];
+
+    const recipe: UndercookedRecipe = [];
+
+    for (let i = 0; i < 3; i++) {
+      const randomIndex = Math.floor(Math.random() * ingredientBank.length);
+      recipe.push(ingredientBank[randomIndex]);
+
+      // remove the chosen ingredient from the array to avoid duplicate ingredients in the recipe
+      ingredientBank.splice(randomIndex, 1);
+    }
+
+    return recipe;
   }
 }
