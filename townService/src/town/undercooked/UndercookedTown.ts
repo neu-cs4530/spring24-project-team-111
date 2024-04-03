@@ -265,7 +265,7 @@ export default class UndercookedTown {
               inGamePlayerModel as unknown as Player,
               socket,
             );
-            socket.emit('ucCommandResponse', {
+            socket.emit('commandResponse', {
               commandID: command.commandID,
               interactableID: command.interactableID,
               isOK: true,
@@ -273,7 +273,7 @@ export default class UndercookedTown {
             });
           } catch (err) {
             if (err instanceof InvalidParametersError) {
-              socket.emit('ucCommandResponse', {
+              socket.emit('commandResponse', {
                 commandID: command.commandID,
                 interactableID: command.interactableID,
                 isOK: false,
@@ -281,7 +281,7 @@ export default class UndercookedTown {
               });
             } else {
               logError(err);
-              socket.emit('ucCommandResponse', {
+              socket.emit('commandResponse', {
                 commandID: command.commandID,
                 interactableID: command.interactableID,
                 isOK: false,
@@ -290,7 +290,7 @@ export default class UndercookedTown {
             }
           }
         } else {
-          socket.emit('ucCommandResponse', {
+          socket.emit('commandResponse', {
             commandID: command.commandID,
             interactableID: command.interactableID,
             isOK: false,
@@ -299,7 +299,7 @@ export default class UndercookedTown {
         }
       };
       this._initHandler(socket, 'ucPlayerMovement', playerID, move);
-      this._initHandler(socket, 'ucInteractableCommand', playerID, onCommand);
+      this._initHandler(socket, 'interactableCommand', playerID, onCommand);
     });
   }
 
