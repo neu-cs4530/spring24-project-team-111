@@ -223,6 +223,7 @@ export type InteractableCommand =
   | JoinGameCommand
   | GameMoveCommand<TicTacToeMove>
   | GameMoveCommand<ConnectFourMove>
+  | GameMoveCommand<UndercookedMove>
   | StartGameCommand
   | LeaveGameCommand;
 export interface ViewingAreaUpdateCommand {
@@ -333,3 +334,16 @@ export interface UndercookedGameState extends GameState {
 export type UndercookedArea = Interactable & Partial<UndercookedGameState> & {
   players?: string[];
 };
+
+/**
+ * Type for a move in Undercooked game.
+ * 
+ * A move is a player interacting with an ingredient area,
+ * which updates the currently assembled ingredients
+ * 
+ * Columns are numbered 0-6, with 0 being the leftmost column
+ * Rows are numbered 0-5, with 0 being the top row
+ */
+export interface UndercookedMove {
+  gamePiece: UndercookedIngredient;
+}

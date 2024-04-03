@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { CoveyTownSocket, PlayerLocation } from '../types/CoveyTownSocket';
+import { CoveyTownSocket, InteractableCommand, PlayerLocation } from '../types/CoveyTownSocket';
 import Interactable from '../components/Town/Interactable';
 import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
@@ -189,6 +189,13 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   public interact<T extends Interactable>(interactedObj: T) {
     this._interactableEmitter.emit(interactedObj.getType(), interactedObj);
+  }
+
+  public sendInteractableCommand<CommandType extends InteractableCommand>(
+    interactableID: InteractableID,
+    command: CommandType,
+  ) {
+    this._townController.sendInteractableCommand(interactableID, command);
   }
 
   private _defaultInGamePlayerModel() {
