@@ -374,15 +374,7 @@ export default class UndercookedTown {
       .filter(eachObject => eachObject.type === 'IngredientArea')
       .map(eachIngredientArea => AreaFactory(eachIngredientArea, this._broadcastEmitter));
 
-    const trashArea = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'TrashArea')
-      .map(eachTrashArea => AreaFactory(eachTrashArea, this._broadcastEmitter));
-
-    const assemblyArea = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'AssemblyArea')
-      .map(eachAssemblyArea => AreaFactory(eachAssemblyArea, this._broadcastEmitter));
-
-    this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
+    this._stations = this._stations.concat(ingredientArea);
     this._validateStations();
   }
 
