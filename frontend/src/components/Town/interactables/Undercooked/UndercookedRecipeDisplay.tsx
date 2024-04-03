@@ -17,9 +17,17 @@ type IngredientsList = {
   [index in UndercookedIngredient]: IngredientIcon;
 };
 
+/**
+ * The UndercookedRecipeDisplay component displays the current recipe and assembled recipe for the Undercooked game.
+ *
+ * It uses the UndercookedAreaController to get the current recipe and assembled recipe.
+ * It listens for the 'gameUpdated' (I think??? will double check when implementing the functionality of updating current assembled/getting a new recipe) events on the controller, and re-renders accordingly.
+ * It subscribes to these events when the component mounts, and unsubscribes when the component unmounts. It also unsubscribes when the gameAreaController changes.
+ */
 export default function UndercookedRecipeDisplay({
   undercookedAreaController,
 }: UndercookedGameProps): JSX.Element {
+  // list of ingredients in the Undercooked game and their corresponding icons
   const ingredientsList: IngredientsList = {
     Steak: {
       icon: LuBeef,
