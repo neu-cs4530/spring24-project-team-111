@@ -53,6 +53,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     return this._undercookedTownController.playerOne;
   }
 
+  public get score() {
+    return this._undercookedTownController.model.score;
+  }
+
   public get playerTwo() {
     return this._undercookedTownController.playerTwo;
   }

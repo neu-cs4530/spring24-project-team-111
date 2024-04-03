@@ -91,6 +91,7 @@ export default class UndercookedTown {
       playerOneReady: false,
       playerTwoReady: false,
       currentRecipe: [],
+      currentlyAssembled: [],
       timeRemaining: 0,
       score: 0,
     };
@@ -312,6 +313,11 @@ export default class UndercookedTown {
       this._handlers.delete(player.id);
     }
     this._clientSockets.delete(player.id);
+  }
+
+  private _incrementScore(): number {
+    this.state.score += 1;
+    return this.state.score;
   }
 
   private _validateStations() {

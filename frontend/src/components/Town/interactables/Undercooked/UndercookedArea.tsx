@@ -11,11 +11,6 @@ import {
   ModalContent,
   ModalCloseButton,
   ModalBody,
-  AccordionButton,
-  Accordion,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   useToast,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -29,7 +24,6 @@ import UndercookedRecipeDisplay from './UndercookedRecipeDisplay';
 import UndercookedTimerDisplay from './UndercookedTimerDisplay';
 import { GameStatus, InteractableID } from '../../../../types/CoveyTownSocket';
 import PlayerController from '../../../../classes/PlayerController';
-import UndercookedLeaderboard from './UndercookedLeaderboard';
 
 export type UndercookedGameProps = {
   undercookedAreaController: UndercookedAreaController;
@@ -185,21 +179,6 @@ export default function UndercookedAreaWrapper(): JSX.Element {
               <UndercookedArea interactableID={undercookedArea.id} />
             </Box>
             <Box flex={1}>
-              <Accordion allowToggle>
-                <AccordionItem>
-                  <Heading as='h3'>
-                    <AccordionButton backgroundColor='#F4F4F6'>
-                      <Box flex='1' textAlign='left'>
-                        Leaderboard
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                    <AccordionPanel>
-                      <UndercookedLeaderboard results={UndercookedAreaController} />
-                    </AccordionPanel>
-                  </Heading>
-                </AccordionItem>
-              </Accordion>
               <Box
                 style={{
                   height: '400px',
