@@ -215,18 +215,31 @@ export default class UndercookedTown {
   }
 
   public applyMove(move: GameMove<UndercookedMove>) {
+    const {
+      playerID,
+      move: { gamePiece },
+    } = move;
+
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
 
-    if (move.playerID !== this.state.playerOne && move.playerID !== this.state.playerTwo) {
+    if (playerID !== this.state.playerOne && playerID !== this.state.playerTwo) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
 
-    this.state = {
-      ...this.state,
-      currentAssembled: [...this.state.currentAssembled, move.move.gamePiece],
-    };
+    // if the ingredient added is in the currentRecipe
+    // and the ingredient is not already in the currentAssembled
+    // add the ingredient to the currentAssembled
+    if (
+      this.state.currentRecipe.includes(gamePiece) &&
+      !this.state.currentAssembled.includes(gamePiece)
+    ) {
+      this.state = {
+        ...this.state,
+        currentAssembled: [...this.state.currentAssembled, move.move.gamePiece],
+      };
+    }
 
     // if the currentAssembled recipe matches the currentRecipe
     // update the currentRecipe with a new one and reset the currentAssembled
