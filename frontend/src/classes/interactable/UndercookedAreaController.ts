@@ -78,6 +78,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     return this._undercookedTownController.currentAssembled;
   }
 
+  public get time() {
+    return this._undercookedTownController.time;
+  }
+
   public set spawnLocation(location: PlayerLocation) {
     this._undercookedTownController.spawnLocation = location;
   }

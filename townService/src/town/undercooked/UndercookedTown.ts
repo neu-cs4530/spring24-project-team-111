@@ -28,6 +28,7 @@ import { logError } from '../../Utils';
 import InteractableArea from '../InteractableArea';
 import AreaFactory from '../games/AreaFactory';
 import MapStore from '../../lib/MapStore';
+import Timer from './Timer';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
@@ -59,6 +60,8 @@ export default class UndercookedTown {
   private _handlers: Map<string, EventMessageAndHandler[]> = new Map();
 
   private _inGamePlayerModels = new Map<string, UndercookedPlayer>();
+
+  private _timer: Timer;
 
   public get players(): Player[] {
     return this._players;
@@ -96,9 +99,10 @@ export default class UndercookedTown {
       playerTwoReady: false,
       currentRecipe: this._generateRecipe(),
       currentAssembled: [],
-      timeRemaining: 0,
+      timeRemaining: 10,
       score: 0,
     };
+    this._timer = new Timer(10);
   }
 
   /**
@@ -208,6 +212,17 @@ export default class UndercookedTown {
       this._initInGamePlayerModels();
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
+      this._startTime();
+    }
+  }
+
+  private _startTime(): void {
+    this._timer.startTimer();
+    setInterval(() => {
+      this._timer.currentTime = this.state.timeRemaining;
+    }, 1000);
+    if (this._timer.currentTime === 0) {
+      this.state.status = 'OVER';
     }
   }
 

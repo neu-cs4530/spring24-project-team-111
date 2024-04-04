@@ -149,6 +149,31 @@ describe('UndercookedTown', () => {
       expect(town.state.playerTwoReady).toBe(true);
     });
   });
+  describe('Timer', () => {
+    let p1: Player;
+    let p2: Player;
+    let s1: CoveyTownSocket;
+    let s2: CoveyTownSocket;
+
+    beforeEach(() => {
+      jest
+        .spyOn(MapStore, 'getInstance')
+        .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
+      p1 = new Player(nanoid(), townEmitter);
+      p2 = new Player(nanoid(), townEmitter);
+      s1 = mock<CoveyTownSocket>();
+      s2 = mock<CoveyTownSocket>();
+      town.join(p1, s1);
+      town.join(p2, s2);
+      mockClear(townEmitter);
+    });
+    it('should start when the game is in progress', () => {
+      town.startGame(p1);
+      town.startGame(p2);
+      expect(town.state.status).toBe('IN_PROGRESS');
+      expect(town.state.timeRemaining).toBe(0);
+    });
+  });
   describe('Game start handlers.', () => {
     let p1: Player;
     let p2: Player;
