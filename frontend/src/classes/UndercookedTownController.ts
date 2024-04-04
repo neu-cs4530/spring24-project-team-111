@@ -1,12 +1,6 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import {
-  CoveyTownSocket,
-  InteractableCommand,
-  InteractableCommandResponse,
-  PlayerLocation,
-  UndercookedIngredient,
-} from '../types/CoveyTownSocket';
+import { CoveyTownSocket, PlayerLocation, UndercookedIngredient } from '../types/CoveyTownSocket';
 import Interactable from '../components/Town/Interactable';
 import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';

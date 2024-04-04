@@ -81,9 +81,10 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
       }
       if (
         this.isOverlapping &&
-        this._scene.cursorKeys.space.isDown &&
+        Phaser.Input.Keyboard.JustDown(this._scene.cursorKeys.space) &&
         !this.townController.paused
       ) {
+        console.log('space bar pressed');
         this.townController.interact(this);
         this.interact();
       }
