@@ -12,7 +12,6 @@ import {
   InteractableCommandReturnType,
   TownEmitter,
   UndercookedArea as UndercookedAreaModel,
-  UndercookedMove,
 } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
 import UndercookedTown from './UndercookedTown';
@@ -50,29 +49,44 @@ export default class UndercookedArea extends InteractableArea {
       this._game.join(player, socket);
       this._emitAreaChanged();
 
-      return { gameID: this._game.townID } as InteractableCommandReturnType<CommandType>;
+      return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
       this._game.leave(player);
       this._emitAreaChanged();
+
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'StartGame') {
       this._game.startGame(player);
       this._emitAreaChanged();
+
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'GameMove') {
-      // if (!this._game) {
-      //   throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
-      // }
-      // check that game piece is an undercooked ingredient
+      if (!this._game) {
+        throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      }
+
+      const { gamePiece } = command.move;
+      if (
+        gamePiece !== 'Egg' &&
+        gamePiece !== 'Fries' &&
+        gamePiece !== 'Milk' &&
+        gamePiece !== 'Rice' &&
+        gamePiece !== 'Salad' &&
+        gamePiece !== 'Steak'
+      ) {
+        throw new InvalidParametersError('Invalid game piece');
+      }
+
       this._game.applyMove({
         gameID: command.gameID,
         playerID: player.id,
-        move: command.move as UndercookedMove,
+        move: command.move,
       });
       this._emitAreaChanged();
+
       return undefined as InteractableCommandReturnType<CommandType>;
     }
 

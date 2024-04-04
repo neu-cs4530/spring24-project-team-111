@@ -84,7 +84,6 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
         Phaser.Input.Keyboard.JustDown(this._scene.cursorKeys.space) &&
         !this.townController.paused
       ) {
-        console.log('space bar pressed');
         this.townController.interact(this);
         this.interact();
       }

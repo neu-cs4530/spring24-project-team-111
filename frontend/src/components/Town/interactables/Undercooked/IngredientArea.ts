@@ -20,7 +20,6 @@ export default class IngredientArea extends Interactable {
   }
 
   interact() {
-    console.log('interacting with ingredient area:', this.name);
     // we can safely cast town controller to be UndercookedTownController since
     // the IngredientArea is only used in the Undercooked game
     (this.townController as UndercookedTownController).makeMove(this.name as UndercookedIngredient);
