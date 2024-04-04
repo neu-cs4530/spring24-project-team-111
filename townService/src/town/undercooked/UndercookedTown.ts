@@ -214,6 +214,21 @@ export default class UndercookedTown {
     }
   }
 
+  /**
+   * Applies a move to the Undercooked game.
+   * A move is a player interacting with an ingredient area and updating the currentAssembled accordingly.
+   *
+   * The ingredient is added to currentAssembled if:
+   *   - It is in the currentRecipe
+   *   - It is not already in currentAssembled
+   *
+   * If the currentRecipe is completed, the currentRecipe is updated with a new one and currentAssembled is reset.
+   *
+   * @param move The move to attempt to apply
+   *
+   * @throws InvalidParametersError if the game is not in progress (GAME_NOT_IN_PROGRESS_MESSAGE)
+   * @throws InvalidParametersError if the player is not in the game (PLAYER_NOT_IN_GAME_MESSAGE)
+   */
   public applyMove(move: GameMove<UndercookedMove>) {
     const {
       playerID,
