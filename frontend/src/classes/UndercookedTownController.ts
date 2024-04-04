@@ -99,6 +99,14 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._model = model;
   }
 
+  public get currentRecipe() {
+    return this._model.currentRecipe;
+  }
+
+  public get currentAssembled() {
+    return this._model.currentAssembled;
+  }
+
   public get inGamePlayerModel() {
     return this._inGamePlayerModel;
   }
