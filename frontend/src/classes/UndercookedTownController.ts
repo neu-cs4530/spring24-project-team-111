@@ -123,11 +123,6 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._spawnLocation = location;
   }
 
-  private set _players(newPlayers: PlayerController[]) {
-    this.emit('ucPlayersChanged', newPlayers);
-    this._playersInternal = newPlayers;
-  }
-
   public async joinGame() {
     await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
@@ -213,7 +208,8 @@ export default class UndercookedTownController extends (EventEmitter as new () =
      */
     this._socket.on('ucPlayerJoined', newPlayer => {
       const newPlayerObj = PlayerController.fromPlayerModel(newPlayer);
-      this._players = this.players.concat([newPlayerObj]);
+      this.players = this.players.concat([newPlayerObj]);
+      console.log(this.players);
     });
     /**
      * When a player moves, update local state and emit an event to the controller's event listeners

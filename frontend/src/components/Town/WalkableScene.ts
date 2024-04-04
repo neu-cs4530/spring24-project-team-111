@@ -120,11 +120,13 @@ export default class WalkableScene extends Phaser.Scene {
   updatePlayers(players: PlayerController[]) {
     //Make sure that each player has sprites
     players.map(eachPlayer => this.createPlayerSprites(eachPlayer));
+    console.log('Players:', players);
 
     // Remove disconnected players from board
     const disconnectedPlayers = this._players.filter(
       player => !players.find(p => p.id === player.id),
     );
+    console.log('Disconnected players:', disconnectedPlayers);
 
     disconnectedPlayers.forEach(disconnectedPlayer => {
       if (disconnectedPlayer.gameObjects) {

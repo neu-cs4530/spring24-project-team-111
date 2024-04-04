@@ -17,7 +17,11 @@ export default class UndercookedGameScene extends WalkableScene {
     // Call any listeners that are waiting for the game to be initialized
     this.onGameReadyListeners.forEach(listener => listener());
     this.onGameReadyListeners = [];
-    this.controller.addListener('ucPlayersChanged', players => this.updatePlayers(players));
+    this.controller.addListener('ucPlayersChanged', players => {
+      console.log('updating scene players');
+      console.log(players);
+      return this.updatePlayers(players);
+    });
   }
 
   preload() {

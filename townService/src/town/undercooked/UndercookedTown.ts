@@ -202,6 +202,7 @@ export default class UndercookedTown {
     if (ready) {
       // need to initialize ingame model before calling handlers.
       // otherwise, the handlers will not be able to find the player model.
+      console.log('initialization...');
       this._initInGamePlayerModels();
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
