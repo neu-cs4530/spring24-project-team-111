@@ -23,6 +23,10 @@ export default class UndercookedArea extends InteractableArea {
     return this._game;
   }
 
+  public set game(newGame: UndercookedTown) {
+    this._game = newGame;
+  }
+
   public get isActive(): boolean {
     return true;
   }
@@ -32,8 +36,8 @@ export default class UndercookedArea extends InteractableArea {
       type: 'UndercookedArea',
       id: this.id,
       occupants: this.occupantsByID,
-      players: this._game.players.map(player => player.id),
-      ...this._game.state,
+      players: this.game.players.map(player => player.id),
+      ...this.game.state,
     };
   }
 
@@ -43,28 +47,35 @@ export default class UndercookedArea extends InteractableArea {
     socket: CoveyTownSocket,
   ): InteractableCommandReturnType<CommandType> {
     if (command.type === 'JoinGame') {
-      if (this._game.state.status === 'OVER') {
-        this._game = new UndercookedTown(nanoid(), this._townEmitter);
+      if (!this.game || this.game.state.status === 'OVER') {
+        // no game in progress or game is over, make a new one
+        this.game = new UndercookedTown(nanoid(), this._townEmitter);
       }
-      this._game.join(player, socket);
+      this.game.join(player, socket);
       this._emitAreaChanged();
 
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
-      this._game.leave(player);
+      if (!this.game) {
+        throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      }
+      this.game.leave(player);
       this._emitAreaChanged();
 
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'StartGame') {
-      this._game.startGame(player);
+      if (!this.game) {
+        throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      }
+      this.game.startGame(player);
       this._emitAreaChanged();
 
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'GameMove') {
-      if (!this._game) {
+      if (!this.game) {
         throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
       }
 
@@ -80,7 +91,7 @@ export default class UndercookedArea extends InteractableArea {
         throw new InvalidParametersError('Invalid game piece');
       }
 
-      this._game.applyMove({
+      this.game.applyMove({
         gameID: command.gameID,
         playerID: player.id,
         move: command.move,
