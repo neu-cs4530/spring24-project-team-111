@@ -59,6 +59,7 @@ export default function UndercookedRecipeDisplay({
   useEffect(() => {
     const updateGameState = () => {
       setCurrentAssembled(undercookedAreaController.currentAssembled);
+      setCurrentRecipe(undercookedAreaController.currentRecipe);
     };
 
     undercookedAreaController.addListener('gameUpdated', updateGameState);

@@ -83,7 +83,7 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   }
 
   public async leaveGame() {
-    this._undercookedTownController.leaveGame();
+    await this._undercookedTownController.leaveGame();
   }
 
   public async startGame() {

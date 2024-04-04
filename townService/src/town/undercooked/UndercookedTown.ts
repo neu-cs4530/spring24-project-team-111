@@ -215,12 +215,14 @@ export default class UndercookedTown {
   }
 
   public applyMove(move: GameMove<UndercookedMove>) {
-    // if (this.state.status !== 'IN_PROGRESS') {
-    //   throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
-    // }
-    // if (move.playerID !== this.state.playerOne || move.playerID !== this.state.playerTwo) {
-    //   throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
-    // }
+    if (this.state.status !== 'IN_PROGRESS') {
+      throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+    }
+
+    if (move.playerID !== this.state.playerOne && move.playerID !== this.state.playerTwo) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+
     this.state = {
       ...this.state,
       currentAssembled: [...this.state.currentAssembled, move.move.gamePiece],
