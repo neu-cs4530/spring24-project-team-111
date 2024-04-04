@@ -160,7 +160,7 @@ export default class UndercookedTown {
     }
     this._removePlayer(player);
     if (gameStatus === 'IN_PROGRESS') {
-      this._state = {
+      this.state = {
         ...this.state,
         status: 'OVER',
       };
@@ -227,6 +227,20 @@ export default class UndercookedTown {
       ...this.state,
       currentAssembled: [...this.state.currentAssembled, move.move.gamePiece],
     };
+
+    // if the currentAssembled recipe matches the currentRecipe
+    // update the currentRecipe with a new one and reset the currentAssembled
+    // [TODO]: add to score
+    if (
+      this.state.currentRecipe.every(ingredient => this.state.currentAssembled.includes(ingredient))
+    ) {
+      const newRecipe = this._generateRecipe();
+      this.state = {
+        ...this.state,
+        currentRecipe: newRecipe,
+        currentAssembled: [],
+      };
+    }
   }
 
   private _initInGamePlayerModels() {
