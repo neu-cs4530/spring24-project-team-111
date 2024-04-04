@@ -1,6 +1,12 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { CoveyTownSocket, InteractableCommand, PlayerLocation } from '../types/CoveyTownSocket';
+import {
+  CoveyTownSocket,
+  InteractableCommand,
+  InteractableCommandResponse,
+  PlayerLocation,
+  UndercookedIngredient,
+} from '../types/CoveyTownSocket';
 import Interactable from '../components/Town/Interactable';
 import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
@@ -30,7 +36,9 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   private _inGamePlayerModel: PlayerController;
 
-  // default spawn location for in game player models. Set via undercooked scene.
+  /**
+   * The default spawn location for in game player models. Set in Undercooked scene.
+   */
   private _spawnLocation?: PlayerLocation;
 
   private _townController: TownController;
@@ -38,7 +46,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
   private _id: InteractableID;
 
   /**
-   * The current list of players in the undercooked town. Adding or removing players might replace the array
+   * The current list of players in the Undercooked town. Adding or removing players might replace the array
    * with a new one; clients should take note not to retain stale references.
    */
   private _playersInternalUndercooked: PlayerController[] = [];
@@ -110,7 +118,9 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._inGamePlayerModel;
   }
 
-  // return player in covey.town no in undercooked.
+  /**
+   * Get the player in covey.town, not in Undercooked.
+   */
   public get ourPlayer() {
     const player = this._inGamePlayerModel;
     assert(player);
@@ -130,12 +140,20 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._spawnLocation = location;
   }
 
+  /**
+   * Sends a request to the server to join the current Undercooked game in the Undercooked area.
+   *
+   * @throws An error if the server rejects the request to join the game.
+   */
   public async joinGame() {
     await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
     });
   }
 
+  /**
+   * Sends a request to the server to leave the current Undercooked game in the Undercooked area.
+   */
   public async leaveGame() {
     // we don't use the gameID in the backend, so we can just pass a dummy value
     await this._townController.sendInteractableCommand(this._id, {
@@ -145,11 +163,39 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._inGamePlayerModel = this._defaultInGamePlayerModel();
   }
 
+  /**
+   * Sends a request to the server to start the game. Indicates the player is ready to start the game.
+   *
+   * If the game is not in the WAITING_TO_START state, throws an error.
+   *
+   * @throws an error with message NO_GAME_STARTABLE if there is no game waiting to start
+   */
   public async startGame() {
     // we don't use the gameID in the backend, so we can just pass a dummy value
     await this._townController.sendInteractableCommand(this._id, {
       type: 'StartGame',
       gameID: 'Undercooked',
+    });
+  }
+
+  /**
+   * Sends a request to the server to update the current assembled recipe with the
+   * ingredient at the ingredient area the player interacted with.
+   *
+   * Does not check if the move is valid (i.e. if the ingredient is included in the current recipe).
+   *
+   * @throws an error with message NO_GAME_IN_PROGRESS_ERROR if there is no game in progress
+   *
+   * @param ingredient the ingredient area the player interacted with
+   */
+  public async makeMove(ingredient: UndercookedIngredient) {
+    // we don't use the gameID in the backend, so we can just pass a dummy value
+    await this._townController.sendInteractableCommand(this._id, {
+      type: 'GameMove',
+      gameID: 'Undercooked',
+      move: {
+        gamePiece: ingredient,
+      },
     });
   }
 
@@ -189,13 +235,6 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   public interact<T extends Interactable>(interactedObj: T) {
     this._interactableEmitter.emit(interactedObj.getType(), interactedObj);
-  }
-
-  public sendInteractableCommand<CommandType extends InteractableCommand>(
-    interactableID: InteractableID,
-    command: CommandType,
-  ) {
-    this._townController.sendInteractableCommand(interactableID, command);
   }
 
   private _defaultInGamePlayerModel() {

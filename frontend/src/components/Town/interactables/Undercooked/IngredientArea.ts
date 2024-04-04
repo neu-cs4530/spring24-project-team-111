@@ -1,3 +1,4 @@
+import UndercookedTownController from '../../../../classes/UndercookedTownController';
 import { UndercookedIngredient } from '../../../../types/CoveyTownSocket';
 import Interactable, { KnownInteractableTypes } from '../../Interactable';
 
@@ -20,12 +21,8 @@ export default class IngredientArea extends Interactable {
 
   interact() {
     console.log('interacting with ingredient area:', this.name);
-    this.townController.sendInteractableCommand(this.id, {
-      type: 'GameMove',
-      gameID: 'Undercooked',
-      move: {
-        gamePiece: this.name as UndercookedIngredient,
-      },
-    });
+    // we can safely cast town controller to be UndercookedTownController since
+    // the IngredientArea is only used in the Undercooked game
+    (this.townController as UndercookedTownController).makeMove(this.name as UndercookedIngredient);
   }
 }

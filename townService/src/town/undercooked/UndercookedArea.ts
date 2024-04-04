@@ -1,6 +1,9 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { nanoid } from 'nanoid';
-import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../../lib/InvalidParametersError';
+import InvalidParametersError, {
+  GAME_NOT_IN_PROGRESS_MESSAGE,
+  INVALID_COMMAND_MESSAGE,
+} from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
   BoundingBox,
@@ -9,6 +12,7 @@ import {
   InteractableCommandReturnType,
   TownEmitter,
   UndercookedArea as UndercookedAreaModel,
+  UndercookedMove,
 } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
 import UndercookedTown from './UndercookedTown';
@@ -54,8 +58,20 @@ export default class UndercookedArea extends InteractableArea {
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'StartGame') {
-      const game = this._game;
-      game.startGame(player);
+      this._game.startGame(player);
+      this._emitAreaChanged();
+      return undefined as InteractableCommandReturnType<CommandType>;
+    }
+    if (command.type === 'GameMove') {
+      // if (!this._game) {
+      //   throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      // }
+      // check that game piece is an undercooked ingredient
+      this._game.applyMove({
+        gameID: command.gameID,
+        playerID: player.id,
+        move: command.move as UndercookedMove,
+      });
       this._emitAreaChanged();
       return undefined as InteractableCommandReturnType<CommandType>;
     }

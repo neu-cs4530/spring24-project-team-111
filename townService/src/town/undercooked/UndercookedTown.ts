@@ -5,6 +5,7 @@ import { SocketReservedEventsMap } from 'socket.io/dist/socket';
 import { ReservedOrUserEventNames } from 'socket.io/dist/typed-events';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
+  GAME_NOT_IN_PROGRESS_MESSAGE,
   GAME_NOT_STARTABLE_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
@@ -14,6 +15,7 @@ import {
   ClientToServerEvents,
   CoveyTownSocket,
   GameInstanceID,
+  GameMove,
   InteractableCommand,
   InteractableCommandBase,
   PlayerLocation,
@@ -21,6 +23,7 @@ import {
   SocketData,
   UndercookedGameState,
   UndercookedIngredient,
+  UndercookedMove,
   UndercookedRecipe,
 } from '../../types/CoveyTownSocket';
 import UndercookedPlayer from '../../lib/UndercookedPlayer';
@@ -209,6 +212,19 @@ export default class UndercookedTown {
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
     }
+  }
+
+  public applyMove(move: GameMove<UndercookedMove>) {
+    // if (this.state.status !== 'IN_PROGRESS') {
+    //   throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+    // }
+    // if (move.playerID !== this.state.playerOne || move.playerID !== this.state.playerTwo) {
+    //   throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    // }
+    this.state = {
+      ...this.state,
+      currentAssembled: [...this.state.currentAssembled, move.move.gamePiece],
+    };
   }
 
   private _initInGamePlayerModels() {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Flex, Heading, Icon } from '@chakra-ui/react';
 import { FaBowlRice } from 'react-icons/fa6';
 import { LuSalad, LuBeef } from 'react-icons/lu';
@@ -55,6 +55,18 @@ export default function UndercookedRecipeDisplay({
   const [currentAssembled, setCurrentAssembled] = useState<UndercookedIngredient[] | undefined>(
     undercookedAreaController.currentAssembled,
   );
+
+  useEffect(() => {
+    const updateGameState = () => {
+      setCurrentAssembled(undercookedAreaController.currentAssembled);
+    };
+
+    undercookedAreaController.addListener('gameUpdated', updateGameState);
+
+    return () => {
+      undercookedAreaController.removeListener('gameUpdated', updateGameState);
+    };
+  }, [undercookedAreaController]);
 
   return (
     <Flex gap={2} alignItems='center'>
