@@ -16,6 +16,18 @@ import {
 import InteractableArea from '../InteractableArea';
 import UndercookedTown from './UndercookedTown';
 
+/**
+ * The UndercookedArea class is responsible for handling the commands receieved from the frontend.
+ *
+ * Commands from the frontend can be:
+ *   - JoinGame: Join the game
+ *   - LeaveGame: Leave the game
+ *   - StartGame: Start the game
+ *   - GameMove: Make a move in the game (i.e. add an ingredient)
+ *
+ * The UndercookedArea holds the UndercookedTown object so
+ * when it receives a command, it'll invoke the appropriate function in the UndercookedTown object.
+ */
 export default class UndercookedArea extends InteractableArea {
   private _game = new UndercookedTown(nanoid(), this._townEmitter);
 
@@ -41,6 +53,29 @@ export default class UndercookedArea extends InteractableArea {
     };
   }
 
+  /**
+   * Handle a command from a player in the Undercooked game.
+   * Supported commands:
+   *   - JoinGame (joins the game `this._game`, or creates a new one if none is in progress)
+   *   - LeaveGame (leaves the game)
+   *   - StartGame (indicates that the player is ready to start the game)
+   *   - GameMove (applies a move to the game)
+   *
+   * If the command is successful (does not throw an error), calls this._emitAreaChanged (necessary
+   * to notify any listeners of a state update, including any change to history)
+   * If the command is unsuccessful (throws an error), the error is propagated to the caller
+   *
+   * @see InteractableCommand
+   *
+   * @param command command to handle
+   * @param player player making the request
+   * @param socket socket of the player (when a player joins an Undercooked game, the socket is used to emit Undercooked-specific events to the player)
+   * @returns response to the command, @see InteractableCommandResponse
+   * @throws InvalidParametersError if the command is invalid
+   * Invalid commands:
+   *   - GameMove, StartGame and LeaveGame: if the game is not in progress (GAME_NOT_IN_PROGRESS_MESSAGE)
+   *   - Any command besides JoinGame, GameMove, StartGame and LeaveGame: INVALID_COMMAND_MESSAGE
+   */
   public handleCommand<CommandType extends InteractableCommand>(
     command: CommandType,
     player: Player,
