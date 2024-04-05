@@ -109,17 +109,17 @@ export default class TownGameScene extends WalkableScene {
     assert(this.input.keyboard);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.cursors.push(this.cursorKeys);
-    // this.cursors.push(
-    //   this.input.keyboard.addKeys(
-    //     {
-    //       up: Phaser.Input.Keyboard.KeyCodes.W,
-    //       down: Phaser.Input.Keyboard.KeyCodes.S,
-    //       left: Phaser.Input.Keyboard.KeyCodes.A,
-    //       right: Phaser.Input.Keyboard.KeyCodes.D,
-    //     },
-    //     false,
-    //   ) as Phaser.Types.Input.Keyboard.CursorKeys,
-    // );
+    this.cursors.push(
+      this.input.keyboard.addKeys(
+        {
+          up: Phaser.Input.Keyboard.KeyCodes.W,
+          down: Phaser.Input.Keyboard.KeyCodes.S,
+          left: Phaser.Input.Keyboard.KeyCodes.A,
+          right: Phaser.Input.Keyboard.KeyCodes.D,
+        },
+        false,
+      ) as Phaser.Types.Input.Keyboard.CursorKeys,
+    );
     this.cursors.push(
       this.input.keyboard.addKeys(
         {

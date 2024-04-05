@@ -8,7 +8,7 @@ import {
 import TownController from '../TownController';
 import UndercookedTownController, { UndercookedTownEvents } from '../UndercookedTownController';
 import { GameEventTypes } from './GameAreaController';
-import InteractableAreaController from './InteractableAreaController';
+import InteractableAreaController, { UNDERCOOKED_AREA_TYPE } from './InteractableAreaController';
 
 export type UndercookedAreaEvents = GameEventTypes & UndercookedTownEvents;
 
@@ -83,7 +83,7 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   }
 
   public async leaveGame() {
-    this._undercookedTownController.leaveGame();
+    await this._undercookedTownController.leaveGame();
   }
 
   public async startGame() {
@@ -131,7 +131,7 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   }
 
   public get type(): string {
-    throw new Error('Method not implemented.');
+    return UNDERCOOKED_AREA_TYPE;
   }
 
   public pause() {

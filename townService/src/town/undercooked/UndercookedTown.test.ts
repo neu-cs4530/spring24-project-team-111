@@ -184,18 +184,18 @@ describe('UndercookedTown', () => {
       town.startGame(p1);
       town.startGame(p2);
       expect(s1.on).toBeCalledWith('ucPlayerMovement', expect.any(Function));
-      expect(s1.on).toBeCalledWith('ucInteractableCommand', expect.any(Function));
+      expect(s1.on).toBeCalledWith('interactableCommand', expect.any(Function));
     });
 
     it('should clean up handlers when players leaves and handlers exist.', () => {
       town.startGame(p1);
       town.startGame(p2);
       expect(s1.on).toBeCalledWith('ucPlayerMovement', expect.any(Function));
-      expect(s1.on).toBeCalledWith('ucInteractableCommand', expect.any(Function));
+      expect(s1.on).toBeCalledWith('interactableCommand', expect.any(Function));
       expect(town.state.status).toBe('IN_PROGRESS');
       town.leave(p1);
       expect(s1.removeListener).toBeCalledWith('ucPlayerMovement', expect.any(Function));
-      expect(s1.removeListener).toBeCalledWith('ucInteractableCommand', expect.any(Function));
+      expect(s1.removeListener).toBeCalledWith('interactableCommand', expect.any(Function));
     });
   });
 });
