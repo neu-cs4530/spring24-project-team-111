@@ -5,6 +5,7 @@ import { SocketReservedEventsMap } from 'socket.io/dist/socket';
 import { ReservedOrUserEventNames } from 'socket.io/dist/typed-events';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
+  GAME_NOT_IN_PROGRESS_MESSAGE,
   GAME_NOT_STARTABLE_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
@@ -14,6 +15,7 @@ import {
   ClientToServerEvents,
   CoveyTownSocket,
   GameInstanceID,
+  GameMove,
   InteractableCommand,
   InteractableCommandBase,
   PlayerLocation,
@@ -21,6 +23,7 @@ import {
   SocketData,
   UndercookedGameState,
   UndercookedIngredient,
+  UndercookedMove,
   UndercookedRecipe,
 } from '../../types/CoveyTownSocket';
 import UndercookedPlayer from '../../lib/UndercookedPlayer';
@@ -157,7 +160,7 @@ export default class UndercookedTown {
     }
     this._removePlayer(player);
     if (gameStatus === 'IN_PROGRESS') {
-      this._state = {
+      this.state = {
         ...this.state,
         status: 'OVER',
       };
@@ -209,6 +212,63 @@ export default class UndercookedTown {
       this._initInGamePlayerModels();
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
+    }
+  }
+
+  /**
+   * Applies a move to the Undercooked game.
+   * A move is a player interacting with an ingredient area and updating the currentAssembled accordingly.
+   *
+   * The ingredient is added to currentAssembled if:
+   *   - It is in the currentRecipe
+   *   - It is not already in currentAssembled
+   *
+   * If the currentRecipe is completed, the currentRecipe is updated with a new one and currentAssembled is reset.
+   *
+   * @param move The move to attempt to apply
+   *
+   * @throws InvalidParametersError if the game is not in progress (GAME_NOT_IN_PROGRESS_MESSAGE)
+   * @throws InvalidParametersError if the player is not in the game (PLAYER_NOT_IN_GAME_MESSAGE)
+   */
+  public applyMove(move: GameMove<UndercookedMove>) {
+    const {
+      playerID,
+      move: { gamePiece },
+    } = move;
+
+    if (this.state.status !== 'IN_PROGRESS') {
+      throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+    }
+
+    if (playerID !== this.state.playerOne && playerID !== this.state.playerTwo) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+
+    // if the ingredient added is in the currentRecipe
+    // and the ingredient is not already in the currentAssembled
+    // add the ingredient to the currentAssembled
+    if (
+      this.state.currentRecipe.includes(gamePiece) &&
+      !this.state.currentAssembled.includes(gamePiece)
+    ) {
+      this.state = {
+        ...this.state,
+        currentAssembled: [...this.state.currentAssembled, move.move.gamePiece],
+      };
+    }
+
+    // if the currentAssembled recipe matches the currentRecipe
+    // update the currentRecipe with a new one and reset the currentAssembled
+    // [TODO]: add to score
+    if (
+      this.state.currentRecipe.every(ingredient => this.state.currentAssembled.includes(ingredient))
+    ) {
+      const newRecipe = this._generateRecipe();
+      this.state = {
+        ...this.state,
+        currentRecipe: newRecipe,
+        currentAssembled: [],
+      };
     }
   }
 
@@ -267,7 +327,7 @@ export default class UndercookedTown {
               inGamePlayerModel as unknown as Player,
               socket,
             );
-            socket.emit('ucCommandResponse', {
+            socket.emit('commandResponse', {
               commandID: command.commandID,
               interactableID: command.interactableID,
               isOK: true,
@@ -275,7 +335,7 @@ export default class UndercookedTown {
             });
           } catch (err) {
             if (err instanceof InvalidParametersError) {
-              socket.emit('ucCommandResponse', {
+              socket.emit('commandResponse', {
                 commandID: command.commandID,
                 interactableID: command.interactableID,
                 isOK: false,
@@ -283,7 +343,7 @@ export default class UndercookedTown {
               });
             } else {
               logError(err);
-              socket.emit('ucCommandResponse', {
+              socket.emit('commandResponse', {
                 commandID: command.commandID,
                 interactableID: command.interactableID,
                 isOK: false,
@@ -292,7 +352,7 @@ export default class UndercookedTown {
             }
           }
         } else {
-          socket.emit('ucCommandResponse', {
+          socket.emit('commandResponse', {
             commandID: command.commandID,
             interactableID: command.interactableID,
             isOK: false,
@@ -301,7 +361,7 @@ export default class UndercookedTown {
         }
       };
       this._initHandler(socket, 'ucPlayerMovement', playerID, move);
-      this._initHandler(socket, 'ucInteractableCommand', playerID, onCommand);
+      this._initHandler(socket, 'interactableCommand', playerID, onCommand);
     });
   }
 
@@ -376,15 +436,7 @@ export default class UndercookedTown {
       .filter(eachObject => eachObject.type === 'IngredientArea')
       .map(eachIngredientArea => AreaFactory(eachIngredientArea, this._broadcastEmitter));
 
-    const trashArea = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'TrashArea')
-      .map(eachTrashArea => AreaFactory(eachTrashArea, this._broadcastEmitter));
-
-    const assemblyArea = objectLayer.objects
-      .filter(eachObject => eachObject.type === 'AssemblyArea')
-      .map(eachAssemblyArea => AreaFactory(eachAssemblyArea, this._broadcastEmitter));
-
-    this._stations = this._stations.concat(ingredientArea).concat(trashArea).concat(assemblyArea);
+    this._stations = this._stations.concat(ingredientArea);
     this._validateStations();
   }
 

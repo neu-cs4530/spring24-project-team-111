@@ -1,6 +1,9 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { nanoid } from 'nanoid';
-import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../../lib/InvalidParametersError';
+import InvalidParametersError, {
+  GAME_NOT_IN_PROGRESS_MESSAGE,
+  INVALID_COMMAND_MESSAGE,
+} from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
   BoundingBox,
@@ -13,11 +16,27 @@ import {
 import InteractableArea from '../InteractableArea';
 import UndercookedTown from './UndercookedTown';
 
+/**
+ * The UndercookedArea class is responsible for handling the commands receieved from the frontend.
+ *
+ * Commands from the frontend can be:
+ *   - JoinGame: Join the game
+ *   - LeaveGame: Leave the game
+ *   - StartGame: Start the game
+ *   - GameMove: Make a move in the game (i.e. add an ingredient)
+ *
+ * The UndercookedArea holds the UndercookedTown object so
+ * when it receives a command, it'll invoke the appropriate function in the UndercookedTown object.
+ */
 export default class UndercookedArea extends InteractableArea {
   private _game = new UndercookedTown(nanoid(), this._townEmitter);
 
   public get game(): UndercookedTown {
     return this._game;
+  }
+
+  public set game(newGame: UndercookedTown) {
+    this._game = newGame;
   }
 
   public get isActive(): boolean {
@@ -29,34 +48,91 @@ export default class UndercookedArea extends InteractableArea {
       type: 'UndercookedArea',
       id: this.id,
       occupants: this.occupantsByID,
-      players: this._game.players.map(player => player.id),
-      ...this._game.state,
+      players: this.game.players.map(player => player.id),
+      ...this.game.state,
     };
   }
 
+  /**
+   * Handle a command from a player in the Undercooked game.
+   * Supported commands:
+   *   - JoinGame (joins the game `this._game`, or creates a new one if none is in progress)
+   *   - LeaveGame (leaves the game)
+   *   - StartGame (indicates that the player is ready to start the game)
+   *   - GameMove (applies a move to the game)
+   *
+   * If the command is successful (does not throw an error), calls this._emitAreaChanged (necessary
+   * to notify any listeners of a state update, including any change to history)
+   * If the command is unsuccessful (throws an error), the error is propagated to the caller
+   *
+   * @see InteractableCommand
+   *
+   * @param command command to handle
+   * @param player player making the request
+   * @param socket socket of the player (when a player joins an Undercooked game, the socket is used to emit Undercooked-specific events to the player)
+   * @returns response to the command, @see InteractableCommandResponse
+   * @throws InvalidParametersError if the command is invalid
+   * Invalid commands:
+   *   - GameMove, StartGame and LeaveGame: if the game is not in progress (GAME_NOT_IN_PROGRESS_MESSAGE)
+   *   - Any command besides JoinGame, GameMove, StartGame and LeaveGame: INVALID_COMMAND_MESSAGE
+   */
   public handleCommand<CommandType extends InteractableCommand>(
     command: CommandType,
     player: Player,
     socket: CoveyTownSocket,
   ): InteractableCommandReturnType<CommandType> {
     if (command.type === 'JoinGame') {
-      if (this._game.state.status === 'OVER') {
-        this._game = new UndercookedTown(nanoid(), this._townEmitter);
+      if (!this.game || this.game.state.status === 'OVER') {
+        // no game in progress or game is over, make a new one
+        this.game = new UndercookedTown(nanoid(), this._townEmitter);
       }
-      this._game.join(player, socket);
+      this.game.join(player, socket);
       this._emitAreaChanged();
 
-      return { gameID: this._game.townID } as InteractableCommandReturnType<CommandType>;
+      return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
-      this._game.leave(player);
+      if (!this.game) {
+        throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      }
+      this.game.leave(player);
       this._emitAreaChanged();
+
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'StartGame') {
-      const game = this._game;
-      game.startGame(player);
+      if (!this.game) {
+        throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      }
+      this.game.startGame(player);
       this._emitAreaChanged();
+
+      return undefined as InteractableCommandReturnType<CommandType>;
+    }
+    if (command.type === 'GameMove') {
+      if (!this.game) {
+        throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      }
+
+      const { gamePiece } = command.move;
+      if (
+        gamePiece !== 'Egg' &&
+        gamePiece !== 'Fries' &&
+        gamePiece !== 'Milk' &&
+        gamePiece !== 'Rice' &&
+        gamePiece !== 'Salad' &&
+        gamePiece !== 'Steak'
+      ) {
+        throw new InvalidParametersError('Invalid game piece');
+      }
+
+      this.game.applyMove({
+        gameID: command.gameID,
+        playerID: player.id,
+        move: command.move,
+      });
+      this._emitAreaChanged();
+
       return undefined as InteractableCommandReturnType<CommandType>;
     }
 

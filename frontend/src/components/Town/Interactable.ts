@@ -8,7 +8,8 @@ export type KnownInteractableTypes =
   | 'viewingArea'
   | 'transporter'
   | 'gameArea'
-  | 'undercookedArea';
+  | 'undercookedArea'
+  | 'ingredientArea';
 
 /**
  * A base abstract class for representing an "interactable" in the Phaser game world.
@@ -80,7 +81,7 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
       }
       if (
         this.isOverlapping &&
-        this._scene.cursorKeys.space.isDown &&
+        Phaser.Input.Keyboard.JustDown(this._scene.cursorKeys.space) &&
         !this.townController.paused
       ) {
         this.townController.interact(this);
