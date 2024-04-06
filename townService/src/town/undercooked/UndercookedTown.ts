@@ -219,7 +219,7 @@ export default class UndercookedTown {
   private _startTime(): void {
     this._timer.startTimer();
     setInterval(() => {
-      this._timer.currentTime = this.state.timeRemaining;
+      this.state.timeRemaining = this._timer.currentTime;
     }, 1000);
     if (this._timer.currentTime === 0) {
       this.state.status = 'OVER';
