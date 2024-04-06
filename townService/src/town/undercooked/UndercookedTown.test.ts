@@ -16,6 +16,9 @@ describe('UndercookedTown', () => {
   beforeEach(() => {
     town = new UndercookedTown(id, townEmitter);
     mockClear(townEmitter);
+    jest
+      .spyOn(MapStore, 'getInstance')
+      .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
   });
 
   describe('Joining the game', () => {
@@ -122,9 +125,6 @@ describe('UndercookedTown', () => {
     let s2: CoveyTownSocket;
 
     beforeEach(() => {
-      jest
-        .spyOn(MapStore, 'getInstance')
-        .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
       p1 = new Player(nanoid(), townEmitter);
       p2 = new Player(nanoid(), townEmitter);
       s1 = mock<CoveyTownSocket>();
