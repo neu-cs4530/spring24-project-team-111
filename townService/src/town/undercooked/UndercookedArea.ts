@@ -49,6 +49,7 @@ export default class UndercookedArea extends InteractableArea {
       id: this.id,
       occupants: this.occupantsByID,
       players: this.game.players.map(player => player.id),
+      inGameModels: this.game.inGamePlayerModels.map(player => player.toPlayerModel()),
       ...this.game.state,
     };
   }

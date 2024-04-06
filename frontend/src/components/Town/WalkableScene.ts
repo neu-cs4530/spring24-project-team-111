@@ -12,6 +12,8 @@ import { PlayerLocation } from '../../types/CoveyTownSocket';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import IngredientArea from './interactables/Undercooked/IngredientArea';
 
+export type SceneType = 'Town' | 'Undercooked';
+
 // NOTES: need to add the interactables for undercooked.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function interactableTypeForObjectType(type: string): any {
@@ -34,7 +36,7 @@ function interactableTypeForObjectType(type: string): any {
 
 export type SceneController = TownController | UndercookedTownController;
 
-export default class WalkableScene extends Phaser.Scene {
+export default abstract class WalkableScene extends Phaser.Scene {
   private _controller: SceneController;
 
   protected interactables: Interactable[] = [];
@@ -51,13 +53,13 @@ export default class WalkableScene extends Phaser.Scene {
 
   private _lastLocation?: PlayerLocation;
 
-  private _players: PlayerController[] = [];
+  protected _players: PlayerController[] = [];
 
   private _previouslyCapturedKeys: number[] = [];
 
   protected ready = false;
 
-  private _map?: Phaser.Tilemaps.Tilemap;
+  protected _map?: Phaser.Tilemaps.Tilemap;
 
   private _cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -74,6 +76,8 @@ export default class WalkableScene extends Phaser.Scene {
     this._controller = controller;
     this._players = controller.players;
   }
+
+  public abstract getType(): SceneType;
 
   public get controller(): SceneController {
     return this._controller;
@@ -114,13 +118,11 @@ export default class WalkableScene extends Phaser.Scene {
   updatePlayers(players: PlayerController[]) {
     //Make sure that each player has sprites
     players.map(eachPlayer => this.createPlayerSprites(eachPlayer));
-    console.log('Players:', players);
 
     // Remove disconnected players from board
     const disconnectedPlayers = this._players.filter(
       player => !players.find(p => p.id === player.id),
     );
-    console.log('Disconnected players:', disconnectedPlayers);
 
     disconnectedPlayers.forEach(disconnectedPlayer => {
       if (disconnectedPlayer.gameObjects) {
@@ -335,7 +337,7 @@ export default class WalkableScene extends Phaser.Scene {
     }
   }
 
-  protected createSpawnPoint() {
+  protected createSprite() {
     // Object layers in Tiled let you embed extra info into a map - like a spawn point or custom
     // collision shapes. In the tmx file, there's an object layer with a point named "Spawn Point"
     const spawnPoint = this.map.findObject(
@@ -359,6 +361,7 @@ export default class WalkableScene extends Phaser.Scene {
         backgroundColor: '#ffffff',
       })
       .setDepth(6);
+
     this.controller.ourPlayer.gameObjects = {
       sprite,
       label,

@@ -1,6 +1,7 @@
 import assert from 'assert';
 import UndercookedAreaController from '../../../../classes/interactable/UndercookedAreaController';
-import WalkableScene from '../../WalkableScene';
+import UndercookedTownController from '../../../../classes/UndercookedTownController';
+import WalkableScene, { SceneType } from '../../WalkableScene';
 
 export default class UndercookedGameScene extends WalkableScene {
   private _resourcePathPrefix: string;
@@ -13,15 +14,15 @@ export default class UndercookedGameScene extends WalkableScene {
     this.undercookedController = undercookedAreaController;
   }
 
+  public getType(): SceneType {
+    return 'Undercooked';
+  }
+
   initScene() {
     // Call any listeners that are waiting for the game to be initialized
     this.onGameReadyListeners.forEach(listener => listener());
     this.onGameReadyListeners = [];
-    this.controller.addListener('ucPlayersChanged', players => {
-      console.log('updating scene players');
-      console.log(players);
-      return this.updatePlayers(players);
-    });
+    // this.controller.addListener('ucPlayersChanged', players => this.updatePlayers(players));
   }
 
   preload() {
@@ -46,7 +47,7 @@ export default class UndercookedGameScene extends WalkableScene {
   }
 
   create() {
-    this.map = this.make.tilemap({ key: 'map' });
+    this._map = this.make.tilemap({ key: 'map' });
 
     // add the tilesets
     const kitchenTileset = this.map.addTilesetImage('kitchen_tiles', '12_Kitchen_32x32');
@@ -88,13 +89,7 @@ export default class UndercookedGameScene extends WalkableScene {
       ) as Phaser.Types.Input.Keyboard.CursorKeys,
     );
 
-    const sprite = this.createSpawnPoint();
-    this.undercookedController.spawnLocation = {
-      x: sprite.x,
-      y: sprite.y,
-      rotation: 'front',
-      moving: false,
-    };
+    const sprite = this.createSprite();
 
     // Watch the player and worldLayer for collisions, for the duration of the scene:
     this.collidingLayers.push(walls);
@@ -112,7 +107,7 @@ export default class UndercookedGameScene extends WalkableScene {
     this.lockLabelPositions();
 
     this.ready = true;
-    this.updatePlayers(this.controller.players);
+    this.updatePlayers((this.controller as UndercookedTownController).inGamePlayers);
     this.initScene();
   }
 }

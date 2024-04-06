@@ -81,16 +81,16 @@ export type TownEvents = {
   playersChanged: (newPlayers: PlayerController[]) => void;
 
   /**
-   * An event that indicates that the set of players in the town has changed. This event is dispatched
-   * before updating the proeprties of this UndercookedTownController; clients will find the new players in the parameter
-   */
-  ucPlayersChanged: (newPlayers: PlayerController[]) => void;
-
-  /**
    * An event that indicates that a player has moved. This event is dispatched after updating the player's location -
    * the new location can be found on the PlayerController.
    */
   playerMoved: (movedPlayer: PlayerController) => void;
+
+  /**
+   * An event that indicates that a player has moved. This event is dispatched after updating the player's location -
+   * the new location can be found on the PlayerController (undercooked specific).
+   */
+  ucPlayerMoved: (movedPlayer: PlayerController) => void;
 
   /**
    * An event that indicates that the set of active interactable areas has changed. This event is dispatched
@@ -113,12 +113,12 @@ export type TownEvents = {
   unPause: () => void;
   /**
    * An event that indicates that the 2D game is now paused. Pausing the game should, if nothing else,
-   * release all key listeners, so that text entry is possible (undercooked specific)
+   * release all key listeners, so that text entry is possible (undercooked specific).
    */
   ucPause: () => void;
   /**
    * An event that indicates that the 2D game should now be unpaused (resumed).
-   * (undercooked specific)
+   * (undercooked specific).
    */
   ucUnPause: () => void;
 

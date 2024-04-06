@@ -1,7 +1,7 @@
 import assert from 'assert';
 import Phaser from 'phaser';
 import TownController from '../../classes/TownController';
-import WalkableScene from './WalkableScene';
+import WalkableScene, { SceneType } from './WalkableScene';
 
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
@@ -11,6 +11,10 @@ export default class TownGameScene extends WalkableScene {
   constructor(coveyTownController: TownController, resourcePathPrefix = '') {
     super(coveyTownController, 'TownGameScene');
     this._resourcePathPrefix = resourcePathPrefix;
+  }
+
+  public getType(): SceneType {
+    return 'Town';
   }
 
   initScene() {
@@ -139,7 +143,7 @@ export default class TownGameScene extends WalkableScene {
       ) as Phaser.Types.Input.Keyboard.CursorKeys,
     );
 
-    const sprite = this.createSpawnPoint();
+    const sprite = this.createSprite();
 
     // Watch the player and worldLayer for collisions, for the duration of the scene:
     this.collidingLayers.push(worldLayer);
