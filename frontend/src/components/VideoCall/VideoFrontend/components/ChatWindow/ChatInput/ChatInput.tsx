@@ -173,19 +173,19 @@ export default function ChatInput({ interactableID }: { interactableID: string }
     setIsEmojiPickerOpen(!isEmojiPickerOpen);
   };
 
-  const handleEmojiClick = (emojiData, event) => {
+  const handleEmojiClick = (emojiData: { emoji: string }) => {
     const { emoji } = emojiData;
     const currentMessage = messageBody;
-    const cursorPosition = textInputRef.current.selectionStart;
+    const cursorPosition = textInputRef.current!.selectionStart;
     const newMessage =
       currentMessage.substring(0, cursorPosition) +
       emoji +
-      currentMessage.substring(cursorPosition);
+      currentMessage.substring(cursorPosition!);
 
     setMessageBody(newMessage);
 
     // Set focus back to the input after inserting the emoji
-    textInputRef.current.focus();
+    textInputRef.current!.focus();
   };
 
   return (
