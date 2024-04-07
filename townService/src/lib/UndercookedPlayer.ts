@@ -21,8 +21,8 @@ export default class UndercookedPlayer {
 
   public ingredientInHand?: UndercookedIngredient;
 
-  constructor(username: string, playerId: string) {
-    this.location = {
+  constructor(username: string, playerId: string, location?: PlayerLocation) {
+    this.location = location || {
       x: 0,
       y: 0,
       moving: false,
@@ -52,9 +52,10 @@ export default class UndercookedPlayer {
    */
   public toPlayerModel(): PlayerModel {
     return {
-      id: this.inGameId,
+      id: this.id,
       location: this.location,
       userName: this.userName,
+      inGameId: this._inGameId,
     };
   }
 }

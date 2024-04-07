@@ -12,6 +12,8 @@ import { PlayerLocation } from '../../types/CoveyTownSocket';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import IngredientArea from './interactables/Undercooked/IngredientArea';
 
+export type SceneType = 'Town' | 'Undercooked';
+
 // NOTES: need to add the interactables for undercooked.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function interactableTypeForObjectType(type: string): any {
@@ -34,7 +36,7 @@ function interactableTypeForObjectType(type: string): any {
 
 export type SceneController = TownController | UndercookedTownController;
 
-export default class WalkableScene extends Phaser.Scene {
+export default abstract class WalkableScene extends Phaser.Scene {
   private _controller: SceneController;
 
   protected interactables: Interactable[] = [];
@@ -51,13 +53,13 @@ export default class WalkableScene extends Phaser.Scene {
 
   private _lastLocation?: PlayerLocation;
 
-  private _players: PlayerController[] = [];
+  protected _players: PlayerController[] = [];
 
   private _previouslyCapturedKeys: number[] = [];
 
   protected ready = false;
 
-  private _map?: Phaser.Tilemaps.Tilemap;
+  protected _map?: Phaser.Tilemaps.Tilemap;
 
   private _cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -74,6 +76,8 @@ export default class WalkableScene extends Phaser.Scene {
     this._controller = controller;
     this._players = controller.players;
   }
+
+  public abstract getType(): SceneType;
 
   public get controller(): SceneController {
     return this._controller;
@@ -134,6 +138,9 @@ export default class WalkableScene extends Phaser.Scene {
   }
 
   moveOurPlayerTo(destination: Partial<PlayerLocation>) {
+    if (!this.controller.ourPlayer) {
+      return;
+    }
     const gameObjects = this.controller.ourPlayer.gameObjects;
     if (!gameObjects) {
       throw new Error('Unable to move player without game objects created first');
@@ -176,6 +183,9 @@ export default class WalkableScene extends Phaser.Scene {
 
   update() {
     if (this._paused) {
+      return;
+    }
+    if (!this.controller.ourPlayer) {
       return;
     }
     const gameObjects = this.controller.ourPlayer.gameObjects;
@@ -311,6 +321,9 @@ export default class WalkableScene extends Phaser.Scene {
   pause() {
     if (!this._paused) {
       this._paused = true;
+      if (!this.controller.ourPlayer) {
+        return;
+      }
       const gameObjects = this.controller.ourPlayer.gameObjects;
       if (gameObjects) {
         gameObjects.sprite.anims.stop();
@@ -333,7 +346,7 @@ export default class WalkableScene extends Phaser.Scene {
     }
   }
 
-  protected createSpawnPoint() {
+  protected createSprite() {
     // Object layers in Tiled let you embed extra info into a map - like a spawn point or custom
     // collision shapes. In the tmx file, there's an object layer with a point named "Spawn Point"
     const spawnPoint = this.map.findObject(
@@ -357,17 +370,27 @@ export default class WalkableScene extends Phaser.Scene {
         backgroundColor: '#ffffff',
       })
       .setDepth(6);
-    this.controller.ourPlayer.gameObjects = {
-      sprite,
-      label,
-      locationManagedByGameScene: true,
-    };
-    this.moveOurPlayerTo({ rotation: 'front', moving: false, x: spawnPoint.x, y: spawnPoint.y });
-    return sprite;
+
+    try {
+      assert(this.controller.ourPlayer);
+      this.controller.ourPlayer.gameObjects = {
+        sprite,
+        label,
+        locationManagedByGameScene: true,
+      };
+      this.moveOurPlayerTo({ rotation: 'front', moving: false, x: spawnPoint.x, y: spawnPoint.y });
+      return sprite;
+    } catch (e) {
+      sprite.destroy();
+      label.destroy();
+    }
   }
 
   protected addCamera() {
     const camera = this.cameras.main;
+    if (!this.controller.ourPlayer) {
+      return;
+    }
     const playerGameObjects = this.controller.ourPlayer.gameObjects;
     assert(playerGameObjects);
     camera.startFollow(playerGameObjects.sprite);
@@ -422,13 +445,6 @@ export default class WalkableScene extends Phaser.Scene {
       frameRate: 10,
       repeat: -1,
     });
-  }
-
-  protected initScene() {
-    // Call any listeners that are waiting for the game to be initialized
-    this.onGameReadyListeners.forEach(listener => listener());
-    this.onGameReadyListeners = [];
-    this.controller.addListener('playersChanged', players => this.updatePlayers(players));
   }
 
   protected lockLabelPositions() {

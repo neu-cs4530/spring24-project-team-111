@@ -220,7 +220,25 @@ export const simpleMap = {
   height: 100,
   x: 0,
   y: 0,
-  layers: [{ name: 'Objects', objects: [] }],
+  layers: [
+    {
+      name: 'Objects',
+      objects: [
+        {
+          height: 0,
+          id: 10,
+          name: 'Spawn Point',
+          point: true,
+          rotation: 0,
+          type: '',
+          visible: true,
+          width: 0,
+          x: 222.086744469605,
+          y: 262.149451315102,
+        },
+      ],
+    },
+  ],
 } as unknown as ITiledMap;
 export const mapWithStations = {
   name: 'Undercooked',
@@ -277,6 +295,18 @@ export const mapWithStations = {
           width: 30,
           x: 368.335823494518,
           y: 78.5281224631521,
+        },
+        {
+          height: 0,
+          id: 10,
+          name: 'Spawn Point',
+          point: true,
+          rotation: 0,
+          type: '',
+          visible: true,
+          width: 0,
+          x: 222.086744469605,
+          y: 262.149451315102,
         },
       ],
     },

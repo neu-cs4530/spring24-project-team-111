@@ -11,6 +11,8 @@ export type KnownInteractableTypes =
   | 'undercookedArea'
   | 'ingredientArea';
 
+type GameScene = TownGameScene | UndercookedGameScene;
+
 /**
  * A base abstract class for representing an "interactable" in the Phaser game world.
  *
@@ -27,7 +29,7 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
   /**
    * The Phaser game scene associated with this interactable
    */
-  protected _scene: TownGameScene | UndercookedGameScene;
+  protected _scene: GameScene;
 
   /**
    * The current state of whether the player is or is not overlapping with this interactable
@@ -50,7 +52,7 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
     return this._isOverlapping;
   }
 
-  constructor(scene: TownGameScene | UndercookedGameScene) {
+  constructor(scene: GameScene) {
     super(scene, 0, 0, 'Interactable');
     this._scene = scene;
     this.townController = scene.controller;
@@ -64,8 +66,11 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
    */
   addedToScene(): void {
     super.addedToScene();
-    this.townController = (this.scene as TownGameScene).controller;
+    this.townController = (this.scene as GameScene).controller;
     this._id = this.name;
+    if (!this.townController.ourPlayer) {
+      return;
+    }
     const sprite = this.townController.ourPlayer.gameObjects?.sprite;
     if (!sprite) {
       throw new Error('Expected player sprite created by now');

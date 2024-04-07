@@ -37,6 +37,7 @@ export interface Player {
   id: PlayerID;
   userName: string;
   location: PlayerLocation;
+  inGameId?: string;
 }
 
 export type XY = { x: number; y: number };
@@ -333,6 +334,7 @@ export interface UndercookedGameState extends GameState {
 
 export type UndercookedArea = Interactable & Partial<UndercookedGameState> & {
   players?: string[];
+  inGameModels?: Player[];
 };
 
 /**

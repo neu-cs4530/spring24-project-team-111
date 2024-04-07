@@ -87,6 +87,10 @@ export default class UndercookedTown {
     this._state = newState;
   }
 
+  public get inGamePlayerModels(): UndercookedPlayer[] {
+    return [...this._inGamePlayerModels.values()];
+  }
+
   constructor(townID: string, broadcastEmitter: RoomEmitter) {
     this._id = townID;
     this._broadcastEmitter = broadcastEmitter;
@@ -135,6 +139,7 @@ export default class UndercookedTown {
     }
     this._players.push(player);
     this._clientSockets.set(player.id, socket);
+    this._initInGamePlayerModel(player);
     if (this.state.playerOne && this.state.playerTwo) {
       this.state.status = 'WAITING_TO_START';
     }
@@ -208,7 +213,6 @@ export default class UndercookedTown {
     if (ready) {
       // need to initialize ingame model before calling handlers.
       // otherwise, the handlers will not be able to find the player model.
-      this._initInGamePlayerModels();
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
     }
@@ -271,14 +275,18 @@ export default class UndercookedTown {
     }
   }
 
-  private _initInGamePlayerModels() {
-    this._players.forEach(player => {
-      this._initInGamePlayerModel(player);
-    });
-  }
-
   private _initInGamePlayerModel(player: Player) {
-    const newPlayer = new UndercookedPlayer(player.userName, player.id);
+    const { map } = MapStore.getInstance();
+    const objectLayer = map.layers.find(
+      eachLayer => eachLayer.name === 'Objects',
+    ) as ITiledMapObjectLayer;
+    const { x, y } = objectLayer.objects.filter(eachObject => eachObject.name === 'Spawn Point')[0];
+    const newPlayer = new UndercookedPlayer(player.userName, player.id, {
+      x,
+      y,
+      moving: false,
+      rotation: 'front',
+    });
     this._inGamePlayerModels.set(player.id, newPlayer);
   }
 
