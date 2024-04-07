@@ -138,6 +138,9 @@ export default abstract class WalkableScene extends Phaser.Scene {
   }
 
   moveOurPlayerTo(destination: Partial<PlayerLocation>) {
+    if (!this.controller.ourPlayer) {
+      return;
+    }
     const gameObjects = this.controller.ourPlayer.gameObjects;
     if (!gameObjects) {
       throw new Error('Unable to move player without game objects created first');
@@ -180,6 +183,9 @@ export default abstract class WalkableScene extends Phaser.Scene {
 
   update() {
     if (this._paused) {
+      return;
+    }
+    if (!this.controller.ourPlayer) {
       return;
     }
     const gameObjects = this.controller.ourPlayer.gameObjects;
@@ -315,6 +321,9 @@ export default abstract class WalkableScene extends Phaser.Scene {
   pause() {
     if (!this._paused) {
       this._paused = true;
+      if (!this.controller.ourPlayer) {
+        return;
+      }
       const gameObjects = this.controller.ourPlayer.gameObjects;
       if (gameObjects) {
         gameObjects.sprite.anims.stop();
@@ -362,17 +371,27 @@ export default abstract class WalkableScene extends Phaser.Scene {
       })
       .setDepth(6);
 
-    this.controller.ourPlayer.gameObjects = {
-      sprite,
-      label,
-      locationManagedByGameScene: true,
-    };
-    this.moveOurPlayerTo({ rotation: 'front', moving: false, x: spawnPoint.x, y: spawnPoint.y });
-    return sprite;
+    try {
+      assert(this.controller.ourPlayer);
+      this.controller.ourPlayer.gameObjects = {
+        sprite,
+        label,
+        locationManagedByGameScene: true,
+      };
+      this.moveOurPlayerTo({ rotation: 'front', moving: false, x: spawnPoint.x, y: spawnPoint.y });
+      return sprite;
+    } catch (e) {
+      sprite.destroy();
+      label.destroy();
+      console.error('Error creating sprite', e);
+    }
   }
 
   protected addCamera() {
     const camera = this.cameras.main;
+    if (!this.controller.ourPlayer) {
+      return;
+    }
     const playerGameObjects = this.controller.ourPlayer.gameObjects;
     assert(playerGameObjects);
     camera.startFollow(playerGameObjects.sprite);

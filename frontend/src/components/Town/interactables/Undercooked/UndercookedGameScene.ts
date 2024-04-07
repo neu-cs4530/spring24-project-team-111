@@ -96,7 +96,9 @@ export default class UndercookedGameScene extends WalkableScene {
     this.collidingLayers.push(kitchenSurfaces);
     this.collidingLayers.push(staicProps);
     this.collidingLayers.push(interactableKitchen);
-    this.collidingLayers.forEach(layer => this.physics.add.collider(sprite, layer));
+    if (sprite) {
+      this.collidingLayers.forEach(layer => this.physics.add.collider(sprite, layer));
+    }
 
     this.interactables = this.getInteractables();
     this.createAnimationsForSprite();

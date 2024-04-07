@@ -68,6 +68,9 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
     super.addedToScene();
     this.townController = (this.scene as GameScene).controller;
     this._id = this.name;
+    if (!this.townController.ourPlayer) {
+      return;
+    }
     const sprite = this.townController.ourPlayer.gameObjects?.sprite;
     if (!sprite) {
       throw new Error('Expected player sprite created by now');
