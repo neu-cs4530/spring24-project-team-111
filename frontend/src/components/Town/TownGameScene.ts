@@ -1,7 +1,7 @@
 import assert from 'assert';
 import Phaser from 'phaser';
 import TownController from '../../classes/TownController';
-import WalkableScene from './WalkableScene';
+import WalkableScene, { SceneType } from './WalkableScene';
 
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
@@ -11,6 +11,17 @@ export default class TownGameScene extends WalkableScene {
   constructor(coveyTownController: TownController, resourcePathPrefix = '') {
     super(coveyTownController, 'TownGameScene');
     this._resourcePathPrefix = resourcePathPrefix;
+  }
+
+  public getType(): SceneType {
+    return 'Town';
+  }
+
+  initScene() {
+    // Call any listeners that are waiting for the game to be initialized
+    this.onGameReadyListeners.forEach(listener => listener());
+    this.onGameReadyListeners = [];
+    this.controller.addListener('playersChanged', players => this.updatePlayers(players));
   }
 
   preload() {
@@ -109,17 +120,17 @@ export default class TownGameScene extends WalkableScene {
     assert(this.input.keyboard);
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.cursors.push(this.cursorKeys);
-    // this.cursors.push(
-    //   this.input.keyboard.addKeys(
-    //     {
-    //       up: Phaser.Input.Keyboard.KeyCodes.W,
-    //       down: Phaser.Input.Keyboard.KeyCodes.S,
-    //       left: Phaser.Input.Keyboard.KeyCodes.A,
-    //       right: Phaser.Input.Keyboard.KeyCodes.D,
-    //     },
-    //     false,
-    //   ) as Phaser.Types.Input.Keyboard.CursorKeys,
-    // );
+    this.cursors.push(
+      this.input.keyboard.addKeys(
+        {
+          up: Phaser.Input.Keyboard.KeyCodes.W,
+          down: Phaser.Input.Keyboard.KeyCodes.S,
+          left: Phaser.Input.Keyboard.KeyCodes.A,
+          right: Phaser.Input.Keyboard.KeyCodes.D,
+        },
+        false,
+      ) as Phaser.Types.Input.Keyboard.CursorKeys,
+    );
     this.cursors.push(
       this.input.keyboard.addKeys(
         {
@@ -132,7 +143,7 @@ export default class TownGameScene extends WalkableScene {
       ) as Phaser.Types.Input.Keyboard.CursorKeys,
     );
 
-    const sprite = this.createSpawnPoint();
+    const sprite = this.createSprite();
 
     // Watch the player and worldLayer for collisions, for the duration of the scene:
     this.collidingLayers.push(worldLayer);

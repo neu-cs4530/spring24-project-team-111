@@ -16,6 +16,9 @@ describe('UndercookedArea', () => {
   let interactableUpdateSpy: jest.SpyInstance<void, []>;
 
   beforeEach(() => {
+    jest
+      .spyOn(MapStore, 'getInstance')
+      .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
     mockClear(townEmitter);
     testArea = new UndercookedArea(id, testAreaBox, townEmitter);
     addPlayers = (...players: Player[]) => {

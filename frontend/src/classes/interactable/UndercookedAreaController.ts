@@ -1,14 +1,15 @@
+import assert from 'assert';
 import _ from 'lodash';
 import {
   CoveyTownSocket,
   InteractableID,
-  PlayerLocation,
   UndercookedArea as UndercookedAreaModel,
 } from '../../types/CoveyTownSocket';
+import PlayerController from '../PlayerController';
 import TownController from '../TownController';
 import UndercookedTownController, { UndercookedTownEvents } from '../UndercookedTownController';
 import { GameEventTypes } from './GameAreaController';
-import InteractableAreaController from './InteractableAreaController';
+import InteractableAreaController, { UNDERCOOKED_AREA_TYPE } from './InteractableAreaController';
 
 export type UndercookedAreaEvents = GameEventTypes & UndercookedTownEvents;
 
@@ -28,8 +29,6 @@ export default class UndercookedAreaController extends InteractableAreaControlle
    */
   private _undercookedTownController: UndercookedTownController;
 
-  private _townController: TownController;
-
   constructor(
     id: InteractableID,
     undercookedAreaModel: UndercookedAreaModel,
@@ -43,7 +42,6 @@ export default class UndercookedAreaController extends InteractableAreaControlle
       townController,
       socket,
     );
-    this._townController = townController;
   }
 
   public get undercookedTownController(): UndercookedTownController {
@@ -82,16 +80,12 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     return this._undercookedTownController.time;
   }
 
-  public set spawnLocation(location: PlayerLocation) {
-    this._undercookedTownController.spawnLocation = location;
-  }
-
   public async joinGame() {
     await this._undercookedTownController.joinGame();
   }
 
   public async leaveGame() {
-    this._undercookedTownController.leaveGame();
+    await this._undercookedTownController.leaveGame();
   }
 
   public async startGame() {
@@ -103,25 +97,31 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   }
 
   protected _updateFrom(newModel: UndercookedAreaModel): void {
-    const gameEnding =
-      this._undercookedTownController.model.status === 'IN_PROGRESS' && newModel.status === 'OVER';
-    const newPlayers =
-      newModel.players?.map(playerID => this._townController.getPlayer(playerID)) ?? [];
+    const townController = this.undercookedTownController.townController;
+    const gameInProgress = this._undercookedTownController.model.status === 'IN_PROGRESS';
+
+    const gameEnded = gameInProgress && newModel.status === 'OVER';
+    const newPlayers = newModel.players?.map(playerID => townController.getPlayer(playerID)) ?? [];
+    const newInGamePlayers = newModel.inGameModels?.map(playerModel =>
+      PlayerController.fromPlayerModel(playerModel),
+    );
+
     if (!newPlayers && this._undercookedTownController.players.length > 0) {
       this._undercookedTownController.players = [];
-      this.emit('playersChange', []);
+      this._undercookedTownController.inGamePlayers = [];
     }
     if (
       this._undercookedTownController.players.length !== newModel.players?.length ||
       _.xor(newPlayers, this._undercookedTownController.players).length > 0
     ) {
       this._undercookedTownController.players = newPlayers;
-      this.emit('playersChange', newPlayers);
+      assert(newInGamePlayers);
+      this._undercookedTownController.inGamePlayers = newInGamePlayers;
     }
     this._undercookedTownController.model = newModel;
     this.emit('gameUpdated');
 
-    if (gameEnding) {
+    if (gameEnded) {
       this.emit('gameEnd');
     }
   }
@@ -139,7 +139,7 @@ export default class UndercookedAreaController extends InteractableAreaControlle
   }
 
   public get type(): string {
-    throw new Error('Method not implemented.');
+    return UNDERCOOKED_AREA_TYPE;
   }
 
   public pause() {

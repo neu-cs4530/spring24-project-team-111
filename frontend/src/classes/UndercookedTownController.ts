@@ -1,19 +1,22 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { CoveyTownSocket, PlayerLocation } from '../types/CoveyTownSocket';
+import { CoveyTownSocket, PlayerLocation, UndercookedIngredient } from '../types/CoveyTownSocket';
 import Interactable from '../components/Town/Interactable';
 import TownController, { TownEvents } from './TownController';
 import { UndercookedArea as UndercookedAreaModel } from '../types/CoveyTownSocket';
 import assert from 'assert';
 import { InteractableID } from '../generated/client';
 import PlayerController from './PlayerController';
-import { nanoid } from 'nanoid';
 
 /**
  * The UndercookedTownController emits these events. Components may subscribe to these events
  * by calling the 'addListener' method on UndercookedTownController
  */
 export type UndercookedTownEvents = TownEvents;
+export type Position = {
+  x: number;
+  y: number;
+};
 
 /**
  * The (frontend) UndercookedTownController manages the communication between the frontend
@@ -28,20 +31,17 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   private _model: UndercookedAreaModel;
 
-  private _inGamePlayerModel: PlayerController;
-
-  // default spawn location for in game player models. Set via undercooked scene.
-  private _spawnLocation?: PlayerLocation;
-
   private _townController: TownController;
 
   private _id: InteractableID;
 
   /**
-   * The current list of players in the undercooked town. Adding or removing players might replace the array
+   * The current list of players in the Undercooked town. Adding or removing players might replace the array
    * with a new one; clients should take note not to retain stale references.
    */
-  private _playersInternalUndercooked: PlayerController[] = [];
+  private _playersInternal: PlayerController[] = [];
+
+  private _inGamePlayers: PlayerController[] = [];
 
   /**
    * A flag indicating whether the current 2D game is paused, or not. Pausing the game will prevent it from updating,
@@ -65,7 +65,11 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._townController = townController;
     this._id = id;
     this._socket = socket;
-    this._inGamePlayerModel = this._defaultInGamePlayerModel();
+    this.registerSocketListeners();
+  }
+
+  public get townController() {
+    return this._townController;
   }
 
   public get paused() {
@@ -82,12 +86,12 @@ export default class UndercookedTownController extends (EventEmitter as new () =
 
   public get playerOne() {
     const playerOne = this._model.playerOne;
-    return this._playersInternalUndercooked.find(player => player.id === playerOne);
+    return this._playersInternal.find(player => player.id === playerOne);
   }
 
   public get playerTwo() {
     const playerTwo = this._model.playerTwo;
-    return this._playersInternalUndercooked.find(player => player.id === playerTwo);
+    return this._playersInternal.find(player => player.id === playerTwo);
   }
 
   public get status() {
@@ -110,50 +114,91 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._model.currentAssembled;
   }
 
-  public get inGamePlayerModel() {
-    return this._inGamePlayerModel;
-  }
-
-  // return player in covey.town no in undercooked.
+  /**
+   * Gets the player in Undercooked, not CoveyTown.
+   */
   public get ourPlayer() {
-    const player = this._inGamePlayerModel;
-    assert(player);
+    const clientID = this._townController.ourPlayer?.id;
+    const player = this._inGamePlayers.find(p => p.id === clientID);
+    try {
+      assert(player);
+    } catch (e) {
+      // do nothing. player will be undefined.
+    }
     return player;
   }
 
   public get players() {
-    return this._playersInternalUndercooked;
+    return this._playersInternal;
   }
 
   public set players(newPlayers: PlayerController[]) {
-    this.emit('playersChanged', newPlayers);
-    this._playersInternalUndercooked = newPlayers;
+    this._playersInternal = newPlayers;
   }
 
-  public set spawnLocation(location: PlayerLocation) {
-    this._spawnLocation = location;
+  public get inGamePlayers() {
+    return this._inGamePlayers;
   }
 
+  public set inGamePlayers(newPlayers: PlayerController[]) {
+    this._inGamePlayers = newPlayers;
+  }
+
+  /**
+   * Sends a request to the server to join the current Undercooked game in the Undercooked area.
+   *
+   * @throws An error if the server rejects the request to join the game.
+   */
   public async joinGame() {
     await this._townController.sendInteractableCommand(this._id, {
       type: 'JoinGame',
     });
   }
 
+  /**
+   * Sends a request to the server to leave the current Undercooked game in the Undercooked area.
+   */
   public async leaveGame() {
     // we don't use the gameID in the backend, so we can just pass a dummy value
     await this._townController.sendInteractableCommand(this._id, {
       type: 'LeaveGame',
       gameID: 'Undercooked',
     });
-    this._inGamePlayerModel = this._defaultInGamePlayerModel();
   }
 
+  /**
+   * Sends a request to the server to start the game. Indicates the player is ready to start the game.
+   *
+   * If the game is not in the WAITING_TO_START state, throws an error.
+   *
+   * @throws an error with message NO_GAME_STARTABLE if there is no game waiting to start
+   */
   public async startGame() {
     // we don't use the gameID in the backend, so we can just pass a dummy value
     await this._townController.sendInteractableCommand(this._id, {
       type: 'StartGame',
       gameID: 'Undercooked',
+    });
+  }
+
+  /**
+   * Sends a request to the server to update the current assembled recipe with the
+   * ingredient at the ingredient area the player interacted with.
+   *
+   * Does not check if the move is valid (i.e. if the ingredient is included in the current recipe).
+   *
+   * @throws an error with message NO_GAME_IN_PROGRESS_ERROR if there is no game in progress
+   *
+   * @param ingredient the ingredient area the player interacted with
+   */
+  public async makeMove(ingredient: UndercookedIngredient) {
+    // we don't use the gameID in the backend, so we can just pass a dummy value
+    await this._townController.sendInteractableCommand(this._id, {
+      type: 'GameMove',
+      gameID: 'Undercooked',
+      move: {
+        gamePiece: ingredient,
+      },
     });
   }
 
@@ -182,7 +227,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
    */
   public emitMovement(newLocation: PlayerLocation) {
     this._socket.emit('ucPlayerMovement', newLocation);
-    const player = this._inGamePlayerModel;
+    const player = this.ourPlayer;
     assert(player);
     player.location = newLocation;
   }
@@ -195,15 +240,29 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     this._interactableEmitter.emit(interactedObj.getType(), interactedObj);
   }
 
-  private _defaultInGamePlayerModel() {
-    // the values may be undefined when server starts so we add default values.
-    const spawnLoc = this._spawnLocation || { x: 0, y: 0, rotation: 'front', moving: false };
-    try {
-      const id = this._townController.ourPlayer.id || nanoid();
-      const userName = this._townController.ourPlayer.userName || 'default';
-      return new PlayerController(id, userName, spawnLoc);
-    } catch (e) {
-      return new PlayerController('default', 'default', spawnLoc);
-    }
+  /**
+   * Registers listeners for the events that can come from the server to our socket
+   */
+  public registerSocketListeners() {
+    /**
+     * When a player moves, update local state and emit an event to the controller's event listeners
+     */
+    this._socket.on('ucPlayerMoved', movedPlayer => {
+      const playerToUpdate = this.inGamePlayers.find(
+        eachPlayer => eachPlayer.id === movedPlayer.id,
+      );
+      if (playerToUpdate) {
+        if (playerToUpdate === this.ourPlayer) {
+          /*
+           * If we are told that WE moved, we shouldn't update our x,y because it's probably lagging behind
+           * real time. However: we SHOULD update our interactable ID, because its value is managed by the server
+           */
+          playerToUpdate.location.interactableID = movedPlayer.location.interactableID;
+        } else {
+          playerToUpdate.location = movedPlayer.location;
+        }
+        this.emit('ucPlayerMoved', playerToUpdate);
+      }
+    });
   }
 }
