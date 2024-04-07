@@ -213,6 +213,10 @@ export default class UndercookedTown {
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
       this._startTime();
+      setInterval(() => {
+        console.log(this.state.timeRemaining);
+        console.log(this.state.status);
+      }, 1000);
     }
   }
 
@@ -220,10 +224,10 @@ export default class UndercookedTown {
     this._timer.startTimer();
     setInterval(() => {
       this.state.timeRemaining = this._timer.currentTime;
+      if (this.state.timeRemaining === 0) {
+        this.state.status = 'OVER';
+      }
     }, 1000);
-    if (this._timer.currentTime === 0) {
-      this.state.status = 'OVER';
-    }
   }
 
   private _initInGamePlayerModels() {

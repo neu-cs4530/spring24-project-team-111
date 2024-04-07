@@ -56,8 +56,14 @@ export default class UndercookedArea extends InteractableArea {
     if (command.type === 'StartGame') {
       const game = this._game;
       game.startGame(player);
-      this._emitAreaChanged();
+      if (game.state.status === 'IN_PROGRESS') {
+        this._emitAreaChanged();
+      }
       return undefined as InteractableCommandReturnType<CommandType>;
+    }
+
+    if (this.game.state.timeRemaining === 0) {
+      this._emitAreaChanged();
     }
 
     // add interactable mesages for the game.

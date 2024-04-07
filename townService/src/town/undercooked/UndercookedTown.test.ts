@@ -171,7 +171,12 @@ describe('UndercookedTown', () => {
       town.startGame(p1);
       town.startGame(p2);
       expect(town.state.status).toBe('IN_PROGRESS');
-      expect(town.state.timeRemaining).toBe(0);
+      expect(town.state.timeRemaining).toBe(10);
+
+      setTimeout(() => {
+        expect(town.state.timeRemaining).toBe(0);
+        expect(town.state.status).toBe('OVER');
+      }, 11000);
     });
   });
   describe('Game start handlers.', () => {
