@@ -51,7 +51,7 @@ describe('Timer', () => {
     timer5.startTimer();
     setTimeout(() => {
       timer5.stopTimer();
-      expect(timer5.currentTime).toBe(0); 
+      expect(timer5.currentTime).toBe(0);
     }, 21000);
   });
 
@@ -60,7 +60,7 @@ describe('Timer', () => {
     timer6.startTimer();
     setTimeout(() => {
       timer6.stopTimer();
-      expect(timer6.currentTime).toBe(0); 
+      expect(timer6.currentTime).toBe(0);
     }, 30000);
   });
 });
