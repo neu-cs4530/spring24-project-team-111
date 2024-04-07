@@ -220,10 +220,6 @@ export default class UndercookedTown {
       this._initializeFromMap(MapStore.getInstance().map);
       this._initHandlers();
       this._startTime();
-      setInterval(() => {
-        console.log(this.state.timeRemaining);
-        console.log(this.state.status);
-      }, 1000);
     }
   }
 
