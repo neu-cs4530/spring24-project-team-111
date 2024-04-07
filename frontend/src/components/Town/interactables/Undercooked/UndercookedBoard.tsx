@@ -23,11 +23,13 @@ export default function UndercookedBoard({
 
     const game = new Phaser.Game(config);
     const newGameScene = new UndercookedGameScene(undercookedAreaController);
+    const undercookedTownController = undercookedAreaController.undercookedTownController;
+
     const pauseListener = newGameScene.pause.bind(newGameScene);
     const unPauseListener = newGameScene.resume.bind(newGameScene);
-    const undercookedTownController = undercookedAreaController.undercookedTownController;
     undercookedTownController.addListener('ucPause', pauseListener);
     undercookedTownController.addListener('ucUnPause', unPauseListener);
+
     game.scene.add('undercookedBoard', newGameScene, true);
 
     return () => {

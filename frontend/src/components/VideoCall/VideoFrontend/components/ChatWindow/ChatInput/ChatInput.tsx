@@ -66,6 +66,18 @@ const ALLOWED_FILE_TYPES =
 
 export default function ChatInput({ interactableID }: { interactableID: string }) {
   const classes = useStyles();
+
+  // check if the chat input is in the undercooked area
+  let undercookedAreaController: UndercookedAreaController | null = null;
+  let isUndercookedArea = false;
+  try {
+    undercookedAreaController = useInteractableAreaController<UndercookedAreaController>(interactableID);
+    isUndercookedArea = undercookedAreaController.type === 'Undercooked Area';
+  } catch (e) {
+    // we don't need to do anything if we can't get the undercookedAreaController
+    // this just means the chat input is in another interactable area
+  }
+
   const [messageBody, setMessageBody] = useState('');
   const [isSendingFile, setIsSendingFile] = useState(false);
   const [fileSendError, setFileSendError] = useState<string | null>(null);
@@ -76,14 +88,12 @@ export default function ChatInput({ interactableID }: { interactableID: string }
   const coveyTownController = useTownController();
   const {conversation, isChatWindowOpen, setIsChatWindowOpen} = useChatContext();
   try {
-    const undercookedAreaController =
-    useInteractableAreaController<UndercookedAreaController>(interactableID);
     useEffect(() => {
       try {
         if (isTextareaFocused) {
-          undercookedAreaController.pause();
+          undercookedAreaController?.pause();
         } else {
-          undercookedAreaController.unPause();
+          undercookedAreaController?.unPause();
           }
       } catch (e) {
         // we don't need to do anything area exists but modal is off.
@@ -115,10 +125,14 @@ export default function ChatInput({ interactableID }: { interactableID: string }
    }, []);
 
   useEffect(() => {
-    if(isTextareaFocused){
-      coveyTownController.pause();
-    }else{
-      coveyTownController.unPause();
+    // we don't want to touch the covey town controller if we are in the undercooked area
+    // we handle pausing and unpausing the undercooked area in the useEffect above
+    if (!isUndercookedArea) {
+      if(isTextareaFocused){
+        coveyTownController.pause();
+      }else{
+        coveyTownController.unPause();
+      }
     }
   }, [isTextareaFocused, coveyTownController]);
 
@@ -159,19 +173,19 @@ export default function ChatInput({ interactableID }: { interactableID: string }
     setIsEmojiPickerOpen(!isEmojiPickerOpen);
   };
 
-  const handleEmojiClick = (emojiData, event) => {
+  const handleEmojiClick = (emojiData: { emoji: string }) => {
     const { emoji } = emojiData;
     const currentMessage = messageBody;
-    const cursorPosition = textInputRef.current.selectionStart;
+    const cursorPosition = textInputRef.current!.selectionStart;
     const newMessage =
       currentMessage.substring(0, cursorPosition) +
       emoji +
-      currentMessage.substring(cursorPosition);
+      currentMessage.substring(cursorPosition!);
 
     setMessageBody(newMessage);
 
     // Set focus back to the input after inserting the emoji
-    textInputRef.current.focus();
+    textInputRef.current!.focus();
   };
 
   return (

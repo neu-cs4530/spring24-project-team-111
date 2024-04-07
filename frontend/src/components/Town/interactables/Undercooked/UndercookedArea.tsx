@@ -132,11 +132,17 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
           </Flex>
         </Flex>
       </Box>
-      <Flex mt={2} width='100%' justifyContent='space-between'>
-        <UndercookedRecipeDisplay undercookedAreaController={undercookedAreaController} />
-        <UndercookedTimerDisplay undercookedAreaController={undercookedAreaController} />
-      </Flex>
-      <UndercookedBoard undercookedAreaController={undercookedAreaController} />
+      {gameStatus === 'IN_PROGRESS' ? (
+        <Box>
+          <Flex mt={2} width='100%' justifyContent='space-between'>
+            <UndercookedRecipeDisplay undercookedAreaController={undercookedAreaController} />
+            <UndercookedTimerDisplay undercookedAreaController={undercookedAreaController} />
+          </Flex>
+          <UndercookedBoard undercookedAreaController={undercookedAreaController} />
+        </Box>
+      ) : (
+        <></>
+      )}
     </Flex>
   );
 }
