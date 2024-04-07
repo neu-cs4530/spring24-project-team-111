@@ -118,9 +118,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     const player = this._inGamePlayers.find(p => p.id === clientID);
     try {
       assert(player);
-    } catch (e) {
-      console.error('Could not find our player in UndercookedTownController');
-    }
+    } catch (e) {}
     return player;
   }
 

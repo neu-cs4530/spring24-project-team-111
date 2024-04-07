@@ -383,7 +383,6 @@ export default abstract class WalkableScene extends Phaser.Scene {
     } catch (e) {
       sprite.destroy();
       label.destroy();
-      console.error('Error creating sprite', e);
     }
   }
 
