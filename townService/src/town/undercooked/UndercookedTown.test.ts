@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { GAME_FULL_MESSAGE } from '../../lib/InvalidParametersError';
 import MapStore from '../../lib/MapStore';
 import Player from '../../lib/Player';
-import { CoveyTownSocket, TownEmitter } from '../../types/CoveyTownSocket';
+import { CoveyTownSocket, TownEmitter, UndercookedIngredient } from '../../types/CoveyTownSocket';
 import { TestMapStore, mapWithStations, simpleMap } from '../../TestUtils';
 import UndercookedTown from './UndercookedTown';
 
@@ -196,6 +196,52 @@ describe('UndercookedTown', () => {
       town.leave(p1);
       expect(s1.removeListener).toBeCalledWith('ucPlayerMovement', expect.any(Function));
       expect(s1.removeListener).toBeCalledWith('interactableCommand', expect.any(Function));
+    });
+  });
+  describe('Handling in game events', () => {
+    let p1: Player;
+    let p2: Player;
+    let s1: CoveyTownSocket;
+    let s2: CoveyTownSocket;
+
+    beforeEach(() => {
+      jest
+        .spyOn(MapStore, 'getInstance')
+        .mockImplementation(() => new TestMapStore(mapWithStations) as unknown as MapStore);
+      p1 = new Player(nanoid(), townEmitter);
+      p2 = new Player(nanoid(), townEmitter);
+      s1 = mock<CoveyTownSocket>();
+      s2 = mock<CoveyTownSocket>();
+      town.join(p1, s1);
+      town.join(p2, s2);
+      mockClear(townEmitter);
+      town.startGame(p1);
+      town.startGame(p2);
+    });
+
+    it('should generate an initial recipe', () => {
+      expect(town.state.currentRecipe).toBeDefined();
+      expect(town.state.currentAssembled).toEqual([]);
+    });
+
+    it('should add an ingredient to current assembled recipe if the ingredient is correct', () => {
+      const correctIngredient = town.state.currentRecipe[0];
+      town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: correctIngredient } });
+      expect(town.state.currentAssembled).toEqual([correctIngredient]);
+    });
+
+    it('should not add an ingredient to current assembled recipe if the ingredient is incorrect' , () => {
+      const ingredientList: UndercookedIngredient[] = ['Egg', 'Fries', 'Milk', 'Rice', 'Salad', 'Steak'];
+      const incorrectIngredient = ingredientList.find(ingredient => !town.state.currentRecipe.includes(ingredient));
+      if (incorrectIngredient) {
+        town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: incorrectIngredient } });
+        expect(town.state.currentAssembled).toEqual([]);
+      }
+      const correctIngredient = town.state.currentRecipe[0];
+      town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: correctIngredient } });
+      expect(town.state.currentAssembled).toEqual([correctIngredient]);
+      town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: correctIngredient } });
+      expect(town.state.currentAssembled).toEqual([correctIngredient]);
     });
   });
 });
