@@ -32,7 +32,6 @@ import PlayerController from '../../../../classes/PlayerController';
 
 export type UndercookedGameProps = {
   undercookedAreaController: UndercookedAreaController;
-  status: GameStatus;
 };
 
 function UndercookedArea({ interactableID }: { interactableID: InteractableID }): JSX.Element {
@@ -138,17 +137,17 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
           </Flex>
         </Flex>
       </Box>
-      <Flex mt={2} width='100%' justifyContent='space-between'>
-        <UndercookedRecipeDisplay
-          undercookedAreaController={undercookedAreaController}
-          status={gameStatus}
-        />
-        <UndercookedTimerDisplay
-          undercookedAreaController={undercookedAreaController}
-          status={gameStatus}
-        />
-      </Flex>
-      <UndercookedBoard undercookedAreaController={undercookedAreaController} status={gameStatus} />
+      {gameStatus === 'IN_PROGRESS' ? (
+        <Box>
+          <Flex mt={2} width='100%' justifyContent='space-between'>
+            <UndercookedRecipeDisplay undercookedAreaController={undercookedAreaController} />
+            <UndercookedTimerDisplay undercookedAreaController={undercookedAreaController} />
+          </Flex>
+          <UndercookedBoard undercookedAreaController={undercookedAreaController} />
+        </Box>
+      ) : (
+        <></>
+      )}
     </Flex>
   );
 }
