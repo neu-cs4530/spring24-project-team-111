@@ -226,22 +226,59 @@ describe('UndercookedTown', () => {
 
     it('should add an ingredient to current assembled recipe if the ingredient is correct', () => {
       const correctIngredient = town.state.currentRecipe[0];
-      town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: correctIngredient } });
+      town.applyMove({
+        gameID: town.townID,
+        playerID: p1.id,
+        move: { gamePiece: correctIngredient },
+      });
       expect(town.state.currentAssembled).toEqual([correctIngredient]);
     });
 
-    it('should not add an ingredient to current assembled recipe if the ingredient is incorrect' , () => {
-      const ingredientList: UndercookedIngredient[] = ['Egg', 'Fries', 'Milk', 'Rice', 'Salad', 'Steak'];
-      const incorrectIngredient = ingredientList.find(ingredient => !town.state.currentRecipe.includes(ingredient));
+    it('should not add an ingredient to current assembled recipe if the ingredient is incorrect', () => {
+      const ingredientList: UndercookedIngredient[] = [
+        'Egg',
+        'Fries',
+        'Milk',
+        'Rice',
+        'Salad',
+        'Steak',
+      ];
+      const incorrectIngredient = ingredientList.find(
+        ingredient => !town.state.currentRecipe.includes(ingredient),
+      );
       if (incorrectIngredient) {
-        town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: incorrectIngredient } });
+        town.applyMove({
+          gameID: town.townID,
+          playerID: p1.id,
+          move: { gamePiece: incorrectIngredient },
+        });
         expect(town.state.currentAssembled).toEqual([]);
       }
+    });
+    it('should not add an ingredient to the current assembled recipe if it has already been added', () => {
       const correctIngredient = town.state.currentRecipe[0];
-      town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: correctIngredient } });
+      town.applyMove({
+        gameID: town.townID,
+        playerID: p1.id,
+        move: { gamePiece: correctIngredient },
+      });
       expect(town.state.currentAssembled).toEqual([correctIngredient]);
-      town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: correctIngredient } });
+      town.applyMove({
+        gameID: town.townID,
+        playerID: p1.id,
+        move: { gamePiece: correctIngredient },
+      });
       expect(town.state.currentAssembled).toEqual([correctIngredient]);
+    });
+    it('should generate a new recipe and increase the score when the current recipe is assembled', () => {
+      const prevRecipe = [...town.state.currentRecipe]; // Make a deep copy of the currentRecipe array
+      expect(town.state.score).toBe(0);
+      town.state.currentRecipe.forEach((ingredient: UndercookedIngredient) => {
+        town.applyMove({ gameID: town.townID, playerID: p1.id, move: { gamePiece: ingredient } });
+      });
+      expect(town.state.currentAssembled).toEqual([]);
+      expect(town.state.currentRecipe).not.toEqual(prevRecipe);
+      expect(town.state.score).toBe(1);
     });
   });
 });
