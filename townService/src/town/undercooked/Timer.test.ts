@@ -1,5 +1,6 @@
 import Timer from './Timer';
 
+jest.useFakeTimers();
 describe('Timer', () => {
   it('timer after 0 second', () => {
     const timer = new Timer(20);
