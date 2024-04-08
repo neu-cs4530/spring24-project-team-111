@@ -1,6 +1,7 @@
 import ConversationAreaController, {
   ConversationAreaEvents,
 } from '../../../classes/interactable/ConversationAreaController';
+import TownController from '../../../classes/TownController';
 import { BoundingBox } from '../../../types/CoveyTownSocket';
 import Interactable, { KnownInteractableTypes } from '../Interactable';
 
@@ -47,7 +48,9 @@ export default class ConversationArea extends Interactable {
       '(No Topic)',
       { color: '#000000' },
     );
-    this._conversationArea = this.townController.getConversationAreaController(this);
+    this._conversationArea = (this.townController as TownController).getConversationAreaController(
+      this,
+    );
     this._updateLabelText(this._conversationArea.topic);
     this._changeListener = newTopic => this._updateLabelText(newTopic);
     this._conversationArea.addListener('topicChange', this._changeListener);
