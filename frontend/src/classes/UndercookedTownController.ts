@@ -76,7 +76,7 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._paused;
   }
 
-  public get time() {
+  public get currentTime() {
     return this.model.timeRemaining;
   }
 
