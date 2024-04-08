@@ -20,6 +20,7 @@ export default function UndercookedScoreDisplay({
         title: 'Time is up!',
         description: `Final score: ${currentScore}`,
         status: 'success',
+        duration: 8000,
       });
     };
 
