@@ -262,7 +262,7 @@ export default class UndercookedTown {
 
     // if the currentAssembled recipe matches the currentRecipe
     // update the currentRecipe with a new one and reset the currentAssembled
-    // and adds 1 to the score
+    // and increment the score
     if (
       this.state.currentRecipe.every(ingredient => this.state.currentAssembled.includes(ingredient))
     ) {

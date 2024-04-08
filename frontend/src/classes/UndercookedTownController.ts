@@ -110,6 +110,10 @@ export default class UndercookedTownController extends (EventEmitter as new () =
     return this._model.currentAssembled;
   }
 
+  public get currentScore() {
+    return this._model.score || 0;
+  }
+
   /**
    * Gets the player in Undercooked, not CoveyTown.
    */
