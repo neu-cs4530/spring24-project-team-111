@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Heading, Icon, Text } from '@chakra-ui/react';
-import { CiStar } from 'react-icons/ci';
+import { FaRegStar } from 'react-icons/fa6';
 import { UndercookedGameProps } from './UndercookedArea';
 
 export default function UndercookedScoreDisplay({
@@ -22,7 +22,7 @@ export default function UndercookedScoreDisplay({
 
   return (
     <Flex gap={2} alignItems='center'>
-      <Icon as={CiStar} />
+      <Icon as={FaRegStar} />
       <Heading as='h4' size='sm'>
         Score
       </Heading>
