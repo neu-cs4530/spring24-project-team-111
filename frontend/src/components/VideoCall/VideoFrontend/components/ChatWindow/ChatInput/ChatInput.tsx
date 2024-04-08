@@ -8,6 +8,7 @@ import useTownController from '../../../../../../hooks/useTownController';
 import useChatContext from '../../../hooks/useChatContext/useChatContext';
 import { isMobile } from '../../../utils';
 import Snackbar from '../../Snackbar/Snackbar';
+import EmojiPicker from 'emoji-picker-react';
 
 const useStyles = makeStyles(theme => ({
   chatInputContainer: {
@@ -102,6 +103,27 @@ export default function ChatInput({ interactableID }: { interactableID: string }
     // we don't need to do anything if we can't get the undercookedAreaController
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false); // New state to track emoji picker visibility
+   const emojiPickerRef = useRef<HTMLElement | null>(null);
+
+   useEffect(() => {
+     function handleOutsideClick(event: MouseEvent) {
+      if (
+        !emojiPickerRef.current?.contains(event.target as Node) &&
+        !textInputRef.current?.contains(event.target as Node)
+      ) {
+                 setIsEmojiPickerOpen(false);
+       }
+     }
+
+     document.addEventListener('mousedown', handleOutsideClick);
+
+     return () => {
+       document.removeEventListener('mousedown', handleOutsideClick);
+     };
+   }, []);
+
   useEffect(() => {
     // we don't want to touch the covey town controller if we are in the undercooked area
     // we handle pausing and unpausing the undercooked area in the useEffect above
@@ -113,6 +135,7 @@ export default function ChatInput({ interactableID }: { interactableID: string }
       }
     }
   }, [isTextareaFocused, coveyTownController]);
+
   useEffect(() => {
     if (isChatWindowOpen) {
       // When the chat window is opened, we will focus on the text input.
@@ -143,36 +166,69 @@ export default function ChatInput({ interactableID }: { interactableID: string }
     }
   };
 
+  const toggleChatWindow = () => {
+    setIsOpen(!isOpen);
+  };
+  const toggleEmojiPicker = () => {
+    setIsEmojiPickerOpen(!isEmojiPickerOpen);
+  };
+
+  const handleEmojiClick = (emojiData: { emoji: string }) => {
+    const { emoji } = emojiData;
+    const currentMessage = messageBody;
+    const cursorPosition = textInputRef.current!.selectionStart;
+    const newMessage =
+      currentMessage.substring(0, cursorPosition) +
+      emoji +
+      currentMessage.substring(cursorPosition!);
+
+    setMessageBody(newMessage);
+
+    // Set focus back to the input after inserting the emoji
+    textInputRef.current!.focus();
+  };
+
   return (
     <div className={classes.chatInputContainer}>
       <Snackbar
-        open={Boolean(fileSendError)}
-        headline="Error"
-        message={fileSendError || ''}
-        variant="error"
-        handleClose={() => setFileSendError(null)}
-      />
-      <div className={clsx(classes.textAreaContainer, { [classes.isTextareaFocused]: isTextareaFocused })}>
-        {/* 
-        Here we add the "isTextareaFocused" class when the user is focused on the TextareaAutosize component.
-        This helps to ensure a consistent appearance across all browsers. Adding padding to the TextareaAutosize
-        component does not work well in Firefox. See: https://github.com/twilio/twilio-video-app-react/issues/498
-        */}
-        <TextareaAutosize
-          minRows={1}
-          maxRows={3}
-          className={classes.textArea}
-          aria-label="chat input"
-          placeholder="Write a message..."
-          onKeyPress={handleReturnKeyPress}
-          onChange={handleChange}
-          value={messageBody}
-          data-cy-chat-input
-          ref={textInputRef}
-          onFocus={() => setIsTextareaFocused(true)}
-          onBlur={() => setIsTextareaFocused(false)}
-        />
+       open={Boolean(fileSendError)}
+       headline="Error"
+       message={fileSendError || ''}
+       variant="error"
+       handleClose={() => setFileSendError(null)}
+     />
+     <div className={clsx(classes.textAreaContainer, { [classes.isTextareaFocused]: isTextareaFocused })}>
+       {/* 
+       Here we add the "isTextareaFocused" class when the user is focused on the TextareaAutosize component.
+       This helps to ensure a consistent appearance across all browsers. Adding padding to the TextareaAutosize
+       component does not work well in Firefox. See: https://github.com/twilio/twilio-video-app-react/issues/498
+       */}
+       <TextareaAutosize
+ minRows={1}
+     maxRows={3}
+     className={classes.textArea}
+     aria-label="chat input"
+     placeholder="Write a message..."
+     onKeyPress={handleReturnKeyPress}
+     onChange={(e) => setMessageBody(e.target.value)}
+     value={messageBody}
+     data-cy-chat-input
+     ref={textInputRef}
+     onFocus={() => setIsTextareaFocused(true)}
+     onBlur={() => setIsTextareaFocused(false)}
+   />
+   <div>
+ <button onClick={toggleEmojiPicker}>
+  {isEmojiPickerOpen ? "" : "😀"}
+</button>
+{isEmojiPickerOpen && (
+  <div ref={(element) => { emojiPickerRef.current = element; }}>
+ <EmojiPicker onEmojiClick={handleEmojiClick} />
+  </div>
+)}
+    </div>
       </div>
     </div>
   );
 }
+

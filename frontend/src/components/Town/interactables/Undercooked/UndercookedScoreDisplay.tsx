@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Flex, Heading, Icon, Text, useToast } from '@chakra-ui/react';
+import { Flex, Heading, Icon, Text, useToast } from '@chakra-ui/react';
 import { FaRegStar } from 'react-icons/fa6';
 import { UndercookedGameProps } from './UndercookedArea';
 
@@ -9,14 +9,6 @@ export default function UndercookedScoreDisplay({
   const [currentScore, setCurrentScore] = useState<number>(undercookedAreaController.currentScore);
 
   const toast = useToast();
-
-  const testOnGameEnd = () => {
-    toast({
-      title: 'Time is up!',
-      description: `Final score: ${currentScore}`,
-      status: 'success',
-    });
-  };
 
   useEffect(() => {
     const updateScore = () => {
@@ -28,6 +20,7 @@ export default function UndercookedScoreDisplay({
         title: 'Time is up!',
         description: `Final score: ${currentScore}`,
         status: 'success',
+        duration: 8000,
       });
     };
 
@@ -47,9 +40,6 @@ export default function UndercookedScoreDisplay({
         Score
       </Heading>
       <Text>{currentScore}</Text>
-      <Button size='xs' onClick={testOnGameEnd}>
-        call onGameEnd function
-      </Button>
     </Flex>
   );
 }

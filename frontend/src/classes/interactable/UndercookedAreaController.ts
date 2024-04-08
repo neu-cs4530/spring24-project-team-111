@@ -72,6 +72,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     return this._undercookedTownController.currentAssembled;
   }
 
+  public get currentTime() {
+    return this._undercookedTownController.currentTime;
+  }
+
   public get currentScore() {
     return this._undercookedTownController.currentScore;
   }
