@@ -8,18 +8,28 @@ import { CoveyTownSocket, TownEmitter, UndercookedIngredient } from '../../types
 import { TestMapStore, mapWithStations, simpleMap } from '../../TestUtils';
 import UndercookedTown from './UndercookedTown';
 
-jest.useFakeTimers();
 describe('UndercookedTown', () => {
   const townEmitter = mock<TownEmitter>();
   const id = nanoid();
+  const areaChangedEmitter = jest.fn();
   let town: UndercookedTown;
 
   beforeEach(() => {
-    town = new UndercookedTown(id, townEmitter);
+    town = new UndercookedTown(id, townEmitter, areaChangedEmitter);
     mockClear(townEmitter);
     jest
       .spyOn(MapStore, 'getInstance')
       .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
+    jest.useFakeTimers();
+  });
+
+  // UndercookedTown uses setInterval to handle the timer
+  // we need to clear the interval after each test so the tests don't hang
+  afterEach(() => {
+    if (town.intervalID) {
+      clearInterval(town.intervalID);
+    }
+    jest.clearAllTimers();
   });
 
   describe('Joining the game', () => {
@@ -78,7 +88,7 @@ describe('UndercookedTown', () => {
     });
   });
 
-  describe('Leave the game', () => {
+  describe('Leaving the game', () => {
     let p1: Player;
     let p2: Player;
 
@@ -119,6 +129,7 @@ describe('UndercookedTown', () => {
       expect(town.state.playerTwoReady).toBe(true);
     });
   });
+
   describe('Setting ready status', () => {
     let p1: Player;
     let p2: Player;
@@ -150,7 +161,8 @@ describe('UndercookedTown', () => {
       expect(town.state.playerTwoReady).toBe(true);
     });
   });
-  describe('Timer', () => {
+
+  describe('Starting and ending the timer', () => {
     let p1: Player;
     let p2: Player;
     let s1: CoveyTownSocket;
@@ -168,19 +180,32 @@ describe('UndercookedTown', () => {
       town.join(p2, s2);
       mockClear(townEmitter);
     });
-    it('should start when the game is in progress', () => {
+    it('should set time remaining to 59 and leave game status unchanges after one second', () => {
       town.startGame(p1);
       town.startGame(p2);
       expect(town.state.status).toBe('IN_PROGRESS');
-      expect(town.state.timeRemaining).toBe(10);
+      expect(town.state.timeRemaining).toBe(60);
 
-      setTimeout(() => {
-        expect(town.state.timeRemaining).toBe(0);
-        expect(town.state.status).toBe('OVER');
-      }, 11000);
+      jest.advanceTimersByTime(1000);
+
+      expect(town.state.timeRemaining).toBe(59);
+      expect(town.state.status).toBe('IN_PROGRESS');
+    });
+
+    it('should end when the game after 60 seconds', () => {
+      town.startGame(p1);
+      town.startGame(p2);
+      expect(town.state.status).toBe('IN_PROGRESS');
+      expect(town.state.timeRemaining).toBe(60);
+
+      jest.advanceTimersByTime(60000);
+
+      expect(town.state.timeRemaining).toBe(0);
+      expect(town.state.status).toBe('OVER');
     });
   });
-  describe('Game start handlers.', () => {
+
+  describe('Initializing handlers on game start', () => {
     let p1: Player;
     let p2: Player;
     let s1: CoveyTownSocket;
@@ -229,6 +254,7 @@ describe('UndercookedTown', () => {
       expect(s1.removeListener).toBeCalledWith('interactableCommand', expect.any(Function));
     });
   });
+
   describe('Handling in game events', () => {
     let p1: Player;
     let p2: Player;

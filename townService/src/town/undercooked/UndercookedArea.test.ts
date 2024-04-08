@@ -19,6 +19,10 @@ describe('UndercookedArea', () => {
     jest
       .spyOn(MapStore, 'getInstance')
       .mockImplementation(() => new TestMapStore(simpleMap) as unknown as MapStore);
+    // mock setInterval since the UndercookedTown within UndercookedArea uses it (when handling start game command)
+    // setInterval causes the test to hang
+    // we mock setInterval instead of using clearInterval since UndercookedArea doesn't have access to the interval ID
+    jest.spyOn(global, 'setInterval').mockImplementation(() => 0 as unknown as NodeJS.Timeout);
     mockClear(townEmitter);
     testArea = new UndercookedArea(id, testAreaBox, townEmitter);
     addPlayers = (...players: Player[]) => {
