@@ -231,7 +231,7 @@ export default class UndercookedTown {
    *   - It is in the currentRecipe
    *   - It is not already in currentAssembled
    *
-   * If the currentRecipe is completed, the currentRecipe is updated with a new one and currentAssembled is reset.
+   * If the currentRecipe is completed, increment the score by one, update currentRecipe with a new one, and currentAssembled is reset.
    *
    * @param move The move to attempt to apply
    *
@@ -267,7 +267,7 @@ export default class UndercookedTown {
 
     // if the currentAssembled recipe matches the currentRecipe
     // update the currentRecipe with a new one and reset the currentAssembled
-    // [TODO]: add to score
+    // and increment the score
     if (
       this.state.currentRecipe.every(ingredient => this.state.currentAssembled.includes(ingredient))
     ) {
@@ -276,6 +276,7 @@ export default class UndercookedTown {
         ...this.state,
         currentRecipe: newRecipe,
         currentAssembled: [],
+        score: this.state.score + 1,
       };
     }
   }

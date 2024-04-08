@@ -24,6 +24,7 @@ import UndercookedRecipeDisplay from './UndercookedRecipeDisplay';
 import UndercookedTimerDisplay from './UndercookedTimerDisplay';
 import { GameStatus, InteractableID } from '../../../../types/CoveyTownSocket';
 import PlayerController from '../../../../classes/PlayerController';
+import UndercookedScoreDisplay from './UndercookedScoreDisplay';
 
 export type UndercookedGameProps = {
   undercookedAreaController: UndercookedAreaController;
@@ -136,6 +137,7 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
         <Box>
           <Flex mt={2} width='100%' justifyContent='space-between'>
             <UndercookedRecipeDisplay undercookedAreaController={undercookedAreaController} />
+            <UndercookedScoreDisplay undercookedAreaController={undercookedAreaController} />
             <UndercookedTimerDisplay undercookedAreaController={undercookedAreaController} />
           </Flex>
           <UndercookedBoard undercookedAreaController={undercookedAreaController} />

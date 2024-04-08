@@ -57,15 +57,15 @@ export default function UndercookedRecipeDisplay({
   );
 
   useEffect(() => {
-    const updateGameState = () => {
+    const updateRecipe = () => {
       setCurrentAssembled(undercookedAreaController.currentAssembled);
       setCurrentRecipe(undercookedAreaController.currentRecipe);
     };
 
-    undercookedAreaController.addListener('gameUpdated', updateGameState);
+    undercookedAreaController.addListener('gameUpdated', updateRecipe);
 
     return () => {
-      undercookedAreaController.removeListener('gameUpdated', updateGameState);
+      undercookedAreaController.removeListener('gameUpdated', updateRecipe);
     };
   }, [undercookedAreaController]);
 

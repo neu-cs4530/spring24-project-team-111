@@ -145,6 +145,8 @@ export default class TownGameScene extends WalkableScene {
 
     const sprite = this.createSprite();
 
+    assert(sprite, 'Expected sprite to be created');
+
     // Watch the player and worldLayer for collisions, for the duration of the scene:
     this.collidingLayers.push(worldLayer);
     this.collidingLayers.push(wallsLayer);
