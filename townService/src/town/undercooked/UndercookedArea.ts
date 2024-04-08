@@ -29,7 +29,11 @@ import UndercookedTown from './UndercookedTown';
  * when it receives a command, it'll invoke the appropriate function in the UndercookedTown object.
  */
 export default class UndercookedArea extends InteractableArea {
-  private _game = new UndercookedTown(nanoid(), this._townEmitter);
+  private _game = new UndercookedTown(
+    nanoid(),
+    this._townEmitter,
+    this._emitAreaChanged.bind(this),
+  );
 
   public get game(): UndercookedTown {
     return this._game;
@@ -85,7 +89,11 @@ export default class UndercookedArea extends InteractableArea {
     if (command.type === 'JoinGame') {
       if (!this.game || this.game.state.status === 'OVER') {
         // no game in progress or game is over, make a new one
-        this.game = new UndercookedTown(nanoid(), this._townEmitter);
+        this.game = new UndercookedTown(
+          nanoid(),
+          this._townEmitter,
+          this._emitAreaChanged.bind(this),
+        );
       }
       this.game.join(player, socket);
       this._emitAreaChanged();

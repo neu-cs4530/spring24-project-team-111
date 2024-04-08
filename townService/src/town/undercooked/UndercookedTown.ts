@@ -31,7 +31,6 @@ import { logError } from '../../Utils';
 import InteractableArea from '../InteractableArea';
 import AreaFactory from '../games/AreaFactory';
 import MapStore from '../../lib/MapStore';
-import Timer from './Timer';
 
 type RoomEmitter = BroadcastOperator<ServerToClientEvents, SocketData>;
 type ClientSocket = CoveyTownSocket;
@@ -64,7 +63,7 @@ export default class UndercookedTown {
 
   private _inGamePlayerModels = new Map<string, UndercookedPlayer>();
 
-  private _timer: Timer;
+  private _areaChangedEmitter: () => void;
 
   public get players(): Player[] {
     return this._players;
@@ -94,7 +93,7 @@ export default class UndercookedTown {
     return [...this._inGamePlayerModels.values()];
   }
 
-  constructor(townID: string, broadcastEmitter: RoomEmitter) {
+  constructor(townID: string, broadcastEmitter: RoomEmitter, areaChangedEmitter: () => void) {
     this._id = townID;
     this._broadcastEmitter = broadcastEmitter;
     this._state = {
@@ -109,7 +108,7 @@ export default class UndercookedTown {
       timeRemaining: 10,
       score: 0,
     };
-    this._timer = new Timer(10);
+    this._areaChangedEmitter = areaChangedEmitter;
   }
 
   /**
@@ -282,12 +281,20 @@ export default class UndercookedTown {
   }
 
   private _startTime(): void {
-    this._timer.startTimer();
     setInterval(() => {
-      this.state.timeRemaining = this._timer.currentTime;
+      this.state = {
+        ...this.state,
+        timeRemaining: this.state.timeRemaining - 1,
+      };
+
       if (this.state.timeRemaining === 0) {
-        this.state.status = 'OVER';
+        this.state = {
+          ...this.state,
+          status: 'OVER',
+        };
       }
+
+      this._areaChangedEmitter();
     }, 1000);
   }
 
