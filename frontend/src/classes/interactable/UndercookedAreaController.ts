@@ -72,6 +72,10 @@ export default class UndercookedAreaController extends InteractableAreaControlle
     return this._undercookedTownController.currentAssembled;
   }
 
+  public get currentScore() {
+    return this._undercookedTownController.currentScore;
+  }
+
   public async joinGame() {
     await this._undercookedTownController.joinGame();
   }
