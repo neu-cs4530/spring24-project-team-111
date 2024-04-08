@@ -65,6 +65,8 @@ export default class UndercookedTown {
 
   private _areaChangedEmitter: () => void;
 
+  private _intervalID: NodeJS.Timeout | null = null;
+
   public get players(): Player[] {
     return this._players;
   }
@@ -93,6 +95,10 @@ export default class UndercookedTown {
     return [...this._inGamePlayerModels.values()];
   }
 
+  public get intervalID(): NodeJS.Timeout | null {
+    return this._intervalID;
+  }
+
   constructor(townID: string, broadcastEmitter: RoomEmitter, areaChangedEmitter: () => void) {
     this._id = townID;
     this._broadcastEmitter = broadcastEmitter;
@@ -105,7 +111,7 @@ export default class UndercookedTown {
       playerTwoReady: false,
       currentRecipe: this._generateRecipe(),
       currentAssembled: [],
-      timeRemaining: 10,
+      timeRemaining: 60,
       score: 0,
     };
     this._areaChangedEmitter = areaChangedEmitter;
@@ -281,7 +287,7 @@ export default class UndercookedTown {
   }
 
   private _startTime(): void {
-    setInterval(() => {
+    this._intervalID = setInterval(() => {
       this.state = {
         ...this.state,
         timeRemaining: this.state.timeRemaining - 1,
@@ -292,6 +298,11 @@ export default class UndercookedTown {
           ...this.state,
           status: 'OVER',
         };
+
+        if (this._intervalID) {
+          clearInterval(this._intervalID);
+          this._intervalID = null;
+        }
       }
 
       this._areaChangedEmitter();
