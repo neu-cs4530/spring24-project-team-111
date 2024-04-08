@@ -8,6 +8,7 @@ import { CoveyTownSocket, TownEmitter, UndercookedIngredient } from '../../types
 import { TestMapStore, mapWithStations, simpleMap } from '../../TestUtils';
 import UndercookedTown from './UndercookedTown';
 
+jest.useFakeTimers();
 describe('UndercookedTown', () => {
   const townEmitter = mock<TownEmitter>();
   const id = nanoid();
