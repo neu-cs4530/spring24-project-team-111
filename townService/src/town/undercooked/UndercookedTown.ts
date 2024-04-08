@@ -440,11 +440,6 @@ export default class UndercookedTown {
     this._inGamePlayerModels.delete(player.id);
   }
 
-  private _incrementScore(): number {
-    this.state.score += 1;
-    return this.state.score;
-  }
-
   private _validateStations() {
     // Make sure that the IDs are unique
     const interactableIDs = this._stations.map(eachInteractable => eachInteractable.id);
