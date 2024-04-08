@@ -12,8 +12,8 @@ export default function UndercookedScoreDisplay({
 
   const testOnGameEnd = () => {
     toast({
-      title: 'Game over',
-      description: `You scored ${currentScore} points!`,
+      title: 'Time is up!',
+      description: `Final score: ${currentScore}`,
       status: 'success',
     });
   };
