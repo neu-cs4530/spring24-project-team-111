@@ -1,36 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Flex, Heading, Icon, Text, useToast } from '@chakra-ui/react';
+import { Flex, Heading, Icon, Text } from '@chakra-ui/react';
 import { FaRegClock } from 'react-icons/fa';
 import { UndercookedGameProps } from './UndercookedArea';
 
 export default function UndercookedTimerDisplay({
   undercookedAreaController,
 }: UndercookedGameProps): JSX.Element {
-  // currently using hard coded value for time left
-  // change implementation to use gameAreaController to get the time left when backend is completed
-  let t = undercookedAreaController.time;
-  if (t === undefined) {
-    t = 0;
-  }
-  const toast = useToast();
-  const [timeRemaining, setTimeRemaining] = useState<number | undefined>(t);
+  const [timeRemaining, setTimeRemaining] = useState<number | undefined>(
+    undercookedAreaController.currentTime,
+  );
 
   useEffect(() => {
-    const timerInterval = setInterval(() => {
-      const updatedTime = t;
-      setTimeRemaining(updatedTime);
-    }, 1000); // get time every second as it updates
+    const updateTime = () => {
+      setTimeRemaining(undercookedAreaController.currentTime);
+    };
 
-    return () => clearInterval(timerInterval);
-  }, [t, timeRemaining]);
+    undercookedAreaController.addListener('gameUpdated', updateTime);
 
-  if (timeRemaining === 0) {
-    toast({
-      title: 'Game Over.',
-      description: 'Score is ' + undercookedAreaController.score,
-      status: 'info',
-    });
-  }
+    return () => {
+      undercookedAreaController.removeListener('gameUpdated', updateTime);
+    };
+  }, [undercookedAreaController]);
 
   return (
     <Flex gap={2} alignItems='center'>
