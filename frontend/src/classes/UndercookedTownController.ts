@@ -13,6 +13,9 @@ import PlayerController from './PlayerController';
  * by calling the 'addListener' method on UndercookedTownController
  */
 export type UndercookedTownEvents = TownEvents;
+/**
+ * Repsesents a position of a player in cardinal coordinates.
+ */
 export type Position = {
   x: number;
   y: number;
