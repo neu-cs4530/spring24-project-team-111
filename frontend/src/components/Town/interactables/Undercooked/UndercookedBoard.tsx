@@ -2,6 +2,13 @@ import React, { useEffect } from 'react';
 import { UndercookedGameProps } from './UndercookedArea';
 import UndercookedGameScene from './UndercookedGameScene';
 
+/**
+ * A component that renders the Undercooked board i.e. the phaser scene for Undercooked.
+ * Subscribes to the UndercookedTownController to listen for pause and unpause events.
+ * Destorys the scene and removes the listeners when the component is unmounted.
+ *
+ * @param gameAreaController the controller for the Undercooked game
+ */
 export default function UndercookedBoard({
   undercookedAreaController,
 }: UndercookedGameProps): JSX.Element {

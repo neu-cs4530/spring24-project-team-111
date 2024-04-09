@@ -1,5 +1,8 @@
 import { ITiledMap } from '@jonbell/tiled-map-type-guard';
 
+/**
+ * Represnets a storage for Phaser Scene map definitions.
+ */
 export default class MapStore {
   private static _instance: MapStore;
 
@@ -10,9 +13,9 @@ export default class MapStore {
   }
 
   /**
-   * Retrieve the singleton TownsStore.
+   * Retrieve the singleton MapStore.
    *
-   * There is only a single instance of the TownsStore - it follows the singleton pattern
+   * There is only a single instance of the MapStore - it follows the singleton pattern
    */
   static getInstance(): MapStore {
     if (MapStore._instance === undefined) {

@@ -12,9 +12,11 @@ import { PlayerLocation } from '../../types/CoveyTownSocket';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import IngredientArea from './interactables/Undercooked/IngredientArea';
 
+/**
+ * Represents the type of scene.
+ */
 export type SceneType = 'Town' | 'Undercooked';
 
-// NOTES: need to add the interactables for undercooked.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function interactableTypeForObjectType(type: string): any {
   if (type === 'ConversationArea') {
@@ -34,8 +36,15 @@ function interactableTypeForObjectType(type: string): any {
   }
 }
 
+/**
+ * Represents a controller for a scene.
+ */
 export type SceneController = TownController | UndercookedTownController;
 
+/**
+ * Represents a Phaser Scene that allows concurrent movement and interaction.
+ * This class abstracts common functionality to achieve concurrent movement and intercation in a Phaser scene.
+ */
 export default abstract class WalkableScene extends Phaser.Scene {
   private _controller: SceneController;
 
