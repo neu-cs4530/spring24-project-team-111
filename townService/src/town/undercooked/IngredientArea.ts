@@ -9,6 +9,9 @@ import {
 } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
 
+/**
+ * Represents an area in the town where players can interact with ingredients.
+ */
 export default class IngredientArea extends InteractableArea {
   private _ingredientName: UndercookedIngredient;
 
