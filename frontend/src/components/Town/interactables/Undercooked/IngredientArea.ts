@@ -11,6 +11,11 @@ export default class IngredientArea extends Interactable {
     return 'ingredientArea';
   }
 
+  /**
+   * Callback invoked by Phaser once the interactable is added to the scene. Before the
+   * interactable is added to the scene, some fields may not yet be computed (such as the
+   * size of this sprite).
+   */
   addedToScene() {
     super.addedToScene();
     this.setTintFill();
@@ -23,6 +28,10 @@ export default class IngredientArea extends Interactable {
     });
   }
 
+  /**
+   * Invoked when the player is overlapping with this interactable and first
+   * presses the spacebar
+   */
   interact() {
     // we can safely cast town controller to be UndercookedTownController since
     // the IngredientArea is only used in the Undercooked game

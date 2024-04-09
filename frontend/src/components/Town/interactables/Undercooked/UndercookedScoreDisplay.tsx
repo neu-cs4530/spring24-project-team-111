@@ -3,6 +3,17 @@ import { Flex, Heading, Icon, Text, useToast } from '@chakra-ui/react';
 import { FaRegStar } from 'react-icons/fa6';
 import { UndercookedGameProps } from './UndercookedArea';
 
+/**
+ * Displays the score of the current Undercooked game.
+ *
+ * It performs the following:
+ * - It uses the UndercookedAreaController to get the current score.
+ * - It listens for the 'gameUpdated' event on the controller, and re-renders accordingly.
+ * - It listens for the 'gameEnd' event on the controller, and displays a toast with the final score.
+ * - It subscribes to these events when the component mounts, and unsubscribes when the component unmounts.
+ *
+ * @param gameAreaController the controller for the Undercooked game.
+ */
 export default function UndercookedScoreDisplay({
   undercookedAreaController,
 }: UndercookedGameProps): JSX.Element {

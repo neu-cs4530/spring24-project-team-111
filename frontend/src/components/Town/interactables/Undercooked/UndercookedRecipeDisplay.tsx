@@ -20,9 +20,13 @@ type IngredientsList = {
 /**
  * The UndercookedRecipeDisplay component displays the current recipe and assembled recipe for the Undercooked game.
  *
- * It uses the UndercookedAreaController to get the current recipe and assembled recipe.
- * It listens for the 'gameUpdated' (I think??? will double check when implementing the functionality of updating current assembled/getting a new recipe) events on the controller, and re-renders accordingly.
- * It subscribes to these events when the component mounts, and unsubscribes when the component unmounts. It also unsubscribes when the gameAreaController changes.
+ * It performs the following:
+ * - It uses the UndercookedAreaController to get the current recipe and assembled recipe.
+ * - It listens for the 'gameUpdated' event on the controller, and re-renders accordingly.
+ * - It subscribes to these events when the component mounts, and unsubscribes when the component unmounts.
+ * - It also unsubscribes when the gameAreaController changes.
+ *
+ * @param gameAreaController the controller for the Undercooked game
  */
 export default function UndercookedRecipeDisplay({
   undercookedAreaController,
