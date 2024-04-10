@@ -3,9 +3,9 @@ import { UndercookedGameProps } from './UndercookedArea';
 import UndercookedGameScene from './UndercookedGameScene';
 
 /**
- * A component that renders the Undercooked board i.e. the phaser scene for Undercooked.
+ * The UndercookedBoard component renders the Undercooked board i.e. the Phaser Scene for Undercooked.
  * Subscribes to the UndercookedTownController to listen for pause and unpause events.
- * Destorys the scene and removes the listeners when the component is unmounted.
+ * Destroys the scene and removes the listeners when the component unmounts.
  *
  * @param gameAreaController the controller for the Undercooked game
  */

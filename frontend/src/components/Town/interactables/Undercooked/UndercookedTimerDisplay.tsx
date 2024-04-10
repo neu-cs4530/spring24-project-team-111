@@ -4,11 +4,11 @@ import { FaRegClock } from 'react-icons/fa';
 import { UndercookedGameProps } from './UndercookedArea';
 
 /**
- * It displays the time remaining in the current Undercooked game.
+ * The UndercookedTimerDisplay component displays the time remaining in the Undercooked game.
  *
  * It performs the following:
  * - It uses the UndercookedAreaController to get the current time remaining.
- * - It listens for the 'gameUpdated' event on the controller, and re-renders accordingly.
+ * - It listens for the 'gameUpdated' event on the controller, and re-renders the time remaining accordingly.
  * - It subscribes to these events when the component mounts, and unsubscribes when the component unmounts.
  *
  * @param gameAreaController the controller for the Undercooked game.

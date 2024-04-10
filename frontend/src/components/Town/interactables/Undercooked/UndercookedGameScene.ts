@@ -6,8 +6,8 @@ import WalkableScene, { SceneType } from '../../WalkableScene';
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
 /**
- * A Phaser scene that represents the Undercooked game.
- * This scene mimics the same functionality as the TownScene.ts file, but is specific to the Undercooked game.
+ * UndercookedGameScene is a Phaser Scene that represents the Undercooked game.
+ * This scene mimics the same functionality as the TownGameScene, but is specific to the Undercooked game.
  * The main differences are the tilesets and the layers that are created.
  */
 export default class UndercookedGameScene extends WalkableScene {

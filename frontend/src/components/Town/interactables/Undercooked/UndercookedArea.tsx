@@ -35,35 +35,29 @@ export type UndercookedGameProps = {
 
 /**
  * The UndercookedArea component renders the Undercooked game area.
- * It renders the current state of the area, optionally allowing the player to join the game.
  *
  * It uses Chakra-UI components (does not use other GUI widgets)
  *
- * It uses the UndercookedAreaController to get the current state of the game.
- * It listens for the 'gameUpdated' event on the controller, and re-renders accordingly.
- * It subscribes to these events when the component mounts, and unsubscribes when the component unmounts. It also unsubscribes when the gameAreaController changes.
- * If player clicks join or start button, it should send join game or start game command (respectively) via UndercookedAreaController
- * Listens for model changed event from backend and updates status and list of players accordingly
+ * It uses the UndercookedAreaController corresponding to the provided interactableID to get the current state of the game. (@see useInteractableAreaController)
  *
- * - A welcome message to the Undercooked game area.
- * - A button to join the game.
- * - A button to start the game.
- * - A message with the score board.
- * - A message with the recipe.
- * - A message with the assembled recipe.
- * - A message with the timer.
- * - A message indicating the current game status.
+ * It renders the following:
+ * - A welcome message
+ * - Text indicating the current game status:
  *   - If the game is in progress, the message is 'In Progress'.
  *   - If the game is in status WAITING_FOR_PLAYERS, the message is 'Waiting For Players'.
  *   - If the game is in status WAITING_TO_START, the message is 'Waiting To Start'.
  *   - If the game is in status OVER, the message is 'Over'.
  * - A list of players' usernames (one item for Chef 1 and one for Chef 2).
- *    - If there is no player in the game, the username is '(Chef needed!)'
- *    - List the players as (exactly) `Chef 1: ${username}` and `Chef 2: ${username}`
- * - The UndercookedBoard component, which is passed the current gameAreaController as a prop (@see UndercookedBoard.tsx)
+ *   - If there is no player in the game, the username is '(Chef needed!)'
+ *   - List the players as (exactly) `Chef 1: ${username}` and `Chef 2: ${username}` * - A button to join the game
+ * - A button to join the game
+ * - A button to start the game
  *
- * - When the game ends, a toast is displayed with the result of the game:
- *    - Time is up! Final score: 0
+ * If the game is in progress, the UndercookedArea component also renders the components that show the Undercooked game:
+ * - UndercookedRecipeDisplay
+ * - UndercookedScoreDisplay
+ * - UndercookedTimerDisplay
+ * - UndercookedBoard
  */
 function UndercookedArea({ interactableID }: { interactableID: InteractableID }): JSX.Element {
   const undercookedAreaController =
@@ -186,7 +180,7 @@ function UndercookedArea({ interactableID }: { interactableID: InteractableID })
 
 /**
  * A wrapper component for the UndercookedArea component.
- * Renders the selected game area component in a modal.
+ * Renders the Undercooked game area component in a modal.
  * Sets listeners to pause and unpause the game when interacting with the chat.
  * Sets listeners to close the modal when the player leaves the game.
  */

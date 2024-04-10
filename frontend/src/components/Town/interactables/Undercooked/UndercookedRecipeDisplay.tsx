@@ -22,7 +22,7 @@ type IngredientsList = {
  *
  * It performs the following:
  * - It uses the UndercookedAreaController to get the current recipe and assembled recipe.
- * - It listens for the 'gameUpdated' event on the controller, and re-renders accordingly.
+ * - It listens for the 'gameUpdated' event on the controller, and re-renders the current recipe and assembled recipe accordingly.
  * - It subscribes to these events when the component mounts, and unsubscribes when the component unmounts.
  * - It also unsubscribes when the gameAreaController changes.
  *
