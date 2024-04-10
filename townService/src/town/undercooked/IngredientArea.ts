@@ -10,7 +10,8 @@ import {
 import InteractableArea from '../InteractableArea';
 
 /**
- * Represents an area in the town where players can interact with ingredients.
+ * IngredientArea represents an interactable area in Undercooked town that players can interact with,
+ * specifically to add an ingredient to the current assembled.
  */
 export default class IngredientArea extends InteractableArea {
   private _ingredientName: UndercookedIngredient;

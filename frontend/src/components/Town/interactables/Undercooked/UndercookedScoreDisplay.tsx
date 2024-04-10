@@ -4,11 +4,11 @@ import { FaRegStar } from 'react-icons/fa6';
 import { UndercookedGameProps } from './UndercookedArea';
 
 /**
- * Displays the score of the current Undercooked game.
+ * The UndercookedScoreDisplay component displays the current score of the Undercooked game.
  *
  * It performs the following:
  * - It uses the UndercookedAreaController to get the current score.
- * - It listens for the 'gameUpdated' event on the controller, and re-renders accordingly.
+ * - It listens for the 'gameUpdated' event on the controller, and re-renders the current score accordingly.
  * - It listens for the 'gameEnd' event on the controller, and displays a toast with the final score.
  * - It subscribes to these events when the component mounts, and unsubscribes when the component unmounts.
  *

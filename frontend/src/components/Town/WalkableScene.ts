@@ -42,7 +42,7 @@ function interactableTypeForObjectType(type: string): any {
 export type SceneController = TownController | UndercookedTownController;
 
 /**
- * Represents a Phaser Scene that allows concurrent movement and interaction.
+ * WalkableScene represents a Phaser Scene that allows concurrent movement and interaction.
  * This class abstracts common functionality to achieve concurrent movement and intercation in a Phaser scene.
  */
 export default abstract class WalkableScene extends Phaser.Scene {
